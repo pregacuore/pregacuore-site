@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>pregacuore — Prega col cuore.</title>
+  <meta name="description" content="App cristiana italiana per la preghiera quotidiana e la vita parrocchiale. Parola, Preghiera, Comunità.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bordeaux: #7B1F22;
+      --cream: #F5EBD8;
+      --gold: #D4A24A;
+      --piombo: #3A3A3F;
+      --avorio: #FAF6EE;
+      --serif: 'Cormorant Garamond', Georgia, serif;
+      --sans: 'Inter', system-ui, sans-serif;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: var(--sans);
+      color: var(--piombo);
+      background: var(--avorio);
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+
+    /* ─── NAV ─────────────────────────────────── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      height: 64px;
+      padding: 0 2.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(250, 246, 238, 0.93);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid rgba(123, 31, 34, 0.08);
+      transition: box-shadow 0.3s;
+    }
+
+    .nav-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+    }
+
+    .nav-logo { width: 34px; height: 34px; }
+
+    .nav-wordmark {
+      font-family: var(--serif);
+      font-size: 1.3rem;
+      font-weight: 500;
+      color: var(--bordeaux);
+      letter-spacing: -0.01em;
+    }
+
+    .nav-cta {
+      font-family: var(--sans);
+      font-size: 0.72rem;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--bordeaux);
+      border: 1.5px solid rgba(123, 31, 34, 0.5);
+      padding: 9px 22px;
+      border-radius: 100px;
+      text-decoration: none;
+      transition: background 0.22s, color 0.22s, border-color 0.22s;
+    }
+
+    .nav-cta:hover {
+      background: var(--bordeaux);
+      color: var(--cream);
+      border-color: var(--bordeaux);
+    }
+
+    /* ─── HERO ─────────────────────────────────── */
+    .hero {
+      min-height: 100vh;
+      background: var(--bordeaux);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 140px 2rem 100px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Sfondo: cerchi concentrici sottili */
+    .hero::before {
+      content: '';
+      position: absolute;
+      width: 900px; height: 900px;
+      border-radius: 50%;
+      border: 1px solid rgba(245, 235, 216, 0.06);
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+    }
+    .hero::after {
+      content: '';
+      position: absolute;
+      width: 560px; height: 560px;
+      border-radius: 50%;
+      border: 1px solid rgba(245, 235, 216, 0.05);
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+    }
+
+    .hero-logo {
+      width: 84px; height: 84px;
+      margin-bottom: 2.5rem;
+      opacity: 0;
+      animation: fadeUp 0.9s ease forwards 0.1s;
+      position: relative; z-index: 1;
+    }
+
+    .hero-eyebrow {
+      font-family: var(--sans);
+      font-size: 0.68rem;
+      font-weight: 500;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 1.8rem;
+      opacity: 0;
+      animation: fadeUp 0.9s ease forwards 0.25s;
+      position: relative; z-index: 1;
+    }
+
+    .hero-heading {
+      font-family: var(--serif);
+      font-size: clamp(2.8rem, 7vw, 5.8rem);
+      font-weight: 400;
+      font-style: italic;
+      color: var(--cream);
+      line-height: 1.08;
+      max-width: 820px;
+      margin-bottom: 1.5rem;
+      opacity: 0;
+      animation: fadeUp 0.95s ease forwards 0.4s;
+      position: relative; z-index: 1;
+    }
+
+    .hero-payoff {
+      font-family: var(--serif);
+      font-size: clamp(1rem, 2.5vw, 1.4rem);
+      font-weight: 400;
+      color: rgba(245, 235, 216, 0.55);
+      margin-bottom: 3.5rem;
+      letter-spacing: 0.04em;
+      opacity: 0;
+      animation: fadeUp 0.95s ease forwards 0.55s;
+      position: relative; z-index: 1;
+    }
+
+    .hero-actions {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      justify-content: center;
+      opacity: 0;
+      animation: fadeUp 0.95s ease forwards 0.7s;
+      position: relative; z-index: 1;
+    }
+
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--gold);
+      color: #2A1506;
+      font-family: var(--sans);
+      font-size: 0.78rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 16px 36px;
+      border-radius: 100px;
+      text-decoration: none;
+      transition: transform 0.22s, box-shadow 0.22s;
+      box-shadow: 0 4px 24px rgba(212, 162, 74, 0.28);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 36px rgba(212, 162, 74, 0.4);
+    }
+
+    .btn-secondary {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: transparent;
+      color: rgba(245, 235, 216, 0.75);
+      font-family: var(--sans);
+      font-size: 0.78rem;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 16px 36px;
+      border-radius: 100px;
+      text-decoration: none;
+      border: 1.5px solid rgba(245, 235, 216, 0.25);
+      transition: border-color 0.22s, color 0.22s, background 0.22s;
+    }
+
+    .btn-secondary:hover {
+      border-color: rgba(245, 235, 216, 0.7);
+      color: var(--cream);
+      background: rgba(245, 235, 216, 0.06);
+    }
+
+    .hero-scroll {
+      position: absolute;
+      bottom: 2.5rem;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      color: rgba(245, 235, 216, 0.25);
+      font-size: 0.6rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      font-family: var(--sans);
+      opacity: 0;
+      animation: fadeIn 1s ease forwards 1.3s;
+    }
+
+    .hero-scroll-bar {
+      width: 1px;
+      height: 44px;
+      background: linear-gradient(to bottom, rgba(245,235,216,0.35) 0%, transparent 100%);
+      animation: pulse 2.2s ease-in-out infinite;
+    }
+
+    /* ─── SEZIONI COMUNI ─────────────────────────── */
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .section-label {
+      font-family: var(--sans);
+      font-size: 0.65rem;
+      font-weight: 500;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--bordeaux);
+      opacity: 0.55;
+      margin-bottom: 1rem;
+    }
+
+    .section-title {
+      font-family: var(--serif);
+      font-size: clamp(2rem, 4vw, 3.4rem);
+      font-weight: 400;
+      line-height: 1.12;
+      color: var(--bordeaux);
+      margin-bottom: 1.4rem;
+    }
+
+    .section-title em {
+      font-style: italic;
+    }
+
+    .section-sub {
+      font-family: var(--sans);
+      font-size: 0.95rem;
+      font-weight: 300;
+      color: var(--piombo);
+      line-height: 1.75;
+      opacity: 0.75;
+      max-width: 540px;
+    }
+
+    /* ─── PILASTRI ─────────────────────────────── */
+    .pillars {
+      background: var(--avorio);
+      padding: 110px 2.5rem;
+    }
+
+    .pillars-header {
+      margin-bottom: 4rem;
+    }
+
+    .pillars-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2px;
+      background: rgba(123, 31, 34, 0.1);
+      border-radius: 20px;
+      overflow: hidden;
+    }
+
+    .pillar {
+      background: var(--avorio);
+      padding: 3.2rem 2.8rem;
+      transition: background 0.3s;
+      cursor: default;
+    }
+
+    .pillar:hover { background: var(--cream); }
+
+    .pillar-icon {
+      width: 52px; height: 52px;
+      margin-bottom: 2rem;
+    }
+
+    .pillar-num {
+      font-family: var(--serif);
+      font-size: 0.8rem;
+      color: var(--bordeaux);
+      opacity: 0.3;
+      letter-spacing: 0.1em;
+      margin-bottom: 0.7rem;
+    }
+
+    .pillar-title {
+      font-family: var(--serif);
+      font-size: 2rem;
+      font-weight: 500;
+      color: var(--bordeaux);
+      margin-bottom: 1rem;
+      line-height: 1.15;
+    }
+
+    .pillar-desc {
+      font-family: var(--sans);
+      font-size: 0.88rem;
+      font-weight: 300;
+      color: var(--piombo);
+      line-height: 1.8;
+    }
+
+    /* ─── TESTIMONIANZE ──────────────────────────── */
+    .testimonianze {
+      background: var(--cream);
+      padding: 110px 2.5rem;
+    }
+
+    .testi-header { margin-bottom: 4rem; }
+
+    .testi-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+    }
+
+    .testi-card {
+      background: var(--avorio);
+      border-radius: 20px;
+      padding: 2.8rem;
+      border: 1px solid rgba(123, 31, 34, 0.07);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .testi-mark {
+      font-family: var(--serif);
+      font-size: 5rem;
+      line-height: 0.6;
+      color: var(--bordeaux);
+      opacity: 0.1;
+      margin-bottom: 1.4rem;
+      user-select: none;
+    }
+
+    .testi-text {
+      font-family: var(--serif);
+      font-size: 1.08rem;
+      font-style: italic;
+      font-weight: 400;
+      color: var(--piombo);
+      line-height: 1.72;
+      flex: 1;
+      margin-bottom: 2rem;
+    }
+
+    .testi-author {
+      display: flex;
+      align-items: center;
+      gap: 0.9rem;
+    }
+
+    .testi-avatar {
+      width: 40px; height: 40px;
+      border-radius: 50%;
+      background: var(--bordeaux);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .testi-initial {
+      font-family: var(--serif);
+      font-size: 1.1rem;
+      font-weight: 500;
+      color: var(--cream);
+    }
+
+    .testi-name {
+      font-family: var(--sans);
+      font-size: 0.83rem;
+      font-weight: 600;
+      color: var(--piombo);
+      line-height: 1.3;
+    }
+
+    .testi-role {
+      font-family: var(--sans);
+      font-size: 0.73rem;
+      font-weight: 300;
+      color: var(--piombo);
+      opacity: 0.55;
+    }
+
+    /* ─── CTA PARROCCHIE ─────────────────────────── */
+    .parrocchie {
+      background: var(--bordeaux);
+      padding: 130px 2.5rem;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .parrocchie::before {
+      content: '';
+      position: absolute;
+      width: 700px; height: 700px;
+      border-radius: 50%;
+      border: 1px solid rgba(245, 235, 216, 0.05);
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+    }
+
+    .parrocchie .section-label {
+      color: var(--gold);
+      opacity: 1;
+    }
+
+    .parrocchie .section-title {
+      color: var(--cream);
+      max-width: 640px;
+      margin: 0 auto 1.5rem;
+    }
+
+    .parrocchie .section-sub {
+      color: rgba(245, 235, 216, 0.55);
+      margin: 0 auto 3.5rem;
+      text-align: center;
+    }
+
+    .parrocchie-note {
+      font-family: var(--sans);
+      font-size: 0.73rem;
+      color: rgba(245, 235, 216, 0.3);
+      margin-top: 1.5rem;
+      letter-spacing: 0.03em;
+    }
+
+    /* ─── FOOTER ─────────────────────────────────── */
+    footer {
+      background: #261214;
+      padding: 2.8rem 2.5rem;
+    }
+
+    .footer-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1.5rem;
+    }
+
+    .footer-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .footer-wordmark {
+      font-family: var(--serif);
+      font-size: 1.15rem;
+      font-weight: 500;
+      color: rgba(245, 235, 216, 0.55);
+    }
+
+    .footer-copy {
+      font-family: var(--sans);
+      font-size: 0.72rem;
+      font-weight: 300;
+      color: rgba(245, 235, 216, 0.2);
+    }
+
+    .footer-links {
+      display: flex;
+      gap: 1.8rem;
+    }
+
+    .footer-link {
+      font-family: var(--sans);
+      font-size: 0.72rem;
+      font-weight: 400;
+      color: rgba(245, 235, 216, 0.3);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    .footer-link:hover { color: rgba(245, 235, 216, 0.7); }
+
+    /* ─── SCROLL REVEAL ──────────────────────────── */
+    .reveal {
+      opacity: 0;
+      transform: translateY(28px);
+      transition: opacity 0.75s ease, transform 0.75s ease;
+    }
+
+    .reveal.in {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .d1 { transition-delay: 0.1s; }
+    .d2 { transition-delay: 0.2s; }
+    .d3 { transition-delay: 0.3s; }
+    .d4 { transition-delay: 0.4s; }
+
+    /* ─── KEYFRAMES ──────────────────────────────── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(28px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 0.9; transform: scaleY(1); }
+      50%       { opacity: 0.3; transform: scaleY(0.65); }
+    }
+
+    /* ─── RESPONSIVE ─────────────────────────────── */
+    @media (max-width: 860px) {
+      .pillars-grid  { grid-template-columns: 1fr; }
+      .testi-grid    { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 600px) {
+      nav { padding: 0 1.25rem; }
+      .pillars, .testimonianze, .parrocchie { padding: 80px 1.25rem; }
+      .pillar { padding: 2.5rem 1.8rem; }
+      .testi-card { padding: 2rem 1.8rem; }
+      .footer-inner { flex-direction: column; text-align: center; }
+      .footer-links { justify-content: center; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ── NAV ── -->
+  <nav id="nav">
+    <a href="#" class="nav-brand">
+      <svg class="nav-logo" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+        <rect width="1024" height="1024" rx="200" fill="#7B1F22"/>
+        <path d="M512,290 C512,265 546,228 584,216 C652,194 726,248 726,332 C726,452 618,566 512,692 C406,566 298,452 298,332 C298,248 372,194 440,216 C478,228 512,265 512,290 Z"
+              fill="none" stroke="#F5EBD8" stroke-width="52" stroke-linejoin="round"/>
+        <rect x="482" y="410" width="60" height="450" rx="6" fill="#F5EBD8"/>
+        <path d="M512,320 C542,355 542,395 512,410 C482,395 482,355 512,320 Z" fill="#D4A24A"/>
+      </svg>
+      <span class="nav-wordmark">pregacuore</span>
+    </a>
+    <a href="#parrocchie" class="nav-cta">Per le parrocchie</a>
+  </nav>
+
+  <!-- ── HERO ── -->
+  <section class="hero">
+    <svg class="hero-logo" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+      <rect width="1024" height="1024" rx="200" fill="rgba(245,235,216,0.07)"/>
+      <path d="M512,290 C512,265 546,228 584,216 C652,194 726,248 726,332 C726,452 618,566 512,692 C406,566 298,452 298,332 C298,248 372,194 440,216 C478,228 512,265 512,290 Z"
+            fill="none" stroke="#F5EBD8" stroke-width="52" stroke-linejoin="round"/>
+      <rect x="482" y="410" width="60" height="450" rx="6" fill="#F5EBD8"/>
+      <path d="M512,320 C542,355 542,395 512,410 C482,395 482,355 512,320 Z" fill="#D4A24A"/>
+    </svg>
+
+    <p class="hero-eyebrow">App cristiana italiana</p>
+
+    <h1 class="hero-heading">
+      Ogni giorno,<br>un momento con Dio.
+    </h1>
+
+    <p class="hero-payoff">Prega col cuore. Mai da solo.</p>
+
+    <div class="hero-actions">
+      <a href="#" class="btn-primary">Scarica l'app — è gratis</a>
+      <a href="#parrocchie" class="btn-secondary">Per le parrocchie</a>
+    </div>
+
+    <div class="hero-scroll">
+      <div class="hero-scroll-bar"></div>
+      Scopri
+    </div>
+  </section>
+
+  <!-- ── PILASTRI ── -->
+  <section class="pillars">
+    <div class="container">
+      <div class="pillars-header">
+        <p class="section-label reveal">Tre pilastri</p>
+        <h2 class="section-title reveal d1">La preghiera<br>ha una casa. <em>La tua.</em></h2>
+        <p class="section-sub reveal d2">pregacuore accompagna ogni giorno — dalla Parola del mattino alle intenzioni della comunità, fino agli annunci del parroco.</p>
+      </div>
+
+      <div class="pillars-grid">
+
+        <!-- 01 Parola -->
+        <div class="pillar reveal">
+          <svg class="pillar-icon" viewBox="0 0 52 52" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect width="52" height="52" rx="10" fill="rgba(123,31,34,0.06)"/>
+            <path d="M9 15 L26 12 L43 15 L43 40 L26 37 L9 40 Z" stroke="#7B1F22" stroke-width="1.6" stroke-linejoin="round"/>
+            <line x1="26" y1="12" x2="26" y2="37" stroke="#7B1F22" stroke-width="1.6"/>
+            <line x1="13" y1="21" x2="22" y2="20" stroke="#7B1F22" stroke-width="1.2" opacity="0.35"/>
+            <line x1="13" y1="26" x2="22" y2="25" stroke="#7B1F22" stroke-width="1.2" opacity="0.35"/>
+            <line x1="13" y1="31" x2="22" y2="30" stroke="#7B1F22" stroke-width="1.2" opacity="0.35"/>
+            <line x1="30" y1="20" x2="39" y2="21" stroke="#7B1F22" stroke-width="1.2" opacity="0.35"/>
+            <line x1="30" y1="25" x2="39" y2="26" stroke="#7B1F22" stroke-width="1.2" opacity="0.35"/>
+            <line x1="30" y1="30" x2="39" y2="31" stroke="#7B1F22" stroke-width="1.2" opacity="0.35"/>
+          </svg>
+          <p class="pillar-num">01</p>
+          <h3 class="pillar-title">Parola</h3>
+          <p class="pillar-desc">La Bibbia illustrata e il Vangelo del giorno, ogni mattina. Una riflessione breve per iniziare con il cuore aperto, senza fretta.</p>
+        </div>
+
+        <!-- 02 Preghiera -->
+        <div class="pillar reveal d1">
+          <svg class="pillar-icon" viewBox="0 0 52 52" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect width="52" height="52" rx="10" fill="rgba(123,31,34,0.06)"/>
+            <rect x="23" y="24" width="6" height="20" rx="1.5" fill="#7B1F22" opacity="0.65"/>
+            <path d="M26,14 C30,18 30,24 26,26 C22,24 22,18 26,14 Z" fill="#D4A24A"/>
+            <rect x="18" y="43" width="16" height="3" rx="1.5" fill="#7B1F22" opacity="0.2"/>
+            <line x1="26" y1="8" x2="26" y2="11" stroke="#D4A24A" stroke-width="1.5" stroke-linecap="round" opacity="0.55"/>
+            <line x1="32.5" y1="10" x2="30.5" y2="13" stroke="#D4A24A" stroke-width="1.5" stroke-linecap="round" opacity="0.55"/>
+            <line x1="19.5" y1="10" x2="21.5" y2="13" stroke="#D4A24A" stroke-width="1.5" stroke-linecap="round" opacity="0.55"/>
+          </svg>
+          <p class="pillar-num">02</p>
+          <h3 class="pillar-title">Preghiera</h3>
+          <p class="pillar-desc">Condividi le tue intenzioni, prega per gli altri, ricevi il loro sostegno. Un luogo sobrio dove le parole contano davvero.</p>
+        </div>
+
+        <!-- 03 Comunità -->
+        <div class="pillar reveal d2">
+          <svg class="pillar-icon" viewBox="0 0 52 52" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect width="52" height="52" rx="10" fill="rgba(123,31,34,0.06)"/>
+            <circle cx="18" cy="20" r="5.5" stroke="#7B1F22" stroke-width="1.6"/>
+            <path d="M9,39 C9,30 27,30 27,39" stroke="#7B1F22" stroke-width="1.6" stroke-linecap="round"/>
+            <circle cx="34" cy="20" r="5.5" stroke="#7B1F22" stroke-width="1.6"/>
+            <path d="M25,39 C25,30 43,30 43,39" stroke="#7B1F22" stroke-width="1.6" stroke-linecap="round"/>
+          </svg>
+          <p class="pillar-num">03</p>
+          <h3 class="pillar-title">Comunità</h3>
+          <p class="pillar-desc">Il tuo gruppo parrocchiale, animato dal parroco. Un codice di accesso privato per restare vicini anche durante la settimana.</p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ── TESTIMONIANZE ── -->
+  <section class="testimonianze">
+    <div class="container">
+      <div class="testi-header">
+        <p class="section-label reveal">Voci dalla comunità</p>
+        <h2 class="section-title reveal d1">Chi lo usa, <em>lo sente.</em></h2>
+      </div>
+
+      <div class="testi-grid">
+
+        <div class="testi-card reveal">
+          <div class="testi-mark">"</div>
+          <p class="testi-text">Il Vangelo del giorno è diventato il mio rito del mattino. Cinque minuti prima di alzarmi, prima ancora del caffè. Non so come facevo prima.</p>
+          <div class="testi-author">
+            <div class="testi-avatar">
+              <span class="testi-initial">M</span>
+            </div>
+            <div>
+              <p class="testi-name">Maria Grazia</p>
+              <p class="testi-role">Catechista, Bergamo</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="testi-card reveal d1">
+          <div class="testi-mark">"</div>
+          <p class="testi-text">Come parroco faticavo a raggiungere tutti durante la settimana. Ora posso condividere un pensiero, ricordare un appuntamento, essere vicino anche a distanza.</p>
+          <div class="testi-author">
+            <div class="testi-avatar">
+              <span class="testi-initial">D</span>
+            </div>
+            <div>
+              <p class="testi-name">Don Andrea</p>
+              <p class="testi-role">Parroco, Brescia</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="testi-card reveal d2">
+          <div class="testi-mark">"</div>
+          <p class="testi-text">Ho pregato per persone che non conoscevo. Alcune mi hanno risposto. Questa è la cosa più bella che ho trovato: la preghiera diventa incontro.</p>
+          <div class="testi-author">
+            <div class="testi-avatar">
+              <span class="testi-initial">L</span>
+            </div>
+            <div>
+              <p class="testi-name">Luca</p>
+              <p class="testi-role">Giovane adulto, Roma</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ── CTA PARROCCHIE ── -->
+  <section class="parrocchie" id="parrocchie">
+    <div class="container">
+      <p class="section-label reveal">Per le parrocchie</p>
+      <h2 class="section-title reveal d1">La tua comunità<br><em>sempre insieme.</em></h2>
+      <p class="section-sub reveal d2">pregacuore è pensato per le 25.000 parrocchie italiane: un abbonamento annuo, accesso gratuito per tutti i fedeli, un pannello semplice per il parroco. Nessuna competenza tecnica richiesta.</p>
+      <div class="reveal d3">
+        <a href="mailto:ciao@pregacuore.it" class="btn-primary" style="display:inline-flex;">
+          Scrivi a ciao@pregacuore.it
+        </a>
+        <p class="parrocchie-note">Stiamo accogliendo le prime parrocchie pilota. Siamo a disposizione.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── FOOTER ── -->
+  <footer>
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <svg width="26" height="26" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+          <rect width="1024" height="1024" rx="200" fill="#7B1F22"/>
+          <path d="M512,290 C512,265 546,228 584,216 C652,194 726,248 726,332 C726,452 618,566 512,692 C406,566 298,452 298,332 C298,248 372,194 440,216 C478,228 512,265 512,290 Z"
+                fill="none" stroke="#F5EBD8" stroke-width="52" stroke-linejoin="round"/>
+          <rect x="482" y="410" width="60" height="450" rx="6" fill="#F5EBD8"/>
+          <path d="M512,320 C542,355 542,395 512,410 C482,395 482,355 512,320 Z" fill="#D4A24A"/>
+        </svg>
+        <span class="footer-wordmark">pregacuore</span>
+      </div>
+      <p class="footer-copy">© 2026 pregacuore · Prega col cuore.</p>
+      <div class="footer-links">
+        <a href="#" class="footer-link">Privacy</a>
+        <a href="#" class="footer-link">Termini</a>
+        <a href="mailto:ciao@pregacuore.it" class="footer-link">Contatti</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // Nav shadow on scroll
+    const nav = document.getElementById('nav');
+    window.addEventListener('scroll', () => {
+      nav.style.boxShadow = window.scrollY > 30
+        ? '0 2px 24px rgba(58,58,63,0.07)'
+        : 'none';
+    }, { passive: true });
+
+    // Scroll reveal
+    const reveals = document.querySelectorAll('.reveal');
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('in'); });
+    }, { threshold: 0.12, rootMargin: '0px 0px -30px 0px' });
+    reveals.forEach(el => io.observe(el));
+  </script>
+</body>
+</html>
