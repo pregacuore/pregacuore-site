@@ -1,0 +1,78 @@
+name: Pregacuore — Daily Content
+
+# Genera ogni giorno il contenuto + card per il giorno T+30,
+# mantenendo sempre 30 giorni di buffer in DB.
+
+on:
+  schedule:
+    # 04:00 UTC ogni giorno = 05:00/06:00 ora italiana (CET/CEST)
+    # Orario notturno italiano per non gravare sul rate limit di mattina.
+    - cron: '0 4 * * *'
+
+  # Permette esecuzione manuale dal tab "Actions" su GitHub
+  workflow_dispatch:
+    inputs:
+      target_mode:
+        description: 'Modalita esecuzione'
+        required: true
+        default: 'ahead-30'
+        type: choice
+        options:
+          - ahead-30
+          - tomorrow
+          - today
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install system dependencies (cairosvg)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libcairo2 libcairo2-dev \
+            libffi-dev shared-mime-info
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Determina parametro data
+        id: date_param
+        run: |
+          MODE="${{ github.event.inputs.target_mode || 'ahead-30' }}"
+          case "$MODE" in
+            ahead-30) echo "param=--ahead 30" >> $GITHUB_OUTPUT ;;
+            tomorrow) echo "param=--tomorrow"  >> $GITHUB_OUTPUT ;;
+            today)    echo "param="            >> $GITHUB_OUTPUT ;;
+          esac
+
+      - name: Genera pensiero del giorno (Gemini + Supabase)
+        env:
+          GEMINI_API_KEY:       ${{ secrets.GEMINI_API_KEY }}
+          SUPABASE_URL:         ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+        run: python pipeline.py ${{ steps.date_param.outputs.param }}
+
+      - name: Genera card Instagram (post + story)
+        env:
+          SUPABASE_URL:         ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+        run: python card_generator.py ${{ steps.date_param.outputs.param }}
+
+      - name: Riepilogo
+        if: always()
+        run: |
+          echo "Workflow completato per modalita: ${{ github.event.inputs.target_mode || 'ahead-30 (cron)' }}"
