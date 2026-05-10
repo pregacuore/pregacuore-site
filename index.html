@@ -5,6 +5,30 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>pregacuore — Prega col cuore.</title>
   <meta name="description" content="App cristiana italiana per la preghiera quotidiana e la vita parrocchiale. Parola, Preghiera, Comunità.">
+
+  <!-- Open Graph (anteprima WhatsApp, Facebook, Telegram, LinkedIn) -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="pregacuore — Prega col cuore.">
+  <meta property="og:description" content="App cristiana italiana per la preghiera quotidiana e la vita parrocchiale. Mai da solo.">
+  <meta property="og:image" content="https://pregacuore.it/og-image.png">
+  <meta property="og:url" content="https://pregacuore.it">
+  <meta property="og:locale" content="it_IT">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="pregacuore — Prega col cuore.">
+  <meta name="twitter:description" content="App cristiana italiana per la preghiera quotidiana e la vita parrocchiale.">
+  <meta name="twitter:image" content="https://pregacuore.it/og-image.png">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="manifest" href="/site.webmanifest">
+
+  <!-- Theme color (mobile browser chrome) -->
+  <meta name="theme-color" content="#7B1F22">
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
@@ -249,6 +273,131 @@
       height: 44px;
       background: linear-gradient(to bottom, rgba(245,235,216,0.35) 0%, transparent 100%);
       animation: pulse 2.2s ease-in-out infinite;
+    }
+
+    /* ─── PENSIERO DEL GIORNO ───────────────────── */
+    .pensiero {
+      background: var(--avorio);
+      padding: 90px 2.5rem 110px;
+      text-align: center;
+      position: relative;
+    }
+
+    .pensiero-inner {
+      max-width: 760px;
+      margin: 0 auto;
+    }
+
+    .pensiero-date {
+      font-family: var(--sans);
+      font-size: 0.7rem;
+      font-weight: 500;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--bordeaux);
+      opacity: 0.55;
+      margin-bottom: 1.4rem;
+    }
+
+    .pensiero-saint {
+      font-family: var(--serif);
+      font-size: 0.95rem;
+      font-style: italic;
+      color: var(--bordeaux);
+      opacity: 0.55;
+      margin-top: -0.9rem;   /* tighten verso la data */
+      margin-bottom: 1.6rem;
+      letter-spacing: 0.01em;
+    }
+
+    .pensiero-quote {
+      font-family: var(--serif);
+      font-size: clamp(1.6rem, 3.4vw, 2.4rem);
+      font-style: italic;
+      font-weight: 500;
+      color: var(--gold);
+      line-height: 1.25;
+      margin-bottom: 2.2rem;
+      letter-spacing: -0.005em;
+    }
+
+    .pensiero-text {
+      font-family: var(--serif);
+      font-size: clamp(1.05rem, 2vw, 1.25rem);
+      font-weight: 400;
+      color: var(--piombo);
+      line-height: 1.65;
+      max-width: 600px;
+      margin: 0 auto 2.5rem;
+      opacity: 0.88;
+    }
+
+    .pensiero-ref {
+      font-family: var(--serif);
+      font-size: 0.92rem;
+      font-style: italic;
+      color: var(--bordeaux);
+      opacity: 0.55;
+      margin-bottom: 2rem;
+    }
+
+    .pensiero-audio {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(123, 31, 34, 0.06);
+      color: var(--bordeaux);
+      font-family: var(--sans);
+      font-size: 0.78rem;
+      font-weight: 500;
+      letter-spacing: 0.06em;
+      padding: 12px 22px 12px 18px;
+      border-radius: 100px;
+      text-decoration: none;
+      cursor: pointer;
+      border: none;
+      transition: background 0.22s, transform 0.22s;
+    }
+
+    .pensiero-audio:hover {
+      background: rgba(123, 31, 34, 0.12);
+      transform: translateY(-1px);
+    }
+
+    .pensiero-audio svg {
+      width: 14px; height: 14px;
+    }
+
+    /* ─── LOADING SHIMMER (solo mentre fetch è in corso) ── */
+    @keyframes shimmer {
+      0%   { background-position: -600px 0; }
+      100% { background-position:  600px 0; }
+    }
+
+    .pg-loading {
+      background: linear-gradient(90deg,
+        rgba(123,31,34,0.04) 25%,
+        rgba(123,31,34,0.09) 50%,
+        rgba(123,31,34,0.04) 75%);
+      background-size: 600px 100%;
+      animation: shimmer 1.4s infinite linear;
+      border-radius: 6px;
+      color: transparent !important;
+      user-select: none;
+      min-height: 1em;
+    }
+
+    /* Badge AI — piccolo, discreto */
+    .pensiero-ai-badge {
+      display: inline-block;
+      font-family: var(--sans);
+      font-size: 0.62rem;
+      letter-spacing: 0.08em;
+      color: rgba(58,58,63,0.28);
+      border: 1px solid rgba(58,58,63,0.12);
+      border-radius: 999px;
+      padding: 3px 10px;
+      margin-top: 1.8rem;
     }
 
     /* ─── SEZIONI COMUNI ─────────────────────────── */
@@ -586,10 +735,10 @@
     <a href="#" class="nav-brand">
       <svg class="nav-logo" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
         <rect width="1024" height="1024" rx="200" fill="#7B1F22"/>
-        <path d="M512,290 C512,265 546,228 584,216 C652,194 726,248 726,332 C726,452 618,566 512,692 C406,566 298,452 298,332 C298,248 372,194 440,216 C478,228 512,265 512,290 Z"
-              fill="none" stroke="#F5EBD8" stroke-width="52" stroke-linejoin="round"/>
         <rect x="482" y="410" width="60" height="450" rx="6" fill="#F5EBD8"/>
-        <path d="M512,320 C542,355 542,395 512,410 C482,395 482,355 512,320 Z" fill="#D4A24A"/>
+        <path d="M 512 320 C 542 355, 542 395, 512 410 C 482 395, 482 355, 512 320 Z" fill="#D4A24A"/>
+        <path d="M 512 690 C 360 590, 232 480, 232 350 C 232 250, 305 190, 380 190 C 442 190, 490 230, 512 290 C 534 230, 582 190, 644 190 C 719 190, 792 250, 792 350 C 792 480, 664 590, 512 690 Z"
+              fill="none" stroke="#F5EBD8" stroke-width="52" stroke-linejoin="round"/>
       </svg>
       <span class="nav-wordmark">pregacuore</span>
     </a>
@@ -600,10 +749,10 @@
   <section class="hero">
     <svg class="hero-logo" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
       <rect width="1024" height="1024" rx="200" fill="rgba(245,235,216,0.07)"/>
-      <path d="M512,290 C512,265 546,228 584,216 C652,194 726,248 726,332 C726,452 618,566 512,692 C406,566 298,452 298,332 C298,248 372,194 440,216 C478,228 512,265 512,290 Z"
-            fill="none" stroke="#F5EBD8" stroke-width="52" stroke-linejoin="round"/>
       <rect x="482" y="410" width="60" height="450" rx="6" fill="#F5EBD8"/>
-      <path d="M512,320 C542,355 542,395 512,410 C482,395 482,355 512,320 Z" fill="#D4A24A"/>
+      <path d="M 512 320 C 542 355, 542 395, 512 410 C 482 395, 482 355, 512 320 Z" fill="#D4A24A"/>
+      <path d="M 512 690 C 360 590, 232 480, 232 350 C 232 250, 305 190, 380 190 C 442 190, 490 230, 512 290 C 534 230, 582 190, 644 190 C 719 190, 792 250, 792 350 C 792 480, 664 590, 512 690 Z"
+            fill="none" stroke="#F5EBD8" stroke-width="52" stroke-linejoin="round"/>
     </svg>
 
     <p class="hero-eyebrow">App cristiana italiana</p>
@@ -622,6 +771,22 @@
     <div class="hero-scroll">
       <div class="hero-scroll-bar"></div>
       Scopri
+    </div>
+  </section>
+
+  <!-- ── PENSIERO DEL GIORNO ── -->
+  <section class="pensiero">
+    <div class="pensiero-inner">
+      <p class="pensiero-date reveal" id="pg-date">—</p>
+      <p class="pensiero-saint reveal" id="pg-saint" style="display:none;"></p>
+      <p class="pensiero-quote reveal d1" id="pg-quote">«…»</p>
+      <p class="pensiero-text reveal d2" id="pg-text"></p>
+      <p class="pensiero-ref reveal d3" id="pg-ref">—</p>
+      <button class="pensiero-audio reveal d3" aria-label="Ascolta il Vangelo del giorno" id="pg-audio" style="display:none;">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+        Ascolta il Vangelo
+      </button>
+      <p class="pensiero-ai-badge" id="pg-ai-badge" style="display:none;">✦ Riflessione del giorno</p>
     </div>
   </section>
 
@@ -692,50 +857,50 @@
   <section class="testimonianze">
     <div class="container">
       <div class="testi-header">
-        <p class="section-label reveal">Voci dalla comunità</p>
-        <h2 class="section-title reveal d1">Chi lo usa, <em>lo sente.</em></h2>
+        <p class="section-label reveal">Voci che ci accompagnano</p>
+        <h2 class="section-title reveal d1">La preghiera <em>che ci precede.</em></h2>
       </div>
 
       <div class="testi-grid">
 
         <div class="testi-card reveal">
           <div class="testi-mark">"</div>
-          <p class="testi-text">Il Vangelo del giorno è diventato il mio rito del mattino. Cinque minuti prima di alzarmi, prima ancora del caffè. Non so come facevo prima.</p>
+          <p class="testi-text">Hai fatto il nostro cuore per Te, Signore, e il nostro cuore è inquieto finché non riposa in Te.</p>
           <div class="testi-author">
             <div class="testi-avatar">
-              <span class="testi-initial">M</span>
+              <span class="testi-initial">A</span>
             </div>
             <div>
-              <p class="testi-name">Maria Grazia</p>
-              <p class="testi-role">Catechista, Bergamo</p>
+              <p class="testi-name">Sant'Agostino</p>
+              <p class="testi-role">Confessioni, libro I</p>
             </div>
           </div>
         </div>
 
         <div class="testi-card reveal d1">
           <div class="testi-mark">"</div>
-          <p class="testi-text">Come parroco faticavo a raggiungere tutti durante la settimana. Ora posso condividere un pensiero, ricordare un appuntamento, essere vicino anche a distanza.</p>
+          <p class="testi-text">Il frutto del silenzio è la preghiera. Il frutto della preghiera è la fede. Il frutto della fede è l'amore. Il frutto dell'amore è il servizio.</p>
           <div class="testi-author">
             <div class="testi-avatar">
-              <span class="testi-initial">D</span>
+              <span class="testi-initial">T</span>
             </div>
             <div>
-              <p class="testi-name">Don Andrea</p>
-              <p class="testi-role">Parroco, Brescia</p>
+              <p class="testi-name">Madre Teresa</p>
+              <p class="testi-role">Calcutta, 1910–1997</p>
             </div>
           </div>
         </div>
 
         <div class="testi-card reveal d2">
           <div class="testi-mark">"</div>
-          <p class="testi-text">Ho pregato per persone che non conoscevo. Alcune mi hanno risposto. Questa è la cosa più bella che ho trovato: la preghiera diventa incontro.</p>
+          <p class="testi-text">Tutti nascono come originali, ma molti muoiono come fotocopie. L'Eucaristia è la mia autostrada per il Cielo.</p>
           <div class="testi-author">
             <div class="testi-avatar">
-              <span class="testi-initial">L</span>
+              <span class="testi-initial">C</span>
             </div>
             <div>
-              <p class="testi-name">Luca</p>
-              <p class="testi-role">Giovane adulto, Roma</p>
+              <p class="testi-name">Carlo Acutis</p>
+              <p class="testi-role">Santo, 1991–2006</p>
             </div>
           </div>
         </div>
@@ -765,10 +930,10 @@
       <div class="footer-brand">
         <svg width="26" height="26" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
           <rect width="1024" height="1024" rx="200" fill="#7B1F22"/>
-          <path d="M512,290 C512,265 546,228 584,216 C652,194 726,248 726,332 C726,452 618,566 512,692 C406,566 298,452 298,332 C298,248 372,194 440,216 C478,228 512,265 512,290 Z"
-                fill="none" stroke="#F5EBD8" stroke-width="52" stroke-linejoin="round"/>
           <rect x="482" y="410" width="60" height="450" rx="6" fill="#F5EBD8"/>
-          <path d="M512,320 C542,355 542,395 512,410 C482,395 482,355 512,320 Z" fill="#D4A24A"/>
+          <path d="M 512 320 C 542 355, 542 395, 512 410 C 482 395, 482 355, 512 320 Z" fill="#D4A24A"/>
+          <path d="M 512 690 C 360 590, 232 480, 232 350 C 232 250, 305 190, 380 190 C 442 190, 490 230, 512 290 C 534 230, 582 190, 644 190 C 719 190, 792 250, 792 350 C 792 480, 664 590, 512 690 Z"
+                fill="none" stroke="#F5EBD8" stroke-width="52" stroke-linejoin="round"/>
         </svg>
         <span class="footer-wordmark">pregacuore</span>
       </div>
@@ -796,6 +961,148 @@
       entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('in'); });
     }, { threshold: 0.12, rootMargin: '0px 0px -30px 0px' });
     reveals.forEach(el => io.observe(el));
+  </script>
+
+  <!-- ── PENSIERO DEL GIORNO — fetch dinamico da Supabase ── -->
+  <script>
+    (function () {
+      // ── Sostituisci con i tuoi valori: Supabase → Settings → API ──────
+      var SUPABASE_URL  = 'https://vnzkmluglswcltdgwcex.supabase.co';   // Project URL
+      var SUPABASE_ANON = 'sb_publishable_wpjM6fw003VTLFvV7ReCDQ_pmCIv_9k'; // anon / public key
+      // ──────────────────────────────────────────────────────────────────
+
+      function todayISO() {
+        var d = new Date();
+        return d.getFullYear() + '-'
+          + String(d.getMonth() + 1).padStart(2, '0') + '-'
+          + String(d.getDate()).padStart(2, '0');
+      }
+
+      function formatDateIT(iso) {
+        // "2026-05-10" → "domenica 10 maggio"
+        var d = new Date(iso + 'T00:00:00');
+        return d.toLocaleDateString('it-IT', { weekday: 'long', day: 'numeric', month: 'long' });
+      }
+
+      function el(id) { return document.getElementById(id); }
+
+      function setLoading() {
+        ['pg-date', 'pg-quote', 'pg-text', 'pg-ref'].forEach(function(id) {
+          el(id).classList.add('pg-loading');
+          el(id).textContent = '\u00a0'; // non-breaking space per altezza
+        });
+      }
+
+      function clearLoading() {
+        ['pg-date', 'pg-quote', 'pg-text', 'pg-ref'].forEach(function(id) {
+          el(id).classList.remove('pg-loading');
+        });
+      }
+
+      function populate(r) {
+        clearLoading();
+        el('pg-date').textContent  = r.liturgical_day
+          ? formatDateIT(r.content_date) + ' \u2014 ' + r.liturgical_day
+          : formatDateIT(r.content_date);
+        el('pg-quote').textContent = r.quote || '';
+        el('pg-text').textContent  = r.pensiero || '';
+        el('pg-ref').textContent   = 'Vangelo del giorno \u2014 ' + (r.gospel_reference || '');
+
+        // Santo del giorno (sotto la data, sobrio)
+        if (r.saint_of_day) {
+          var saintEl = el('pg-saint');
+          saintEl.textContent = '\u2726 ' + r.saint_of_day;  // ✦
+          saintEl.style.display = '';
+          saintEl.classList.add('in');   // forza fade-in: era display:none all'observer
+        }
+
+        // Mostra badge AI (trasparenza — Antiqua et Nova 2025).
+        // Solo se il pensiero è davvero stato generato da un modello, non per i seed manuali.
+        if (r.llm_model && r.llm_model !== 'manual_seed') {
+          el('pg-ai-badge').style.display = '';
+        }
+
+        // Mostra bottone audio solo se audio_url disponibile (step TTS futuro)
+        if (r.audio_url) {
+          el('pg-audio').style.display = '';
+          el('pg-audio').addEventListener('click', function() {
+            new Audio(r.audio_url).play();
+          });
+        }
+      }
+
+      function showFallback(msg) {
+        clearLoading();
+        el('pg-date').textContent  = '';
+        el('pg-quote').textContent = msg || 'Il pensiero di oggi arriva presto.';
+        el('pg-text').textContent  = '';
+        el('pg-ref').textContent   = '';
+      }
+
+      async function fetchPensiero() {
+        // ── Diagnostica: rileva placeholder non sostituiti ────────────
+        if (SUPABASE_URL.indexOf('XXXX') !== -1 || SUPABASE_ANON.indexOf('tuaAnonKey') !== -1) {
+          console.error(
+            '%cpregacuore: configurazione mancante.',
+            'color:#7B1F22;font-weight:bold;',
+            '\nSUPABASE_URL o SUPABASE_ANON sono ancora i valori placeholder.' +
+            '\nSostituiscili nello script con i tuoi valori da Supabase → Settings → API → Project URL / anon public key.'
+          );
+          showFallback();
+          return;
+        }
+
+        setLoading();
+        var today = todayISO();
+        var url = SUPABASE_URL + '/rest/v1/daily_content'
+          + '?content_date=eq.' + today
+          + '&select=content_date,liturgical_day,gospel_reference,quote,pensiero,audio_url,llm_model,saint_of_day'
+          + '&limit=1';
+
+        try {
+          var res = await fetch(url, {
+            headers: {
+              'apikey':        SUPABASE_ANON,
+              'Authorization': 'Bearer ' + SUPABASE_ANON,
+              'Accept':        'application/json',
+            }
+          });
+          if (!res.ok) {
+            console.warn('pregacuore: Supabase ha risposto', res.status, res.statusText);
+            console.warn('  URL chiamato:', url);
+            if (res.status === 401 || res.status === 403) {
+              console.warn('  → Probabile chiave anon errata o RLS che blocca la lettura.');
+            }
+            showFallback();
+            return;
+          }
+          var rows = await res.json();
+          if (!rows || rows.length === 0) {
+            console.info('pregacuore: nessun contenuto in daily_content per la data', today);
+            showFallback();
+            return;
+          }
+          populate(rows[0]);
+        } catch(e) {
+          console.warn('pregacuore fetch:', e);
+          console.warn('  URL chiamato:', url);
+          console.warn(
+            '  Possibili cause:\n' +
+            '   • SUPABASE_URL ha un typo (controlla il project ref)\n' +
+            '   • Estensione browser (ad blocker, privacy) blocca la chiamata\n' +
+            '   • La chiave incollata contiene spazi/a capo\n' +
+            '   • Il dominio Supabase non risolve (DNS / connessione)'
+          );
+          showFallback();
+        }
+      }
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', fetchPensiero);
+      } else {
+        fetchPensiero();
+      }
+    })();
   </script>
 </body>
 </html>
