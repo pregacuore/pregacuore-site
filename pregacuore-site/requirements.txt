@@ -1,0 +1,19 @@
+# Pregacuore — dipendenze Python
+# Pipeline contenuto + card generator + futuro Instagram publisher
+
+# Core
+python-dotenv>=1.0.0
+requests>=2.31.0
+
+# Database
+supabase>=2.0.0
+
+# AI
+google-genai>=0.2.0
+
+# Image processing
+Pillow>=10.0.0
+cairosvg>=2.7.0
+
+# Config / serialization
+PyYAML>=6.0
