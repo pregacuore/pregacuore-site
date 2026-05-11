@@ -1,0 +1,90 @@
+name: Pregacuore — Backfill Content (range)
+
+# Workflow ad esecuzione manuale per riempire il DB con un range di giorni
+# in un colpo solo. Da usare ad esempio al primo deploy per popolare
+# i 30 giorni successivi, o quando il cron giornaliero ha saltato giorni.
+#
+# NB: la pipeline include gia' una pausa di 5s tra una data e l'altra
+# (BATCH_DELAY_SECONDS in pipeline.py) per non saturare il rate limit
+# Gemini (15 RPM gratis). 30 giorni = ~3-4 minuti totali.
+
+on:
+  workflow_dispatch:
+    inputs:
+      date_from:
+        description: 'Data inizio (YYYY-MM-DD)'
+        required: true
+        type: string
+      date_to:
+        description: 'Data fine inclusa (YYYY-MM-DD)'
+        required: true
+        type: string
+      skip_cards:
+        description: 'Salta generazione card (solo testo)'
+        required: false
+        default: false
+        type: boolean
+
+jobs:
+  backfill:
+    runs-on: ubuntu-latest
+    # 30 giorni * (~10s Gemini + 5s pausa) + card = molto sotto i 60 min
+    timeout-minutes: 60
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libcairo2 libcairo2-dev \
+            libffi-dev shared-mime-info
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Genera asset visuali (pittogrammi, papiro)
+        run: |
+          if [ -f setup_assets.py ]; then
+            python setup_assets.py
+          else
+            echo "setup_assets.py non presente, skip."
+          fi
+
+      - name: Backfill contenuti (pipeline.py)
+        env:
+          GEMINI_API_KEY:       ${{ secrets.GEMINI_API_KEY }}
+          SUPABASE_URL:         ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+        run: |
+          python pipeline.py \
+            --from ${{ github.event.inputs.date_from }} \
+            --to   ${{ github.event.inputs.date_to }}
+
+      - name: Backfill card (card_generator.py)
+        if: ${{ github.event.inputs.skip_cards != 'true' }}
+        env:
+          SUPABASE_URL:         ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+        run: |
+          python card_generator.py \
+            --from ${{ github.event.inputs.date_from }} \
+            --to   ${{ github.event.inputs.date_to }}
+
+      - name: Riepilogo
+        if: always()
+        run: |
+          echo "Backfill completato:"
+          echo "  da ${{ github.event.inputs.date_from }}"
+          echo "  a  ${{ github.event.inputs.date_to }}"
+          echo "  card: ${{ github.event.inputs.skip_cards == 'true' && 'saltate' || 'generate' }}"
