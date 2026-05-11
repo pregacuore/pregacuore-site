@@ -22,6 +22,12 @@ on:
           - tomorrow
           - today
 
+# Tutti gli step "run" partono dentro la sottocartella del progetto Python.
+# I sorgenti stanno in pregacuore-site/ perche' Vercel ha quella come root.
+defaults:
+  run:
+    working-directory: pregacuore-site
+
 jobs:
   generate:
     runs-on: ubuntu-latest
@@ -29,25 +35,28 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Setup Python 3.11
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: '3.11'
           cache: 'pip'
-
-      - name: Install system dependencies (cairosvg)
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y \
-            libcairo2 libcairo2-dev \
-            libffi-dev shared-mime-info
+          # Il path della cache e' relativo alla repo root, non a working-directory.
+          cache-dependency-path: pregacuore-site/requirements.txt
 
       - name: Install Python dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
+
+      - name: Genera asset visuali (pittogrammi, papiro)
+        run: |
+          if [ -f setup_assets.py ]; then
+            python setup_assets.py
+          else
+            echo "setup_assets.py non presente, skip."
+          fi
 
       - name: Determina parametro data
         id: date_param
