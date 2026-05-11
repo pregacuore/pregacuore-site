@@ -3,10 +3,6 @@ name: Pregacuore — Backfill Content (range)
 # Workflow ad esecuzione manuale per riempire il DB con un range di giorni
 # in un colpo solo. Da usare ad esempio al primo deploy per popolare
 # i 30 giorni successivi, o quando il cron giornaliero ha saltato giorni.
-#
-# NB: la pipeline include gia' una pausa di 5s tra una data e l'altra
-# (BATCH_DELAY_SECONDS in pipeline.py) per non saturare il rate limit
-# Gemini (15 RPM gratis). 30 giorni = ~3-4 minuti totali.
 
 on:
   workflow_dispatch:
@@ -25,6 +21,11 @@ on:
         default: false
         type: boolean
 
+# Tutti gli step "run" partono dentro la sottocartella del progetto Python.
+defaults:
+  run:
+    working-directory: pregacuore-site
+
 jobs:
   backfill:
     runs-on: ubuntu-latest
@@ -33,20 +34,14 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Setup Python 3.11
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: '3.11'
           cache: 'pip'
-
-      - name: Install system dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y \
-            libcairo2 libcairo2-dev \
-            libffi-dev shared-mime-info
+          cache-dependency-path: pregacuore-site/requirements.txt
 
       - name: Install Python dependencies
         run: |
