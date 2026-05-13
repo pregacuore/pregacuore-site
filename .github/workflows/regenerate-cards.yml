@@ -1,0 +1,63 @@
+name: Pregacuore — Regenerate Cards (no Gemini)
+
+# Workflow manuale per rigenerare SOLO le card (PNG + JPEG) senza
+# richiamare Gemini. Utile quando si modifica il layout del card_generator
+# e si vogliono aggiornare le card di giorni gia' generati in DB.
+#
+# Legge da daily_content le righe nel range, ricompone le card con la
+# logica attuale di card_generator.py, e sovrascrive su Supabase Storage.
+
+on:
+  workflow_dispatch:
+    inputs:
+      date_from:
+        description: 'Data inizio (YYYY-MM-DD)'
+        required: true
+        type: string
+      date_to:
+        description: 'Data fine inclusa (YYYY-MM-DD)'
+        required: true
+        type: string
+
+defaults:
+  run:
+    working-directory: pregacuore-site
+
+jobs:
+  regenerate_cards:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Setup Python 3.11
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Genera asset visuali (pittogrammi, papiro)
+        run: |
+          if [ -f setup_assets.py ]; then
+            python setup_assets.py
+          fi
+
+      - name: Rigenera card (solo card_generator.py, no Gemini)
+        env:
+          SUPABASE_URL:         ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+        run: |
+          python card_generator.py \
+            --from ${{ github.event.inputs.date_from }} \
+            --to   ${{ github.event.inputs.date_to }}
+
+      - name: Riepilogo
+        if: always()
+        run: |
+          echo "Rigenerate card per: ${{ github.event.inputs.date_from }} -> ${{ github.event.inputs.date_to }}"
