@@ -496,13 +496,36 @@ def compose_card(template: str, quote: str, gospel_reference: str,
     # Disegno il payoff dopo, mi serviva solo la posizione adesso
 
     # ── 6. MIDDLE: citazione + linea + ref, centrati nello spazio rimasto
-    margin = 110
+    #
+    # Strategia anti-overflow:
+    # - Margine sicuro largo (140 px post / 120 story) per non avere mai
+    #   testo che sfiora i bordi
+    # - Font dinamico: parto dal valore "ideale" e scalo verso il basso
+    #   finche' la citazione entra in <= max_lines righe
+    # - Se al font minimo ancora non entra, lascio andare (caso estremo,
+    #   praticamente irraggiungibile per quote brevi del Vangelo)
+    margin = 120 if is_story else 140
     max_w = W - 2 * margin
-    quote_size = 110 if is_story else 86
-    quote_font = ImageFont.truetype(fonts["cormorant_italic"], quote_size)
+
+    # Range font: (ideal, min, step) per ciascun formato
+    if is_story:
+        size_ideal, size_min, size_step = 110, 72, 4
+        max_lines = 5
+    else:
+        size_ideal, size_min, size_step = 86, 56, 4
+        max_lines = 4
 
     quote_text = quote.strip()
+    quote_size = size_ideal
+    quote_font = ImageFont.truetype(fonts["cormorant_italic"], quote_size)
     quote_lines = wrap_text(quote_text, quote_font, max_w)
+
+    # Scalo finche' rientro in max_lines (o tocco il floor)
+    while len(quote_lines) > max_lines and quote_size > size_min:
+        quote_size -= size_step
+        quote_font = ImageFont.truetype(fonts["cormorant_italic"], quote_size)
+        quote_lines = wrap_text(quote_text, quote_font, max_w)
+
     bb = quote_font.getbbox("Ag")
     line_h = int((bb[3] - bb[1]) * 1.22)
     total_quote_h = line_h * len(quote_lines)
