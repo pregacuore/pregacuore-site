@@ -26,6 +26,7 @@ Setup:
 """
 
 import os
+import re
 import sys
 import json
 import time
@@ -148,18 +149,31 @@ class RecitationBlocked(Exception):
 # ------------------------------------------------------------------
 # 5. Singolo tentativo di generazione
 # ------------------------------------------------------------------
-def _generate_attempt(target_date: date, weekday_it: str, gospel_mode: str) -> dict:
+def _generate_attempt(target_date: date, weekday_it: str, gospel_mode: str,
+                      use_search: bool = True) -> dict:
     """Un tentativo di generazione con un certo gospel_mode. Solleva
-    RecitationBlocked se il modello blocca per copyright."""
+    RecitationBlocked se il modello blocca per copyright.
+
+    `use_search=False` disabilita il google_search grounding: utile
+    sui retry, dove il grounding e' la causa principale di "Risposta
+    vuota" e di output 'tool_code' anziche' JSON.
+    """
 
     client = genai.Client(api_key=GEMINI_API_KEY)
     prompt = _build_user_prompt(target_date, weekday_it, gospel_mode)
 
-    config = types.GenerateContentConfig(
-        system_instruction=SYSTEM_INSTRUCTION,
-        temperature=0.7,
-        tools=[types.Tool(google_search=types.GoogleSearch())],
-    )
+    config_kwargs = {
+        "system_instruction": SYSTEM_INSTRUCTION,
+        "temperature": 0.7,
+    }
+    if use_search:
+        config_kwargs["tools"] = [types.Tool(google_search=types.GoogleSearch())]
+    else:
+        # Senza grounding richiediamo esplicitamente JSON come response format,
+        # cosi' Gemini non si sbizzarrisce con codice o markdown.
+        config_kwargs["response_mime_type"] = "application/json"
+
+    config = types.GenerateContentConfig(**config_kwargs)
 
     response = client.models.generate_content(
         model=MODEL_NAME,
@@ -213,14 +227,59 @@ def _generate_attempt(target_date: date, weekday_it: str, gospel_mode: str) -> d
             raw_text = raw_text[4:]
         raw_text = raw_text.strip()
 
+    # Tentativo 1: parsing diretto
     try:
-        data = json.loads(raw_text)
+        return json.loads(raw_text)
     except json.JSONDecodeError:
-        print("X  Output non e' JSON valido:")
-        print(raw_text[:1000])
-        raise
+        pass
 
-    return data
+    # Tentativo 2: estrazione del primo blocco {...} valido dalla risposta.
+    # Serve quando Gemini emette codice (tool_code), markdown extra o testo
+    # esplicativo intorno al JSON.
+    extracted = _extract_json_from_blob(raw_text)
+    if extracted is not None:
+        return extracted
+
+    print("X  Output non e' JSON valido (anche dopo estrazione):")
+    print(raw_text[:1000])
+    raise json.JSONDecodeError("JSON non estraibile dalla risposta", raw_text, 0)
+
+
+def _extract_json_from_blob(blob: str) -> Optional[dict]:
+    """Cerca il primo blocco {...} bilanciato dentro `blob` e prova a
+    parsarlo. Torna None se non trova nulla di valido."""
+
+    # Trova tutti i candidati che iniziano con `{`
+    starts = [i for i, c in enumerate(blob) if c == "{"]
+    for start in starts:
+        # Scansiona forward bilanciando le parentesi graffe.
+        depth = 0
+        in_string = False
+        escape = False
+        for i in range(start, len(blob)):
+            c = blob[i]
+            if escape:
+                escape = False
+                continue
+            if c == "\\":
+                escape = True
+                continue
+            if c == '"':
+                in_string = not in_string
+                continue
+            if in_string:
+                continue
+            if c == "{":
+                depth += 1
+            elif c == "}":
+                depth -= 1
+                if depth == 0:
+                    candidate = blob[start:i + 1]
+                    try:
+                        return json.loads(candidate)
+                    except json.JSONDecodeError:
+                        break  # questo `{` non chiude un JSON valido, prova il prossimo
+    return None
 
 
 # ------------------------------------------------------------------
@@ -231,7 +290,11 @@ _EMPTY_RESPONSE_BACKOFF = [5, 15, 30]  # secondi tra i retry
 
 
 def generate_daily_content(target_date: date) -> dict:
-    """Genera con retry chain a 3 livelli (gospel_mode) + retry per risposta vuota."""
+    """Genera con retry chain a 3 livelli (gospel_mode) + retry per risposta vuota
+    o JSON malformato. Al primo tentativo di ciascun mode usa Google Search
+    grounding; sui retry lo disattiva (riduce drasticamente le risposte vuote
+    e gli output tool_code).
+    """
 
     weekday_it_map = {
         0: "lunedi", 1: "martedi", 2: "mercoledi", 3: "giovedi",
@@ -244,10 +307,15 @@ def generate_daily_content(target_date: date) -> dict:
     last_error = None
     for mode in GOSPEL_MODES:
         for attempt in range(_EMPTY_RESPONSE_RETRIES):
+            # Search grounding: ON al primo tentativo, OFF sui retry.
+            use_search = (attempt == 0)
             try:
+                grounding_label = "" if use_search else " [no-search]"
                 print(f"    -> tentativo gospel_text mode: '{mode}'" +
-                      (f" (retry {attempt})" if attempt else ""))
-                data = _generate_attempt(target_date, weekday, mode)
+                      (f" (retry {attempt})" if attempt else "") +
+                      grounding_label)
+                data = _generate_attempt(target_date, weekday, mode,
+                                         use_search=use_search)
                 data["_gospel_text_mode"] = mode
                 return _validate_and_normalize(data, target_date)
 
@@ -256,20 +324,38 @@ def generate_daily_content(target_date: date) -> dict:
                 last_error = e
                 break  # passa al prossimo gospel_mode
 
+            except json.JSONDecodeError as e:
+                # JSON malformato (es. Gemini ha emesso tool_code).
+                # Retry entro lo stesso mode; al successivo grounding sara' OFF.
+                last_error = e
+                if attempt < _EMPTY_RESPONSE_RETRIES - 1:
+                    wait = _EMPTY_RESPONSE_BACKOFF[attempt]
+                    print(f"    !!  JSON non valido. Riprovo tra {wait}s senza grounding...")
+                    time.sleep(wait)
+                    continue
+                # Esauriti i retry: passa al prossimo gospel_mode.
+                print(f"    !!  JSON non valido dopo {attempt + 1} tentativi. Provo modalita' successiva...")
+                break
+
             except ValueError as e:
                 # Risposta vuota: transiente con Gemini 2.5 Flash + grounding.
-                # Retry con backoff entro lo stesso gospel_mode.
+                # Retry entro lo stesso gospel_mode (grounding OFF dal 2o tentativo).
+                last_error = e
                 if "Risposta vuota" in str(e) and attempt < _EMPTY_RESPONSE_RETRIES - 1:
                     wait = _EMPTY_RESPONSE_BACKOFF[attempt]
                     print(f"    !!  {e}. Riprovo tra {wait}s...")
                     time.sleep(wait)
                     continue
+                # Esauriti i retry o errore diverso: passa al prossimo mode.
+                if "Risposta vuota" in str(e):
+                    print(f"    !!  Risposta vuota dopo {attempt + 1} tentativi. Provo modalita' successiva...")
+                    break
                 raise
 
     if last_error:
         raise RuntimeError(
             f"Impossibile generare contenuto per {target_date}: "
-            f"tutte le modalita' ({', '.join(GOSPEL_MODES)}) bloccate. "
+            f"tutte le modalita' ({', '.join(GOSPEL_MODES)}) hanno fallito. "
             f"Ultimo errore: {last_error}"
         )
 
