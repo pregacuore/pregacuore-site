@@ -1,0 +1,264 @@
+# ==============================================================================
+# Pregacuore - landscape_manifest.yml v3.0
+# ==============================================================================
+#
+# Catalogo dei paesaggi di pubblico dominio usati come sfondo per le card.
+# Tutti i quadri elencati sono di artisti morti da oltre 95 anni, quindi
+# in PD secondo la legge europea (Italia: morte + 70 anni; UE: morte + 70).
+#
+# Direzione visiva (definita il 14 maggio 2026):
+#   - SI: serenita, fiducia, pittoricita
+#   - SI: impressionisti (Monet, Renoir, Pissarro, Sisley)
+#   - SI: post-impressionisti luminosi (Van Gogh paesaggi, mietitori, mandorli)
+#   - SI: Hudson River School (Bierstadt, Church, Cole, Inness)
+#   - SI: Aivazovsky mari calmi e luminosi
+#   - SI: Hokusai / stampe giapponesi (carattere, sereno)
+#   - SI: Constable, Corot, Turner luminosi
+#   - LIMITATO: Friedrich/Grimshaw (romantici tedeschi) - mantenuti come
+#     "riserva" con flag reserve: true, scelti solo in mancanza di alternative
+#
+# Il card_generator.py legge questo file e, per ogni card:
+#   1. Determina la `season` liturgica del giorno via tabella liturgical_palette
+#   2. Filtra i paesaggi con almeno un `mood` compatibile con season.landscape_mood
+#   3. Esclude paesaggi con reserve:true se ci sono >= 3 candidati non-riserva
+#   4. Sceglie uno deterministicamente: hash(content_date) % len(candidates)
+#   5. Lo applica come sfondo desaturato con opacita da palette
+#
+# ==============================================================================
+
+# Mood vocabulary (allineato a liturgical_palette.landscape_mood)
+# ---------------------------------------------------------------
+#   bare_tree, candle, contemplation, countryside, dawn, desert,
+#   evening_quiet, fog, forest, forest_misty, golden_hour, light,
+#   light_rays, meadow, meadow_flowers, misty, mountain, mountain_austere,
+#   mountain_dawn, rocks, ruins, sea_calm, snow_calm, spring_bloom,
+#   starry_night, sunrise, sunset_quiet, warm_interior, winter_quiet
+#
+# Ogni paesaggio ha 2-4 mood. Piu mood = piu polivalente = piu scelto.
+
+landscapes:
+
+  - slug: bierstadt_sierra_nevada
+    artist: "Albert Bierstadt"
+    title: "Among the Sierra Nevada, California"
+    year: 1868
+    moods: [mountain_dawn, golden_hour, light_rays, mountain, light]
+    wikimedia_file: "Albert_Bierstadt_-_Among_the_Sierra_Nevada,_California_-_Google_Art_Project.jpg"
+
+  - slug: bierstadt_yosemite_valley
+    artist: "Albert Bierstadt"
+    title: "Valley of the Yosemite"
+    year: 1864
+    moods: [mountain, light_rays, golden_hour, evening_quiet]
+    wikimedia_file: "Albert_Bierstadt_-_Valley_of_the_Yosemite_-_Google_Art_Project.jpg"
+
+  - slug: bruegel_hunters_snow
+    artist: "Pieter Bruegel il Vecchio"
+    title: "Cacciatori nella neve"
+    year: 1565
+    moods: [snow_calm, winter_quiet, bare_tree]
+    wikimedia_file: "Pieter_Bruegel_the_Elder_-_Hunters_in_the_Snow_(Winter)_-_Google_Art_Project.jpg"
+
+  - slug: church_cotopaxi
+    artist: "Frederic Edwin Church"
+    title: "Cotopaxi"
+    year: 1862
+    moods: [mountain_austere, mountain, light, sunrise]
+    wikimedia_file: "Frederic_Edwin_Church_-_Cotopaxi_-_Google_Art_Project.jpg"
+
+  - slug: church_heart_andes
+    artist: "Frederic Edwin Church"
+    title: "Heart of the Andes"
+    year: 1859
+    moods: [mountain, light_rays, contemplation, meadow]
+    wikimedia_file: "Church Heart of the Andes.jpg"
+
+  - slug: cole_oxbow
+    artist: "Thomas Cole"
+    title: "View from Mount Holyoke (The Oxbow)"
+    year: 1836
+    moods: [light_rays, meadow, countryside, mountain]
+    wikimedia_file: "Cole_Thomas_The_Oxbow_(The_Connecticut_River_near_Northampton_1836).jpg"
+
+  - slug: corot_ville_davray
+    artist: "Jean-Baptiste-Camille Corot"
+    title: "Ville-d'Avray"
+    year: 1867
+    moods: [forest, evening_quiet, contemplation, sea_calm]
+    wikimedia_file: "Camille Corot - Ville d'Avray - Google Art Project.jpg"
+
+  - slug: hokusai_great_wave
+    artist: "Katsushika Hokusai"
+    title: "La Grande Onda di Kanagawa"
+    year: 1831
+    moods: [sea_calm, contemplation, mountain]
+    wikimedia_file: "Tsunami_by_hokusai_19th_century.jpg"
+
+  - slug: hokusai_kajikazawa
+    artist: "Katsushika Hokusai"
+    title: "Kajikazawa nella provincia di Kai"
+    year: 1832
+    moods: [sea_calm, mountain, contemplation, misty]
+    wikimedia_file: "Katsushika Hokusai, kajikazawa nella provincia di kai, dalla serie delle 36 vedute del monte fuji, 1831 ca.jpg"
+
+  - slug: hokusai_red_fuji
+    artist: "Katsushika Hokusai"
+    title: "Vento fresco, mattino chiaro (Fuji Rosso)"
+    year: 1831
+    moods: [mountain_dawn, sunrise, dawn, mountain]
+    wikimedia_file: "Red_Fuji_southern_wind_clear_morning.jpg"
+
+  - slug: hokusai_thunderstorm_fuji
+    artist: "Katsushika Hokusai"
+    title: "Temporale sotto il monte"
+    year: 1832
+    moods: [mountain, contemplation, evening_quiet]
+    wikimedia_file: "Lightnings_below_the_summit.jpg"
+
+  - slug: homer_breezing_up
+    artist: "Winslow Homer"
+    title: "Breezing Up (A Fair Wind)"
+    year: 1876
+    moods: [sea_calm, contemplation]
+    wikimedia_file: "Winslow_Homer_-_Breezing_Up_(A_Fair_Wind)_-_Google_Art_Project.jpg"
+
+  - slug: homer_sunlight_coast
+    artist: "Winslow Homer"
+    title: "Sole sulla costa"
+    year: 1890
+    moods: [sea_calm, light, golden_hour]
+    wikimedia_file: "Winslow_Homer_-_Sunlight_on_the_Coast_-_Google_Art_Project.jpg"
+
+  - slug: monet_garden_giverny_irises
+    artist: "Claude Monet"
+    title: "Il giardino dell'artista a Giverny"
+    year: 1900
+    moods: [meadow_flowers, spring_bloom, light, contemplation]
+    wikimedia_file: "Monet - Monets Garten in Giverny.jpg"
+
+  - slug: monet_impression_soleil
+    artist: "Claude Monet"
+    title: "Impression, soleil levant"
+    year: 1872
+    moods: [sunrise, dawn, sea_calm, light]
+    wikimedia_file: "Claude_Monet,_Impression,_soleil_levant.jpg"
+
+  - slug: monet_magpie
+    artist: "Claude Monet"
+    title: "La Pie (La Gazza)"
+    year: 1869
+    moods: [snow_calm, winter_quiet, bare_tree]
+    wikimedia_file: "Claude_Monet_-_The_Magpie_-_Google_Art_Project.jpg"
+
+  - slug: monet_water_lilies_green
+    artist: "Claude Monet"
+    title: "Ninfee (verde)"
+    year: 1906
+    moods: [contemplation, evening_quiet, meadow]
+    wikimedia_file: "Claude_Monet_-_Water_Lilies_-_1906,_Ryerson.jpg"
+
+  - slug: pissarro_hermitage_pontoise
+    artist: "Camille Pissarro"
+    title: "L'Hermitage a Pontoise"
+    year: 1867
+    moods: [countryside, meadow, contemplation]
+    wikimedia_file: "Camille Pissarro - L´Hermitage à Pontoise - 1867.jpg"
+
+  - slug: renoir_path_long_grass
+    artist: "Pierre-Auguste Renoir"
+    title: "Sentiero nell'erba alta"
+    year: 1877
+    moods: [meadow_flowers, meadow, countryside, golden_hour]
+    wikimedia_file: "Pierre auguste renoir, sentiero nell'erba alta, 1876-77, 02.JPG"
+
+  - slug: van_gogh_almond_blossoms
+    artist: "Vincent van Gogh"
+    title: "Rami di mandorlo in fiore"
+    year: 1890
+    moods: [spring_bloom, light, contemplation]
+    wikimedia_file: "Vincent_van_Gogh_-_Almond_blossom_-_Google_Art_Project.jpg"
+
+  - slug: van_gogh_olive_trees
+    artist: "Vincent van Gogh"
+    title: "Ulivi con cielo giallo e sole"
+    year: 1889
+    moods: [meadow, golden_hour, light, contemplation]
+    wikimedia_file: "Vincent_van_Gogh_-_Olive_Trees_-_Google_Art_Project.jpg"
+
+  - slug: van_gogh_starry_night
+    artist: "Vincent van Gogh"
+    title: "Notte stellata"
+    year: 1889
+    moods: [starry_night, evening_quiet]
+    wikimedia_file: "Van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg"
+
+  - slug: van_gogh_starry_night_rhone
+    artist: "Vincent van Gogh"
+    title: "Notte stellata sul Rodano"
+    year: 1888
+    moods: [starry_night, evening_quiet, sea_calm]
+    wikimedia_file: "Starry_Night_Over_the_Rhone.jpg"
+
+  - slug: van_gogh_wheat_field_cypresses
+    artist: "Vincent van Gogh"
+    title: "Campo di grano con cipressi"
+    year: 1889
+    moods: [meadow, countryside, golden_hour, light]
+    wikimedia_file: "Vincent_van_Gogh_-_Wheat_Field_with_Cypresses_(National_Gallery_version).jpg"
+
+  - slug: bierstadt_grand_tetons
+    artist: "Albert Bierstadt"
+    title: "Scenery in the Grand Tetons"
+    year: 1869
+    moods: [mountain_dawn, golden_hour, light_rays, mountain, light]
+    wikimedia_file: "Albert_Bierstadt_-_Scenery_in_the_Grand_Tetons.jpg"
+
+  - slug: bierstadt_cathedral_rock_yosemite
+    artist: "Albert Bierstadt"
+    title: "Cathedral Rock, Yosemite"
+    year: 1872
+    moods: [mountain, light_rays, golden_hour, light]
+    wikimedia_file: "Albert_Bierstadt_-_Cathedral_Rock,_Yosemite.jpg"
+
+  - slug: bierstadt_cliff_house
+    artist: "Albert Bierstadt"
+    title: "Cliff House, San Francisco"
+    year: 1864
+    moods: [sea_calm, sunset_quiet, golden_hour, evening_quiet]
+    wikimedia_file: "Albert_Bierstadt_-_The_Cliff_House.jpg"
+
+  - slug: bierstadt_looking_down_yosemite
+    artist: "Albert Bierstadt"
+    title: "Looking Down Yosemite Valley"
+    year: 1865
+    moods: [mountain_dawn, sunrise, light_rays, golden_hour, mountain]
+    wikimedia_file: "Albert_Bierstadt_-_Looking_Down_Yosemite_Valley,_California_-_Google_Art_Project.jpg"
+
+  - slug: bierstadt_rocky_mountains_landers_peak
+    artist: "Albert Bierstadt"
+    title: "The Rocky Mountains, Lander's Peak"
+    year: 1863
+    moods: [mountain, light_rays, golden_hour, meadow, contemplation]
+    wikimedia_file: "Albert_Bierstadt_-_The_Rocky_Mountains,_Lander's_Peak.jpg"
+
+  - slug: bierstadt_sunrise_yosemite
+    artist: "Albert Bierstadt"
+    title: "Sunrise, Yosemite Valley"
+    year: 1870
+    moods: [sunrise, dawn, mountain_dawn, light, light_rays, golden_hour]
+    wikimedia_file: "Albert_Bierstadt_-_Sunrise,_Yosemite_Valley.jpg"
+
+
+# ==============================================================================
+# Note operative
+# ==============================================================================
+#
+# Catalogo curato: 30 paesaggi adatti al brand pregacuore (luce, gioia,
+# speranza, no cornici, no opere "a matita" o troppo scure). Comprende
+# 8 Bierstadt (Hudson River School, luce gloriosa) tra cui i 3 citati
+# dal National Park Service Marsh-Billings-Rockefeller (Grand Tetons,
+# Cathedral Rock, Cliff House).
+# Friedrich, Grimshaw, Roberts deserti, Aivazovsky e Constable sono stati
+# rimossi dal manifest perche' non coerenti con la direzione visiva.
+#
+# Per aggiungere un nuovo paesaggio: vedi download_landscapes.py.
