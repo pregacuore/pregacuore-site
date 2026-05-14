@@ -206,33 +206,12 @@ landscapes:
     moods: [meadow, countryside, golden_hour, light]
     wikimedia_file: "Vincent_van_Gogh_-_Wheat_Field_with_Cypresses_(National_Gallery_version).jpg"
 
-  - slug: bierstadt_grand_tetons
-    artist: "Albert Bierstadt"
-    title: "Scenery in the Grand Tetons"
-    year: 1869
-    moods: [mountain_dawn, golden_hour, light_rays, mountain, light]
-    wikimedia_file: "Albert_Bierstadt_-_Scenery_in_the_Grand_Tetons.jpg"
-
   - slug: bierstadt_cathedral_rock_yosemite
     artist: "Albert Bierstadt"
     title: "Cathedral Rock, Yosemite"
     year: 1872
     moods: [mountain, light_rays, golden_hour, light]
     wikimedia_file: "Albert_Bierstadt_-_Cathedral_Rock,_Yosemite.jpg"
-
-  - slug: bierstadt_cliff_house
-    artist: "Albert Bierstadt"
-    title: "Cliff House, San Francisco"
-    year: 1864
-    moods: [sea_calm, sunset_quiet, golden_hour, evening_quiet]
-    wikimedia_file: "Albert_Bierstadt_-_The_Cliff_House.jpg"
-
-  - slug: bierstadt_looking_down_yosemite
-    artist: "Albert Bierstadt"
-    title: "Looking Down Yosemite Valley"
-    year: 1865
-    moods: [mountain_dawn, sunrise, light_rays, golden_hour, mountain]
-    wikimedia_file: "Albert_Bierstadt_-_Looking_Down_Yosemite_Valley,_California_-_Google_Art_Project.jpg"
 
   - slug: bierstadt_rocky_mountains_landers_peak
     artist: "Albert Bierstadt"
@@ -248,16 +227,75 @@ landscapes:
     moods: [sunrise, dawn, mountain_dawn, light, light_rays, golden_hour]
     wikimedia_file: "Albert_Bierstadt_-_Sunrise,_Yosemite_Valley.jpg"
 
+  - slug: bierstadt_hetch_hetchy
+    artist: "Albert Bierstadt"
+    title: "The Hetch-Hetchy Valley, California"
+    year: 1875
+    moods: [mountain, light_rays, meadow, golden_hour, contemplation]
+    wikimedia_file: "Hetch Hetchy Valley From Road, Albert Bierstadt.jpg"
+
+  - slug: bierstadt_sunrise_matterhorn
+    artist: "Albert Bierstadt"
+    title: "Sunrise on the Matterhorn"
+    year: 1875
+    moods: [mountain_dawn, sunrise, dawn, light_rays, mountain]
+    wikimedia_file: "Bierstadt Albert Sunrise on the Matterhorn.jpg"
+
+  - slug: bierstadt_lake_lucerne
+    artist: "Albert Bierstadt"
+    title: "Lake Lucerne, Switzerland"
+    year: 1858
+    moods: [sea_calm, mountain, contemplation, evening_quiet]
+    wikimedia_file: "Albert Bierstadt - Lake Lucerne, Switzerland.jpg"
+
+  - slug: bierstadt_sunset_yosemite_valley
+    artist: "Albert Bierstadt"
+    title: "Sunset in the Yosemite Valley"
+    year: 1868
+    moods: [sunset_quiet, golden_hour, mountain, light_rays, evening_quiet]
+    wikimedia_file: "Bierstadt Albert Sunset in the Yosemite Valley.jpg"
+
+  - slug: bierstadt_sundown_yosemite
+    artist: "Albert Bierstadt"
+    title: "Sundown at Yosemite"
+    year: 1870
+    moods: [sunset_quiet, golden_hour, mountain, light_rays]
+    wikimedia_file: "Albert Bierstadt - Sundown at Yosemite.jpg"
+
+  - slug: bierstadt_canadian_rockies_lake_louise
+    artist: "Albert Bierstadt"
+    title: "Canadian Rockies (Lake Louise)"
+    year: 1889
+    moods: [sea_calm, mountain, contemplation, light]
+    wikimedia_file: "Canadian Rockies (Lake Louise) MET DT7282.jpg"
+
+  - slug: bierstadt_looking_up_yosemite_valley
+    artist: "Albert Bierstadt"
+    title: "Looking Up the Yosemite Valley"
+    year: 1865
+    moods: [mountain, light_rays, golden_hour, light]
+    wikimedia_file: "Albert Bierstadt - Looking Up the Yosemite Valley.jpg"
+
+  - slug: bierstadt_estes_park_colorado
+    artist: "Albert Bierstadt"
+    title: "Estes Park, Colorado, Whyte's Lake"
+    year: 1877
+    moods: [sea_calm, mountain, meadow, contemplation, golden_hour]
+    wikimedia_file: "Albert Bierstadt - Estes Park, Colorado, Whyte's Lake.jpg"
+
 
 # ==============================================================================
 # Note operative
 # ==============================================================================
 #
-# Catalogo curato: 30 paesaggi adatti al brand pregacuore (luce, gioia,
+# Catalogo curato: 35 paesaggi adatti al brand pregacuore (luce, gioia,
 # speranza, no cornici, no opere "a matita" o troppo scure). Comprende
-# 8 Bierstadt (Hudson River School, luce gloriosa) tra cui i 3 citati
-# dal National Park Service Marsh-Billings-Rockefeller (Grand Tetons,
-# Cathedral Rock, Cliff House).
+# 13 Bierstadt (Hudson River School, luce gloriosa). I primi 5 sono stati
+# confermati visivamente dall'utente (Sierra Nevada, Yosemite Valley,
+# Cathedral Rock, Lander's Peak, Sunrise Yosemite). Gli altri 8 sono
+# selezionati da Wikimedia Commons Category:Paintings by Albert Bierstadt
+# con nomi-file verificati (Hetch Hetchy, Matterhorn, Lake Lucerne, Sunset
+# Yosemite, Sundown Yosemite, Lake Louise, Looking Up Yosemite, Estes Park).
 # Friedrich, Grimshaw, Roberts deserti, Aivazovsky e Constable sono stati
 # rimossi dal manifest perche' non coerenti con la direzione visiva.
 #
