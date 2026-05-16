@@ -1,0 +1,1077 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- ── SEO ── -->
+  <title>Pregacuore Diocesi — Una piattaforma digitale per tutte le parrocchie</title>
+  <meta name="description"
+    content="Una soluzione unica per accompagnare tutte le parrocchie della tua diocesi nel digitale. Dashboard vescovo, training parroci, integrazioni dedicate.">
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Pregacuore Diocesi — Per gli uffici diocesani">
+  <meta property="og:description"
+    content="Accompagnare le parrocchie della tua diocesi nella presenza digitale. Una piattaforma, un canone, tutte le tue parrocchie.">
+  <meta property="og:image" content="https://pregacuore.it/og-image.png">
+  <meta property="og:url" content="https://pregacuore.it/diocesi">
+  <meta property="og:locale" content="it_IT">
+
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <meta name="theme-color" content="#7B1F22">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bordeaux: #7B1F22;
+      --cream: #F5EBD8;
+      --gold: #D4A24A;
+      --piombo: #3A3A3F;
+      --avorio: #FAF6EE;
+      --serif: 'Cormorant Garamond', Georgia, serif;
+      --sans: 'Inter', system-ui, sans-serif;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: var(--sans);
+      color: var(--piombo);
+      background: var(--avorio);
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+
+    a { color: inherit; }
+
+    /* ─── NAV ─── (identica alle altre pagine) */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      height: 64px;
+      padding: 0 2.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(250, 246, 238, 0.93);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid rgba(123, 31, 34, 0.08);
+      transition: box-shadow 0.3s;
+    }
+
+    .nav-brand { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+    .nav-logo { width: 34px; height: 34px; }
+    .nav-wordmark {
+      font-family: var(--serif);
+      font-size: 1.3rem;
+      font-weight: 500;
+      color: var(--bordeaux);
+      letter-spacing: -0.01em;
+    }
+
+    .nav-links { display: flex; align-items: center; gap: 2rem; }
+    .nav-link {
+      font-family: var(--sans);
+      font-size: 0.82rem;
+      font-weight: 500;
+      color: var(--bordeaux);
+      opacity: 0.72;
+      text-decoration: none;
+      transition: opacity 0.2s;
+    }
+    .nav-link:hover { opacity: 1; }
+    .nav-cta {
+      font-family: var(--sans);
+      font-size: 0.72rem;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--bordeaux);
+      border: 1.5px solid rgba(123, 31, 34, 0.5);
+      padding: 9px 22px;
+      border-radius: 100px;
+      text-decoration: none;
+      transition: background 0.22s, color 0.22s, border-color 0.22s;
+    }
+    .nav-cta:hover {
+      background: var(--bordeaux);
+      color: var(--cream);
+      border-color: var(--bordeaux);
+    }
+    .nav-toggle { display: none; background: none; border: none; cursor: pointer; padding: 8px; }
+    .nav-toggle span {
+      display: block; width: 22px; height: 1.5px;
+      background: var(--bordeaux); margin: 5px 0;
+    }
+
+    /* ─── BOTTONI ─── */
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--gold);
+      color: #2A1506;
+      font-family: var(--sans);
+      font-size: 0.78rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 16px 36px;
+      border-radius: 100px;
+      text-decoration: none;
+      border: none;
+      cursor: pointer;
+      transition: transform 0.22s, box-shadow 0.22s;
+      box-shadow: 0 4px 24px rgba(212, 162, 74, 0.28);
+    }
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 36px rgba(212, 162, 74, 0.4);
+    }
+
+    .btn-secondary {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: transparent;
+      color: rgba(245, 235, 216, 0.75);
+      font-family: var(--sans);
+      font-size: 0.78rem;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 16px 36px;
+      border-radius: 100px;
+      text-decoration: none;
+      border: 1.5px solid rgba(245, 235, 216, 0.25);
+      transition: border-color 0.22s, color 0.22s, background 0.22s;
+    }
+    .btn-secondary:hover {
+      border-color: rgba(245, 235, 216, 0.7);
+      color: var(--cream);
+      background: rgba(245, 235, 216, 0.06);
+    }
+
+    /* ─── HERO (istituzionale, scuro+oro) ─── */
+    .hero {
+      background: linear-gradient(135deg, #5e1719 0%, #7B1F22 100%);
+      padding: 170px 2.5rem 120px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      width: 900px; height: 900px;
+      border-radius: 50%;
+      border: 1px solid rgba(212, 162, 74, 0.07);
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+    }
+    .hero::after {
+      content: '';
+      position: absolute;
+      width: 550px; height: 550px;
+      border-radius: 50%;
+      border: 1px solid rgba(212, 162, 74, 0.05);
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+    }
+
+    .hero-inner {
+      max-width: 820px;
+      margin: 0 auto;
+      position: relative;
+      z-index: 1;
+    }
+
+    .hero-eyebrow {
+      font-family: var(--sans);
+      font-size: 0.7rem;
+      font-weight: 500;
+      letter-spacing: 0.24em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 2rem;
+    }
+
+    .hero-h1 {
+      font-family: var(--serif);
+      font-size: clamp(2.4rem, 5.5vw, 4.4rem);
+      font-weight: 500;
+      color: var(--cream);
+      line-height: 1.08;
+      margin-bottom: 1.8rem;
+      letter-spacing: -0.005em;
+    }
+    .hero-h1 em { font-style: italic; }
+
+    .hero-lead {
+      font-family: var(--serif);
+      font-size: clamp(1.2rem, 2.3vw, 1.5rem);
+      font-weight: 400;
+      color: rgba(245, 235, 216, 0.78);
+      line-height: 1.55;
+      max-width: 680px;
+      margin: 0 auto 2.5rem;
+    }
+
+    .hero-actions {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    /* ─── CONTAINER E SEZIONI ─── */
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .section-label {
+      font-family: var(--sans);
+      font-size: 0.65rem;
+      font-weight: 500;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--bordeaux);
+      opacity: 0.55;
+      margin-bottom: 1rem;
+    }
+
+    .section-title {
+      font-family: var(--serif);
+      font-size: clamp(2rem, 4vw, 3rem);
+      font-weight: 500;
+      line-height: 1.15;
+      color: var(--bordeaux);
+      margin-bottom: 1.4rem;
+    }
+    .section-title em { font-style: italic; font-weight: 500; }
+
+    .section-sub {
+      font-family: var(--sans);
+      font-size: 1rem;
+      font-weight: 400;
+      color: var(--piombo);
+      line-height: 1.75;
+      opacity: 0.78;
+      max-width: 620px;
+    }
+
+    /* ─── CONTESTO PASTORALE (citazione papale) ─── */
+    .context {
+      background: var(--cream);
+      padding: 100px 2.5rem;
+    }
+
+    .context-inner {
+      max-width: 780px;
+      margin: 0 auto;
+      text-align: center;
+    }
+
+    .context-quote {
+      font-family: var(--serif);
+      font-size: clamp(1.5rem, 3vw, 2.1rem);
+      font-style: italic;
+      font-weight: 500;
+      color: var(--bordeaux);
+      line-height: 1.4;
+      margin-bottom: 1.5rem;
+    }
+
+    .context-ref {
+      font-family: var(--serif);
+      font-size: 0.95rem;
+      font-style: italic;
+      color: var(--bordeaux);
+      opacity: 0.6;
+      margin-bottom: 2.5rem;
+    }
+
+    .context-body {
+      font-family: var(--sans);
+      font-size: 1.02rem;
+      font-weight: 400;
+      color: var(--piombo);
+      line-height: 1.75;
+      opacity: 0.85;
+      max-width: 640px;
+      margin: 0 auto;
+    }
+
+    /* ─── COSA OFFRE PREGACUORE DIOCESI ─── */
+    .offering {
+      background: var(--avorio);
+      padding: 110px 2.5rem;
+    }
+
+    .offering-header {
+      max-width: 720px;
+      margin: 0 auto 4rem;
+      text-align: center;
+    }
+
+    .offering-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1.6rem;
+    }
+
+    .offering-card {
+      background: var(--cream);
+      border-radius: 18px;
+      padding: 2.4rem 2.2rem;
+      border: 1px solid rgba(123, 31, 34, 0.08);
+    }
+
+    .offering-icon {
+      width: 44px; height: 44px;
+      margin-bottom: 1.4rem;
+      opacity: 0.8;
+    }
+
+    .offering-title {
+      font-family: var(--sans);
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--bordeaux);
+      margin-bottom: 0.8rem;
+      line-height: 1.25;
+    }
+
+    .offering-desc {
+      font-family: var(--sans);
+      font-size: 0.95rem;
+      font-weight: 400;
+      color: var(--piombo);
+      line-height: 1.65;
+      opacity: 0.85;
+    }
+
+    /* ─── COME FUNZIONA (steps) ─── */
+    .how {
+      background: var(--cream);
+      padding: 100px 2.5rem;
+    }
+
+    .how-header {
+      max-width: 720px;
+      margin: 0 auto 4rem;
+      text-align: center;
+    }
+
+    .how-list {
+      max-width: 760px;
+      margin: 0 auto;
+    }
+
+    .how-step {
+      display: flex;
+      gap: 1.8rem;
+      padding: 1.8rem 0;
+      border-bottom: 1px solid rgba(123, 31, 34, 0.1);
+      align-items: flex-start;
+    }
+
+    .how-step:last-child { border-bottom: none; }
+
+    .how-step-num {
+      font-family: var(--serif);
+      font-size: 2.2rem;
+      font-weight: 500;
+      color: var(--gold);
+      line-height: 1;
+      flex-shrink: 0;
+      width: 50px;
+    }
+
+    .how-step h3 {
+      font-family: var(--sans);
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: var(--bordeaux);
+      margin-bottom: 0.5rem;
+    }
+
+    .how-step p {
+      font-family: var(--sans);
+      font-size: 0.95rem;
+      font-weight: 400;
+      color: var(--piombo);
+      line-height: 1.65;
+      opacity: 0.85;
+    }
+
+    /* ─── PRICING NASCOSTO ─── */
+    .pricing {
+      background: var(--avorio);
+      padding: 110px 2.5rem;
+    }
+
+    .pricing-inner {
+      max-width: 720px;
+      margin: 0 auto;
+      text-align: center;
+    }
+
+    .pricing-card-istituzionale {
+      background: var(--cream);
+      border: 1.5px solid rgba(212, 162, 74, 0.3);
+      border-radius: 20px;
+      padding: 3rem 2.5rem;
+      margin-top: 3rem;
+    }
+
+    .pricing-card-istituzionale h3 {
+      font-family: var(--serif);
+      font-size: 1.8rem;
+      font-weight: 500;
+      color: var(--bordeaux);
+      margin-bottom: 1rem;
+    }
+
+    .pricing-card-istituzionale .price-range {
+      font-family: var(--serif);
+      font-size: 1.15rem;
+      font-style: italic;
+      color: var(--piombo);
+      opacity: 0.7;
+      margin-bottom: 2rem;
+      line-height: 1.5;
+    }
+
+    .pricing-features {
+      list-style: none;
+      padding: 0;
+      margin: 0 0 2.5rem 0;
+      text-align: left;
+      max-width: 460px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .pricing-features li {
+      font-family: var(--sans);
+      font-size: 0.95rem;
+      font-weight: 400;
+      color: var(--piombo);
+      line-height: 1.55;
+      padding: 0.6rem 0 0.6rem 1.7rem;
+      position: relative;
+    }
+
+    .pricing-features li::before {
+      content: '';
+      position: absolute;
+      left: 0; top: 0.95rem;
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: var(--gold);
+    }
+
+    /* ─── CTA FINALE ─── */
+    .cta-final {
+      background: linear-gradient(135deg, #2c1517 0%, #1f0f10 100%);
+      padding: 130px 2.5rem;
+      text-align: center;
+    }
+
+    .cta-final-inner {
+      max-width: 720px;
+      margin: 0 auto;
+    }
+
+    .cta-final .section-label {
+      color: var(--gold);
+      opacity: 1;
+      margin-bottom: 1.4rem;
+    }
+
+    .cta-final h2 {
+      font-family: var(--serif);
+      font-size: clamp(2rem, 4vw, 2.8rem);
+      font-weight: 500;
+      color: var(--cream);
+      line-height: 1.18;
+      margin-bottom: 1.5rem;
+    }
+    .cta-final h2 em { font-style: italic; color: var(--gold); }
+
+    .cta-final p {
+      font-family: var(--sans);
+      font-size: 1rem;
+      color: rgba(245, 235, 216, 0.7);
+      line-height: 1.7;
+      max-width: 580px;
+      margin: 0 auto 2.5rem;
+    }
+
+    .cta-final-actions {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .cta-final-fine {
+      font-family: var(--sans);
+      font-size: 0.82rem;
+      color: rgba(245, 235, 216, 0.4);
+      margin-top: 2rem !important;
+      font-style: italic;
+    }
+
+    /* ─── FOOTER (uguale alle altre pagine) ─── */
+    footer {
+      background: #261214;
+      padding: 4rem 2.5rem 2rem;
+    }
+
+    .footer-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1.4fr 1fr 1fr 1fr 1fr;
+      gap: 2.5rem;
+      align-items: start;
+    }
+
+    .footer-brand-col { display: flex; flex-direction: column; gap: 0.8rem; }
+    .footer-brand { display: flex; align-items: center; gap: 10px; margin-bottom: 0.6rem; }
+    .footer-wordmark {
+      font-family: var(--serif);
+      font-size: 1.2rem;
+      font-weight: 500;
+      color: rgba(245, 235, 216, 0.7);
+    }
+    .footer-tagline {
+      font-family: var(--serif);
+      font-size: 0.95rem;
+      font-style: italic;
+      color: rgba(245, 235, 216, 0.5);
+      line-height: 1.5;
+    }
+    .footer-copy {
+      font-family: var(--sans);
+      font-size: 0.72rem;
+      font-weight: 300;
+      color: rgba(245, 235, 216, 0.25);
+      margin-top: 0.6rem;
+    }
+    .footer-col h4 {
+      font-family: var(--sans);
+      font-size: 0.74rem;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: rgba(245, 235, 216, 0.55);
+      margin-bottom: 1.1rem;
+    }
+    .footer-col a {
+      display: block;
+      font-family: var(--sans);
+      font-size: 0.85rem;
+      color: rgba(245, 235, 216, 0.4);
+      text-decoration: none;
+      margin-bottom: 0.55rem;
+      transition: color 0.2s;
+    }
+    .footer-col a:hover { color: rgba(245, 235, 216, 0.85); }
+    .footer-legal {
+      max-width: 1100px;
+      margin: 3rem auto 0;
+      padding-top: 1.6rem;
+      border-top: 1px solid rgba(245, 235, 216, 0.08);
+      display: flex;
+      justify-content: flex-end;
+      gap: 1.8rem;
+    }
+    .footer-legal a {
+      font-family: var(--sans);
+      font-size: 0.72rem;
+      color: rgba(245, 235, 216, 0.3);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .footer-legal a:hover { color: rgba(245, 235, 216, 0.7); }
+
+    /* ─── REVEAL ─── */
+    .reveal {
+      opacity: 0;
+      transform: translateY(28px);
+      transition: opacity 0.75s ease, transform 0.75s ease;
+    }
+    .reveal.in { opacity: 1; transform: translateY(0); }
+    .d1 { transition-delay: 0.1s; }
+    .d2 { transition-delay: 0.2s; }
+    .d3 { transition-delay: 0.3s; }
+
+    /* ─── RESPONSIVE ─── */
+    @media (max-width: 960px) {
+      .offering-grid { grid-template-columns: 1fr; }
+      .footer-inner { grid-template-columns: 1fr 1fr 1fr; }
+      .footer-brand-col { grid-column: 1 / -1; margin-bottom: 1rem; }
+    }
+
+    @media (max-width: 860px) {
+      .nav-links { display: none; }
+      .nav-toggle { display: block; }
+      .nav-links.is-open {
+        display: flex; position: absolute; top: 64px; left: 0; right: 0;
+        background: var(--avorio); flex-direction: column;
+        padding: 1.5rem 2.5rem 2rem; gap: 1.2rem;
+        border-bottom: 1px solid rgba(123, 31, 34, 0.08);
+      }
+    }
+
+    @media (max-width: 600px) {
+      nav { padding: 0 1.25rem; }
+      .hero, .context, .offering, .how, .pricing, .cta-final {
+        padding-left: 1.25rem; padding-right: 1.25rem;
+      }
+      .hero { padding-top: 140px; padding-bottom: 90px; }
+      .context, .offering, .how, .pricing { padding-top: 80px; padding-bottom: 80px; }
+      .cta-final { padding-top: 100px; padding-bottom: 100px; }
+      .pricing-card-istituzionale { padding: 2.2rem 1.6rem; }
+      .footer-inner { grid-template-columns: 1fr 1fr; gap: 2rem; }
+      .footer-legal { justify-content: center; flex-wrap: wrap; }
+      .how-step { flex-direction: column; gap: 0.6rem; }
+      .how-step-num { width: auto; font-size: 1.6rem; }
+      .hero-actions, .cta-final-actions {
+        flex-direction: column; align-items: stretch;
+      }
+      .hero-actions a, .cta-final-actions a { justify-content: center; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ── NAV ── -->
+  <nav id="nav">
+    <a href="/" class="nav-brand" aria-label="Pregacuore — home">
+      <svg class="nav-logo" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+        <rect width="1024" height="1024" rx="200" fill="#7B1F22"/>
+        <rect x="482" y="410" width="60" height="450" rx="6" fill="#F5EBD8"/>
+        <path d="M 512 320 C 542 355, 542 395, 512 410 C 482 395, 482 355, 512 320 Z" fill="#D4A24A"/>
+        <path d="M 512 690 C 360 590, 232 480, 232 350 C 232 250, 305 190, 380 190 C 442 190, 490 230, 512 290 C 534 230, 582 190, 644 190 C 719 190, 792 250, 792 350 C 792 480, 664 590, 512 690 Z"
+              fill="none" stroke="#F5EBD8" stroke-width="52" stroke-linejoin="round"/>
+      </svg>
+      <span class="nav-wordmark">pregacuore</span>
+    </a>
+
+    <button class="nav-toggle" id="nav-toggle" aria-label="Apri menu" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+
+    <div class="nav-links" id="nav-links">
+      <a href="/parrocchie" class="nav-link">Parrocchie</a>
+      <a href="/chi-siamo" class="nav-link">Chi siamo</a>
+      <a href="mailto:diocesi@pregacuore.it" class="nav-cta">Contattaci</a>
+    </div>
+  </nav>
+
+  <!-- ── HERO ── -->
+  <section class="hero">
+    <div class="hero-inner">
+      <p class="hero-eyebrow">Pregacuore Diocesi</p>
+      <h1 class="hero-h1">
+        Accompagnare le parrocchie<br>
+        <em>nella presenza digitale.</em>
+      </h1>
+      <p class="hero-lead">
+        Una piattaforma unica per tutte le parrocchie della tua diocesi.
+        Il Vangelo del giorno nelle tasche dei fedeli, uno spazio sereno
+        per la preghiera comunitaria, dashboard per il vescovo, training
+        per i parroci. Un solo canone, tutte le tue parrocchie.
+      </p>
+      <div class="hero-actions">
+        <a href="mailto:diocesi@pregacuore.it?subject=Richiesta%20informazioni%20-%20Pregacuore%20Diocesi" class="btn-primary">Richiedi un incontro</a>
+        <a href="#come-funziona" class="btn-secondary">Scopri come funziona</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── CONTESTO PASTORALE ── -->
+  <section class="context">
+    <div class="context-inner">
+      <p class="context-quote reveal">
+        «La rete è una risorsa del nostro tempo.<br>
+        È una fonte di conoscenze e di relazioni un tempo impensabili.»
+      </p>
+      <p class="context-ref reveal d1">
+        Papa Francesco, Messaggio per la Giornata delle Comunicazioni Sociali
+      </p>
+
+      <div class="context-body reveal d2">
+        <p style="margin-bottom: 1.2rem;">
+          Le diocesi italiane stanno riconoscendo sempre più chiaramente
+          che la presenza digitale è missione, non accessorio. Il Giubileo
+          dei missionari digitali del 2025, le scelte di diversi
+          arcivescovati che hanno affidato a sacerdoti incarichi
+          dedicati alla comunicazione online, l'attenzione crescente
+          della CEI verso strumenti digitali pastorali: tutto indica
+          la stessa direzione.
+        </p>
+        <p>
+          Pregacuore Diocesi è uno strumento al servizio di questa
+          direzione. Non sostituisce le radio diocesane, i siti, i
+          social media già attivi: aggiunge un luogo quotidiano per
+          la preghiera comune di tutte le parrocchie del territorio.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── COSA OFFRE ── -->
+  <section class="offering">
+    <div class="container">
+      <div class="offering-header">
+        <p class="section-label reveal">Cosa include</p>
+        <h2 class="section-title reveal d1">
+          Una piattaforma diocesana<br><em>completa, su misura.</em>
+        </h2>
+        <p class="section-sub reveal d2" style="margin: 0 auto; text-align: center;">
+          Pregacuore Diocesi è un pacchetto istituzionale: tutto quello
+          che ogni parrocchia ottiene con il pacchetto standard, più gli
+          strumenti dedicati all'ufficio diocesano.
+        </p>
+      </div>
+
+      <div class="offering-grid">
+
+        <article class="offering-card reveal">
+          <svg class="offering-icon" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <rect x="6" y="10" width="32" height="24" rx="2" stroke="#7B1F22" stroke-width="1.6"/>
+            <path d="M 14 14 L 14 30 M 22 14 L 22 30 M 30 14 L 30 30" stroke="#7B1F22" stroke-width="1.6" opacity="0.4"/>
+            <circle cx="18" cy="22" r="2" fill="#D4A24A"/>
+          </svg>
+          <h3 class="offering-title">Accesso illimitato per tutte le parrocchie</h3>
+          <p class="offering-desc">
+            Ogni parrocchia della tua diocesi riceve un proprio codice
+            di accesso, il proprio branding, il proprio pannello di
+            moderazione. Nessun limite numerico, nessun costo aggiuntivo
+            per parrocchia.
+          </p>
+        </article>
+
+        <article class="offering-card reveal d1">
+          <svg class="offering-icon" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <circle cx="22" cy="14" r="6" stroke="#7B1F22" stroke-width="1.6"/>
+            <path d="M 10 36 C 10 28 14 24 22 24 C 30 24 34 28 34 36" stroke="#7B1F22" stroke-width="1.6"/>
+            <circle cx="33" cy="13" r="3.5" stroke="#D4A24A" stroke-width="1.5"/>
+            <circle cx="11" cy="13" r="3.5" stroke="#D4A24A" stroke-width="1.5"/>
+          </svg>
+          <h3 class="offering-title">Dashboard vescovo</h3>
+          <p class="offering-desc">
+            Un pannello dedicato all'ufficio diocesano e al vescovo:
+            panoramica dell'engagement pastorale del territorio,
+            numero di intenzioni di preghiera, partecipazione delle
+            parrocchie. Sempre nel rispetto della privacy individuale.
+          </p>
+        </article>
+
+        <article class="offering-card reveal d2">
+          <svg class="offering-icon" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <rect x="6" y="8" width="32" height="22" rx="2" stroke="#7B1F22" stroke-width="1.6"/>
+            <path d="M 14 36 L 30 36 M 22 30 L 22 36" stroke="#7B1F22" stroke-width="1.6"/>
+            <path d="M 14 18 L 18 22 L 26 14" stroke="#D4A24A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <h3 class="offering-title">Training parroci</h3>
+          <p class="offering-desc">
+            Sessioni di formazione online dedicate ai parroci della
+            tua diocesi, per usare Pregacuore in modo efficace. Materiale
+            scritto in italiano semplice, video brevi, supporto
+            telefonico nei primi mesi.
+          </p>
+        </article>
+
+        <article class="offering-card reveal d3">
+          <svg class="offering-icon" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path d="M 8 22 L 22 8 L 36 22 L 36 36 L 8 36 Z" stroke="#7B1F22" stroke-width="1.6" stroke-linejoin="round"/>
+            <line x1="22" y1="2" x2="22" y2="8" stroke="#7B1F22" stroke-width="1.6" stroke-linecap="round"/>
+            <line x1="18" y1="5" x2="26" y2="5" stroke="#7B1F22" stroke-width="1.6" stroke-linecap="round"/>
+            <rect x="18" y="26" width="8" height="10" stroke="#7B1F22" stroke-width="1.4" fill="rgba(212,162,74,0.15)"/>
+          </svg>
+          <h3 class="offering-title">Integrazione sito diocesano</h3>
+          <p class="offering-desc">
+            Widget e API per integrare il pensiero del giorno nel sito
+            della diocesi, nei siti parrocchiali, nella newsletter
+            istituzionale. Strumenti tecnici a disposizione dell'ufficio
+            comunicazione.
+          </p>
+        </article>
+
+        <article class="offering-card reveal">
+          <svg class="offering-icon" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path d="M 22 6 L 28 18 L 22 14 L 16 18 Z" stroke="#7B1F22" stroke-width="1.6" stroke-linejoin="round" fill="rgba(212,162,74,0.2)"/>
+            <path d="M 10 22 L 22 26 L 34 22" stroke="#7B1F22" stroke-width="1.6" stroke-linejoin="round"/>
+            <path d="M 10 22 L 10 36 L 34 36 L 34 22" stroke="#7B1F22" stroke-width="1.6" stroke-linejoin="round"/>
+          </svg>
+          <h3 class="offering-title">Branding diocesi</h3>
+          <p class="offering-desc">
+            Lo stemma diocesano e il nome della diocesi compaiono nella
+            pagina di benvenuto di ogni parrocchia aderente. Il fedele
+            sa che sta usando uno strumento riconosciuto dalla propria
+            diocesi.
+          </p>
+        </article>
+
+        <article class="offering-card reveal d1">
+          <svg class="offering-icon" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <circle cx="22" cy="22" r="14" stroke="#7B1F22" stroke-width="1.6"/>
+            <path d="M 22 12 L 22 22 L 28 26" stroke="#D4A24A" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+          <h3 class="offering-title">Supporto prioritario</h3>
+          <p class="offering-desc">
+            Un referente dedicato all'ufficio diocesano, raggiungibile
+            via email o telefono. Risposte in giornata sui giorni
+            lavorativi. Niente ticketing automatizzato: parli con una
+            persona reale.
+          </p>
+        </article>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ── COME FUNZIONA ── -->
+  <section class="how" id="come-funziona">
+    <div class="how-header">
+      <p class="section-label reveal">Come funziona</p>
+      <h2 class="section-title reveal d1">
+        Un percorso semplice,<br><em>nel rispetto dei tempi della Chiesa.</em>
+      </h2>
+    </div>
+
+    <div class="how-list">
+      <div class="how-step reveal">
+        <span class="how-step-num">01</span>
+        <div>
+          <h3>Primo incontro conoscitivo</h3>
+          <p>
+            Ci incontriamo online o di persona con l'ufficio
+            comunicazione diocesano. Capiamo insieme le esigenze della
+            tua diocesi, presentiamo lo strumento, rispondiamo alle
+            domande. Senza obbligo.
+          </p>
+        </div>
+      </div>
+
+      <div class="how-step reveal d1">
+        <span class="how-step-num">02</span>
+        <div>
+          <h3>Fase pilota su 3-5 parrocchie</h3>
+          <p>
+            Selezioniamo insieme 3-5 parrocchie pilota della tua diocesi.
+            Le attiviamo gratuitamente per 3 mesi. Misuriamo insieme
+            l'adozione reale, la soddisfazione di parroci e fedeli,
+            l'impatto concreto. Decidi sulla base di dati, non di
+            promesse.
+          </p>
+        </div>
+      </div>
+
+      <div class="how-step reveal d2">
+        <span class="how-step-num">03</span>
+        <div>
+          <h3>Stipula dell'accordo diocesano</h3>
+          <p>
+            Se la fase pilota convince, stipuliamo un accordo annuale.
+            Il canone diocesano copre tutte le parrocchie del territorio.
+            Convenzione scritta, fattura regolare, condizioni chiare.
+          </p>
+        </div>
+      </div>
+
+      <div class="how-step reveal d3">
+        <span class="how-step-num">04</span>
+        <div>
+          <h3>Roll-out graduale</h3>
+          <p>
+            Insieme all'ufficio comunicazione, presentiamo Pregacuore
+            ai parroci della diocesi in incontri di formazione. Le
+            parrocchie aderiscono al ritmo della diocesi, senza
+            obbligo né fretta. Noi accompagniamo tecnicamente,
+            l'ufficio diocesano accompagna pastoralmente.
+          </p>
+        </div>
+      </div>
+
+      <div class="how-step reveal">
+        <span class="how-step-num">05</span>
+        <div>
+          <h3>Verifica annuale</h3>
+          <p>
+            Ogni anno presentiamo un report all'ufficio diocesano:
+            numero di parrocchie attive, fedeli iscritti, intenzioni
+            di preghiera, engagement complessivo. Verifichiamo insieme
+            cosa funziona e cosa cambiare per l'anno successivo.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── PRICING ── -->
+  <section class="pricing">
+    <div class="pricing-inner">
+      <p class="section-label reveal">Investimento</p>
+      <h2 class="section-title reveal d1">
+        Un canone unico,<br><em>tutte le tue parrocchie.</em>
+      </h2>
+      <p class="section-sub reveal d2" style="margin: 0 auto; text-align: center;">
+        Il canone diocesano sostituisce gli abbonamenti delle singole
+        parrocchie con una soluzione integrata e con sconto
+        significativo rispetto al pacchetto Parrocchia
+        moltiplicato per il numero di realtà.
+      </p>
+
+      <div class="pricing-card-istituzionale reveal d3">
+        <h3>Pregacuore Diocesi</h3>
+        <p class="price-range">
+          Canone annuale a partire da <strong style="color: var(--bordeaux);">€18.000</strong>,
+          calibrato sulla dimensione della diocesi (parrocchie, abitanti, integrazioni richieste).
+        </p>
+
+        <ul class="pricing-features">
+          <li>Accesso completo per tutte le parrocchie del territorio</li>
+          <li>Dashboard diocesana e dashboard vescovo</li>
+          <li>Onboarding e training parroci inclusi</li>
+          <li>Integrazione sito diocesano (widget, API)</li>
+          <li>Branding diocesi su tutte le parrocchie</li>
+          <li>Referente dedicato all'ufficio diocesano</li>
+          <li>Report annuale di engagement pastorale</li>
+          <li>Convenzione scritta, fattura regolare</li>
+        </ul>
+
+        <a href="mailto:diocesi@pregacuore.it?subject=Richiesta%20preventivo%20-%20Pregacuore%20Diocesi"
+           class="btn-primary"
+           style="background: var(--bordeaux); color: var(--cream); box-shadow: 0 4px 24px rgba(123, 31, 34, 0.25);">
+          Richiedi un preventivo →
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── CTA FINALE ── -->
+  <section class="cta-final">
+    <div class="cta-final-inner">
+      <p class="section-label reveal">Per cominciare</p>
+      <h2 class="reveal d1">
+        Parliamone <em>con calma.</em>
+      </h2>
+      <p class="reveal d2">
+        Pregacuore è all'inizio del proprio cammino e accoglie con
+        attenzione speciale le prime diocesi che vogliono accompagnare
+        le proprie parrocchie nella presenza digitale. Scrivici per
+        un primo incontro: senza impegno, senza presentazioni
+        commerciali aggressive. Una conversazione tra persone.
+      </p>
+      <div class="cta-final-actions reveal d3">
+        <a href="mailto:diocesi@pregacuore.it?subject=Richiesta%20incontro%20-%20Pregacuore%20Diocesi" class="btn-primary">Scrivici a diocesi@pregacuore.it</a>
+        <a href="/parrocchie" class="btn-secondary">Pacchetti per singola parrocchia</a>
+      </div>
+      <p class="cta-final-fine reveal d3">
+        Rispondiamo a tutte le email entro 2 giorni lavorativi.
+      </p>
+    </div>
+  </section>
+
+  <!-- ── FOOTER ── -->
+  <footer>
+    <div class="footer-inner">
+
+      <div class="footer-col footer-brand-col">
+        <div class="footer-brand">
+          <svg width="26" height="26" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <rect width="1024" height="1024" rx="200" fill="#7B1F22"/>
+            <rect x="482" y="410" width="60" height="450" rx="6" fill="#F5EBD8"/>
+            <path d="M 512 320 C 542 355, 542 395, 512 410 C 482 395, 482 355, 512 320 Z" fill="#D4A24A"/>
+            <path d="M 512 690 C 360 590, 232 480, 232 350 C 232 250, 305 190, 380 190 C 442 190, 490 230, 512 290 C 534 230, 582 190, 644 190 C 719 190, 792 250, 792 350 C 792 480, 664 590, 512 690 Z"
+                  fill="none" stroke="#F5EBD8" stroke-width="52" stroke-linejoin="round"/>
+          </svg>
+          <span class="footer-wordmark">pregacuore</span>
+        </div>
+        <p class="footer-tagline">Prega col cuore.<br>Mai da solo.</p>
+        <p class="footer-copy">© 2026 pregacuore</p>
+      </div>
+
+      <div class="footer-col">
+        <h4>Pagine</h4>
+        <a href="/">Home</a>
+        <a href="/parrocchie">Parrocchie</a>
+        <a href="/diocesi">Diocesi</a>
+        <a href="/chi-siamo">Chi siamo</a>
+      </div>
+
+      <div class="footer-col">
+        <h4>Risorse</h4>
+        <a href="/#pensiero">Il pensiero di oggi</a>
+        <a href="https://www.instagram.com/pregacuore" rel="noopener" target="_blank">Vangelo del giorno</a>
+      </div>
+
+      <div class="footer-col">
+        <h4>Social</h4>
+        <a href="https://www.instagram.com/pregacuore" rel="noopener" target="_blank">Instagram</a>
+        <a href="https://www.facebook.com/pregacuore" rel="noopener" target="_blank">Facebook</a>
+        <a href="https://www.pinterest.com/pregacuore" rel="noopener" target="_blank">Pinterest</a>
+      </div>
+
+      <div class="footer-col">
+        <h4>Contatti</h4>
+        <a href="mailto:info@pregacuore.it">info@pregacuore.it</a>
+        <a href="mailto:parrocchie@pregacuore.it">parrocchie@pregacuore.it</a>
+        <a href="mailto:diocesi@pregacuore.it">diocesi@pregacuore.it</a>
+      </div>
+
+    </div>
+
+    <div class="footer-legal">
+      <a href="/privacy">Privacy</a>
+      <a href="/termini">Termini</a>
+      <a href="/cookie">Cookie</a>
+    </div>
+  </footer>
+
+  <!-- ── JS NAV + REVEAL ── -->
+  <script>
+    const nav = document.getElementById('nav');
+    window.addEventListener('scroll', () => {
+      nav.style.boxShadow = window.scrollY > 30
+        ? '0 2px 24px rgba(58,58,63,0.07)' : 'none';
+    }, { passive: true });
+
+    const navToggle = document.getElementById('nav-toggle');
+    const navLinks = document.getElementById('nav-links');
+    navToggle.addEventListener('click', () => {
+      navLinks.classList.toggle('is-open');
+    });
+    navLinks.querySelectorAll('a').forEach(a => {
+      a.addEventListener('click', () => navLinks.classList.remove('is-open'));
+    });
+
+    const reveals = document.querySelectorAll('.reveal');
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('in'); });
+    }, { threshold: 0.12, rootMargin: '0px 0px -30px 0px' });
+    reveals.forEach(el => io.observe(el));
+  </script>
+</body>
+</html>
