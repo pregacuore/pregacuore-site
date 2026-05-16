@@ -1,0 +1,1057 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- ── SEO ──────────────────────────────────────────────────── -->
+  <title>Chi siamo — Pregacuore</title>
+  <meta name="description"
+    content="Pregacuore è un progetto italiano indipendente. Un piccolo gruppo di cristiani che lavorano in tecnologia, al servizio delle parrocchie italiane.">
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Chi siamo — Pregacuore">
+  <meta property="og:description"
+    content="Un piccolo gruppo italiano indipendente, al servizio delle parrocchie. Sobri, italiani, non commerciali.">
+  <meta property="og:image" content="https://pregacuore.it/og-image.png">
+  <meta property="og:url" content="https://pregacuore.it/chi-siamo">
+  <meta property="og:locale" content="it_IT">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+
+  <meta name="theme-color" content="#7B1F22">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bordeaux: #7B1F22;
+      --cream: #F5EBD8;
+      --gold: #D4A24A;
+      --piombo: #3A3A3F;
+      --avorio: #FAF6EE;
+      --serif: 'Cormorant Garamond', Georgia, serif;
+      --sans: 'Inter', system-ui, sans-serif;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: var(--sans);
+      color: var(--piombo);
+      background: var(--avorio);
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+
+    a { color: inherit; }
+
+    /* ─── NAV ─────────────────────────────────── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      height: 64px;
+      padding: 0 2.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(250, 246, 238, 0.93);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid rgba(123, 31, 34, 0.08);
+      transition: box-shadow 0.3s;
+    }
+
+    .nav-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+    }
+
+    .nav-logo { width: 34px; height: 34px; }
+
+    .nav-wordmark {
+      font-family: var(--serif);
+      font-size: 1.3rem;
+      font-weight: 500;
+      color: var(--bordeaux);
+      letter-spacing: -0.01em;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 2rem;
+    }
+
+    .nav-link {
+      font-family: var(--sans);
+      font-size: 0.82rem;
+      font-weight: 500;
+      color: var(--bordeaux);
+      opacity: 0.72;
+      text-decoration: none;
+      letter-spacing: 0.01em;
+      transition: opacity 0.2s;
+    }
+
+    .nav-link:hover { opacity: 1; }
+
+    .nav-link[aria-current="page"] { opacity: 1; font-weight: 600; }
+
+    .nav-cta {
+      font-family: var(--sans);
+      font-size: 0.72rem;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--bordeaux);
+      border: 1.5px solid rgba(123, 31, 34, 0.5);
+      padding: 9px 22px;
+      border-radius: 100px;
+      text-decoration: none;
+      transition: background 0.22s, color 0.22s, border-color 0.22s;
+    }
+
+    .nav-cta:hover {
+      background: var(--bordeaux);
+      color: var(--cream);
+      border-color: var(--bordeaux);
+    }
+
+    .nav-toggle {
+      display: none;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 8px;
+    }
+    .nav-toggle span {
+      display: block;
+      width: 22px;
+      height: 1.5px;
+      background: var(--bordeaux);
+      margin: 5px 0;
+      transition: transform 0.25s, opacity 0.25s;
+    }
+
+    /* ─── BOTTONI ─────────────────────────────── */
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--gold);
+      color: #2A1506;
+      font-family: var(--sans);
+      font-size: 0.78rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 16px 36px;
+      border-radius: 100px;
+      text-decoration: none;
+      border: none;
+      cursor: pointer;
+      transition: transform 0.22s, box-shadow 0.22s, background 0.22s;
+      box-shadow: 0 4px 24px rgba(212, 162, 74, 0.28);
+    }
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 36px rgba(212, 162, 74, 0.4);
+    }
+    .btn-primary svg { width: 14px; height: 14px; }
+
+    .btn-secondary {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: transparent;
+      color: rgba(245, 235, 216, 0.75);
+      font-family: var(--sans);
+      font-size: 0.78rem;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 16px 36px;
+      border-radius: 100px;
+      text-decoration: none;
+      border: 1.5px solid rgba(245, 235, 216, 0.25);
+      transition: border-color 0.22s, color 0.22s, background 0.22s;
+    }
+    .btn-secondary:hover {
+      border-color: rgba(245, 235, 216, 0.7);
+      color: var(--cream);
+      background: rgba(245, 235, 216, 0.06);
+    }
+
+    /* ─── HERO COMPATTO ──────────────────────── */
+    .hero-compact {
+      background: var(--cream);
+      padding: 160px 2.5rem 90px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-compact::before {
+      content: '';
+      position: absolute;
+      width: 700px; height: 700px;
+      border-radius: 50%;
+      border: 1px solid rgba(123, 31, 34, 0.04);
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+    }
+
+    .hero-inner {
+      max-width: 760px;
+      margin: 0 auto;
+      position: relative;
+      z-index: 1;
+    }
+
+    .hero-eyebrow {
+      font-family: var(--sans);
+      font-size: 0.68rem;
+      font-weight: 500;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--bordeaux);
+      opacity: 0.6;
+      margin-bottom: 1.5rem;
+    }
+
+    .hero-h1 {
+      font-family: var(--serif);
+      font-size: clamp(2.4rem, 5.5vw, 4rem);
+      font-weight: 500;
+      color: var(--bordeaux);
+      line-height: 1.1;
+      margin-bottom: 1.6rem;
+      letter-spacing: -0.005em;
+    }
+    .hero-h1 em { font-style: italic; font-weight: 500; }
+
+    .hero-lead {
+      font-family: var(--serif);
+      font-size: clamp(1.1rem, 2vw, 1.3rem);
+      font-weight: 400;
+      color: var(--piombo);
+      opacity: 0.78;
+      line-height: 1.55;
+      max-width: 560px;
+      margin: 0 auto;
+    }
+
+    /* ─── SEZIONI COMUNI ─────────────────────── */
+    .container {
+      max-width: 880px;
+      margin: 0 auto;
+    }
+
+    .section-label {
+      font-family: var(--sans);
+      font-size: 0.65rem;
+      font-weight: 500;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--bordeaux);
+      opacity: 0.55;
+      margin-bottom: 1rem;
+    }
+
+    .section-title {
+      font-family: var(--serif);
+      font-size: clamp(1.8rem, 3.5vw, 2.6rem);
+      font-weight: 500;
+      line-height: 1.18;
+      color: var(--bordeaux);
+      margin-bottom: 2rem;
+    }
+    .section-title em { font-style: italic; font-weight: 500; }
+
+    /* ─── APERTURA SPIRITUALE ────────────────── */
+    .opening {
+      background: var(--avorio);
+      padding: 90px 2.5rem;
+    }
+
+    .opening-quote {
+      font-family: var(--serif);
+      font-size: clamp(1.4rem, 2.8vw, 1.9rem);
+      font-style: italic;
+      font-weight: 500;
+      color: var(--gold);
+      line-height: 1.35;
+      text-align: center;
+      max-width: 680px;
+      margin: 0 auto 2.5rem;
+      letter-spacing: -0.005em;
+    }
+
+    .opening-ref {
+      font-family: var(--serif);
+      font-size: 0.92rem;
+      font-style: italic;
+      color: var(--bordeaux);
+      opacity: 0.55;
+      text-align: center;
+      margin-bottom: 3rem;
+    }
+
+    .opening-body {
+      font-family: var(--sans);
+      font-size: 1.05rem;
+      font-weight: 400;
+      color: var(--piombo);
+      line-height: 1.75;
+      max-width: 640px;
+      margin: 0 auto;
+    }
+
+    .opening-body p { margin-bottom: 1.2rem; }
+    .opening-body p:last-child { margin-bottom: 0; }
+
+    /* ─── CHI SIAMO (PRATICO) ────────────────── */
+    .who {
+      background: var(--cream);
+      padding: 110px 2.5rem;
+    }
+
+    .who-intro {
+      font-family: var(--sans);
+      font-size: 1.05rem;
+      font-weight: 400;
+      color: var(--piombo);
+      line-height: 1.75;
+      max-width: 640px;
+      margin: 0 auto 3.5rem;
+    }
+
+    .who-intro p { margin-bottom: 1.2rem; }
+    .who-intro p:last-child { margin-bottom: 0; }
+
+    .who-points {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+      margin-top: 1rem;
+    }
+
+    .who-point {
+      background: var(--avorio);
+      border-radius: 18px;
+      padding: 2.2rem 1.8rem;
+      border: 1px solid rgba(123, 31, 34, 0.07);
+    }
+
+    .who-point-num {
+      font-family: var(--serif);
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--gold);
+      letter-spacing: 0.1em;
+      margin-bottom: 0.6rem;
+    }
+
+    .who-point-title {
+      font-family: var(--sans);
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: var(--bordeaux);
+      margin-bottom: 0.8rem;
+      line-height: 1.3;
+    }
+
+    .who-point-desc {
+      font-family: var(--sans);
+      font-size: 0.92rem;
+      font-weight: 400;
+      color: var(--piombo);
+      opacity: 0.85;
+      line-height: 1.65;
+    }
+
+    /* ─── COSA FACCIAMO ──────────────────────── */
+    .what {
+      background: var(--avorio);
+      padding: 100px 2.5rem;
+    }
+
+    .what-header {
+      text-align: center;
+      margin-bottom: 2.5rem;
+    }
+
+    .what-list {
+      max-width: 640px;
+      margin: 0 auto;
+      list-style: none;
+      padding: 0;
+    }
+
+    .what-item {
+      display: flex;
+      gap: 1.2rem;
+      align-items: flex-start;
+      padding: 1.4rem 0;
+      border-bottom: 1px solid rgba(123, 31, 34, 0.08);
+    }
+
+    .what-item:last-child { border-bottom: none; }
+
+    .what-marker {
+      font-family: var(--serif);
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--gold);
+      letter-spacing: 0.05em;
+      flex-shrink: 0;
+      width: 24px;
+      padding-top: 2px;
+    }
+
+    .what-text {
+      font-family: var(--sans);
+      font-size: 1rem;
+      font-weight: 400;
+      color: var(--piombo);
+      line-height: 1.7;
+    }
+
+    /* ─── CONTATTI (CTA bordeaux) ─────────── */
+    .contact {
+      background: var(--bordeaux);
+      padding: 110px 2.5rem;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .contact::before {
+      content: '';
+      position: absolute;
+      width: 700px; height: 700px;
+      border-radius: 50%;
+      border: 1px solid rgba(245, 235, 216, 0.05);
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+    }
+
+    .contact-inner {
+      position: relative;
+      z-index: 1;
+      max-width: 640px;
+      margin: 0 auto;
+    }
+
+    .contact .section-label {
+      color: var(--gold);
+      opacity: 1;
+      margin-bottom: 1.4rem;
+    }
+
+    .contact-title {
+      font-family: var(--serif);
+      font-size: clamp(2rem, 4vw, 2.8rem);
+      font-weight: 500;
+      color: var(--cream);
+      line-height: 1.15;
+      margin-bottom: 1.4rem;
+    }
+    .contact-title em { font-style: italic; }
+
+    .contact-sub {
+      font-family: var(--sans);
+      font-size: 1rem;
+      font-weight: 400;
+      color: rgba(245, 235, 216, 0.7);
+      line-height: 1.7;
+      margin-bottom: 2.5rem;
+    }
+
+    .contact-actions {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    /* ─── STRISCIA NEWSLETTER (footer pre) ───── */
+    .newsletter-strip {
+      background: #2c1517;
+      padding: 60px 2.5rem;
+    }
+
+    .newsletter-strip-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 2rem;
+      flex-wrap: wrap;
+    }
+
+    .newsletter-strip-text h3 {
+      font-family: var(--serif);
+      font-size: 1.5rem;
+      font-style: italic;
+      font-weight: 500;
+      color: var(--cream);
+      line-height: 1.3;
+      margin-bottom: 0.4rem;
+    }
+
+    .newsletter-strip-text p {
+      font-family: var(--sans);
+      font-size: 0.82rem;
+      font-weight: 400;
+      color: rgba(245, 235, 216, 0.5);
+      line-height: 1.5;
+    }
+
+    .newsletter-strip-form {
+      display: flex;
+      gap: 0.6rem;
+      flex: 1;
+      max-width: 460px;
+      min-width: 280px;
+    }
+
+    .newsletter-strip-form input[type="email"] {
+      flex: 1;
+      font-family: var(--sans);
+      font-size: 0.92rem;
+      color: var(--cream);
+      background: transparent;
+      border: 1px solid rgba(245, 235, 216, 0.3);
+      border-radius: 100px;
+      padding: 12px 20px;
+      transition: border-color 0.2s;
+    }
+
+    .newsletter-strip-form input[type="email"]:focus {
+      outline: none;
+      border-color: rgba(245, 235, 216, 0.7);
+    }
+
+    .newsletter-strip-form input[type="email"]::placeholder {
+      color: rgba(245, 235, 216, 0.4);
+    }
+
+    .newsletter-strip-form .btn-primary {
+      padding: 12px 24px;
+      font-size: 0.72rem;
+      box-shadow: 0 2px 16px rgba(212, 162, 74, 0.25);
+      white-space: nowrap;
+    }
+
+    .newsletter-strip-success {
+      display: none;
+      font-family: var(--serif);
+      font-size: 1rem;
+      font-style: italic;
+      color: var(--gold);
+    }
+
+    .newsletter-strip[data-state="success"] .newsletter-strip-form {
+      display: none;
+    }
+    .newsletter-strip[data-state="success"] .newsletter-strip-success {
+      display: block;
+    }
+
+    /* ─── FOOTER (stesso della home) ─────────── */
+    footer {
+      background: #261214;
+      padding: 4rem 2.5rem 2rem;
+    }
+
+    .footer-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1.4fr 1fr 1fr 1fr 1fr;
+      gap: 2.5rem;
+      align-items: start;
+    }
+
+    .footer-brand-col {
+      display: flex;
+      flex-direction: column;
+      gap: 0.8rem;
+    }
+
+    .footer-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 0.6rem;
+    }
+
+    .footer-wordmark {
+      font-family: var(--serif);
+      font-size: 1.2rem;
+      font-weight: 500;
+      color: rgba(245, 235, 216, 0.7);
+    }
+
+    .footer-tagline {
+      font-family: var(--serif);
+      font-size: 0.95rem;
+      font-style: italic;
+      font-weight: 400;
+      color: rgba(245, 235, 216, 0.5);
+      line-height: 1.5;
+    }
+
+    .footer-copy {
+      font-family: var(--sans);
+      font-size: 0.72rem;
+      font-weight: 300;
+      color: rgba(245, 235, 216, 0.25);
+      margin-top: 0.6rem;
+    }
+
+    .footer-col h4 {
+      font-family: var(--sans);
+      font-size: 0.74rem;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: rgba(245, 235, 216, 0.55);
+      margin-bottom: 1.1rem;
+    }
+
+    .footer-col a {
+      display: block;
+      font-family: var(--sans);
+      font-size: 0.85rem;
+      font-weight: 400;
+      color: rgba(245, 235, 216, 0.4);
+      text-decoration: none;
+      margin-bottom: 0.55rem;
+      transition: color 0.2s;
+    }
+
+    .footer-col a:hover { color: rgba(245, 235, 216, 0.85); }
+
+    .footer-legal {
+      max-width: 1100px;
+      margin: 3rem auto 0;
+      padding-top: 1.6rem;
+      border-top: 1px solid rgba(245, 235, 216, 0.08);
+      display: flex;
+      justify-content: flex-end;
+      gap: 1.8rem;
+    }
+
+    .footer-legal a {
+      font-family: var(--sans);
+      font-size: 0.72rem;
+      font-weight: 400;
+      color: rgba(245, 235, 216, 0.3);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .footer-legal a:hover { color: rgba(245, 235, 216, 0.7); }
+
+    /* ─── SCROLL REVEAL ──────────────────────── */
+    .reveal {
+      opacity: 0;
+      transform: translateY(28px);
+      transition: opacity 0.75s ease, transform 0.75s ease;
+    }
+
+    .reveal.in {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .d1 { transition-delay: 0.1s; }
+    .d2 { transition-delay: 0.2s; }
+    .d3 { transition-delay: 0.3s; }
+
+    /* ─── RESPONSIVE ─────────────────────────── */
+    @media (max-width: 960px) {
+      .footer-inner { grid-template-columns: 1fr 1fr 1fr; }
+      .footer-brand-col { grid-column: 1 / -1; margin-bottom: 1rem; }
+    }
+
+    @media (max-width: 860px) {
+      .nav-links { display: none; }
+      .nav-toggle { display: block; }
+      .nav-links.is-open {
+        display: flex;
+        position: absolute;
+        top: 64px; left: 0; right: 0;
+        background: var(--avorio);
+        flex-direction: column;
+        padding: 1.5rem 2.5rem 2rem;
+        gap: 1.2rem;
+        border-bottom: 1px solid rgba(123, 31, 34, 0.08);
+      }
+      .nav-links.is-open .nav-cta { align-self: flex-start; }
+
+      .who-points { grid-template-columns: 1fr; }
+      .newsletter-strip-inner { flex-direction: column; align-items: flex-start; }
+      .newsletter-strip-form { width: 100%; max-width: none; }
+    }
+
+    @media (max-width: 600px) {
+      nav { padding: 0 1.25rem; }
+      .hero-compact, .opening, .who, .what, .contact, .newsletter-strip {
+        padding-left: 1.25rem; padding-right: 1.25rem;
+      }
+      .hero-compact { padding-top: 130px; padding-bottom: 70px; }
+      .opening, .what { padding-top: 70px; padding-bottom: 70px; }
+      .who { padding-top: 80px; padding-bottom: 80px; }
+      .contact { padding-top: 90px; padding-bottom: 90px; }
+      .who-point { padding: 2rem 1.6rem; }
+      .contact-actions { flex-direction: column; align-items: stretch; }
+      .contact-actions .btn-primary,
+      .contact-actions .btn-secondary { justify-content: center; }
+      .footer-inner { grid-template-columns: 1fr 1fr; gap: 2rem; }
+      .footer-legal { justify-content: center; flex-wrap: wrap; }
+      .newsletter-strip-form { flex-direction: column; }
+      .newsletter-strip-form .btn-primary { width: 100%; justify-content: center; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ── NAV ── -->
+  <nav id="nav">
+    <a href="/" class="nav-brand" aria-label="Pregacuore — home">
+      <svg class="nav-logo" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+        <rect width="1024" height="1024" rx="200" fill="#7B1F22"/>
+        <rect x="482" y="410" width="60" height="450" rx="6" fill="#F5EBD8"/>
+        <path d="M 512 320 C 542 355, 542 395, 512 410 C 482 395, 482 355, 512 320 Z" fill="#D4A24A"/>
+        <path d="M 512 690 C 360 590, 232 480, 232 350 C 232 250, 305 190, 380 190 C 442 190, 490 230, 512 290 C 534 230, 582 190, 644 190 C 719 190, 792 250, 792 350 C 792 480, 664 590, 512 690 Z"
+              fill="none" stroke="#F5EBD8" stroke-width="52" stroke-linejoin="round"/>
+      </svg>
+      <span class="nav-wordmark">pregacuore</span>
+    </a>
+
+    <button class="nav-toggle" id="nav-toggle" aria-label="Apri menu" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+
+    <div class="nav-links" id="nav-links">
+      <a href="/parrocchie" class="nav-link">Parrocchie</a>
+      <a href="/chi-siamo" class="nav-link" aria-current="page">Chi siamo</a>
+      <a href="/parrocchie" class="nav-cta">Per la tua parrocchia</a>
+    </div>
+  </nav>
+
+  <!-- ── HERO COMPATTO ── -->
+  <section class="hero-compact">
+    <div class="hero-inner">
+      <p class="hero-eyebrow">Chi siamo</p>
+      <h1 class="hero-h1">
+        Un piccolo gruppo italiano,<br>
+        <em>con un'idea precisa.</em>
+      </h1>
+      <p class="hero-lead">
+        Pregacuore è un progetto indipendente, pensato e fatto
+        da cristiani italiani per le parrocchie italiane.
+      </p>
+    </div>
+  </section>
+
+  <!-- ── APERTURA SPIRITUALE ── -->
+  <section class="opening">
+    <div class="container">
+      <p class="opening-quote reveal">
+        «Dove sono due o tre riuniti nel mio nome,<br>io sono in mezzo a loro.»
+      </p>
+      <p class="opening-ref reveal d1">Matteo 18,20</p>
+
+      <div class="opening-body reveal d2">
+        <p>
+          Le parrocchie italiane si stanno svuotando. Lo sappiamo, e non
+          è una sorpresa per nessuno. Ma dentro casa, davanti a uno schermo,
+          milioni di persone cercano ancora una parola che parli al cuore,
+          ogni mattina.
+        </p>
+        <p>
+          Tra queste due realtà — la chiesa che svuota e il telefono che
+          riempie — c'è uno spazio che nessuno presidia bene. Le app
+          internazionali parlano un italiano tradotto. I gruppi WhatsApp
+          delle parrocchie si perdono nel rumore. La domenica finisce
+          alla messa, e poi la comunità sparisce fino alla domenica dopo.
+        </p>
+        <p>
+          Pregacuore nasce per riempire questo spazio. Una preghiera
+          quotidiana che la parrocchia condivide con i suoi fedeli, e che
+          i fedeli condividono fra loro. Un luogo sobrio dove la Parola
+          arriva al mattino e l'eco resta per tutta la giornata. Niente
+          di nuovo, in fondo: solo quello che la Chiesa ha sempre fatto,
+          tradotto nella forma di oggi.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── CHI C'È DIETRO ── -->
+  <section class="who">
+    <div class="container">
+      <p class="section-label reveal">Chi c'è dietro</p>
+      <h2 class="section-title reveal d1">
+        Italiani, sviluppatori,<br><em>e credenti.</em>
+      </h2>
+
+      <div class="who-intro reveal d2">
+        <p>
+          Pregacuore è un progetto italiano indipendente. Siamo un piccolo
+          gruppo: persone che lavorano nella tecnologia da anni, e che
+          vanno a Messa la domenica. Non un'azienda di marketing religioso.
+          Non un'iniziativa diocesana ufficiale. Non un movimento.
+        </p>
+        <p>
+          Siamo cristiani italiani che hanno deciso di mettere le loro
+          competenze al servizio della Chiesa locale, parrocchia per
+          parrocchia. Lavoriamo nella discrezione, perché crediamo che
+          il prodotto debba parlare prima di chi lo fa.
+        </p>
+      </div>
+
+      <div class="who-points">
+        <article class="who-point reveal">
+          <p class="who-point-num">01</p>
+          <h3 class="who-point-title">Indipendenti</h3>
+          <p class="who-point-desc">
+            Non rispondiamo a nessuna diocesi, movimento o congregazione.
+            Lavoriamo a fianco delle parrocchie, mai sopra di loro.
+            La voce resta del parroco.
+          </p>
+        </article>
+
+        <article class="who-point reveal d1">
+          <p class="who-point-num">02</p>
+          <h3 class="who-point-title">Italiani</h3>
+          <p class="who-point-desc">
+            Pensato per le parrocchie italiane, con il loro calendario
+            liturgico, il loro modo di parlare, le loro feste. Non
+            una traduzione di un'app americana.
+          </p>
+        </article>
+
+        <article class="who-point reveal d2">
+          <p class="who-point-num">03</p>
+          <h3 class="who-point-title">Sobri</h3>
+          <p class="who-point-desc">
+            Niente pubblicità, niente raccolta dati invasiva, niente
+            notifiche aggressive. Un piccolo abbonamento annuale della
+            parrocchia paga lo sviluppo. Tutto qui.
+          </p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── COSA FACCIAMO ── -->
+  <section class="what">
+    <div class="container">
+      <div class="what-header">
+        <p class="section-label reveal">Cosa facciamo</p>
+        <h2 class="section-title reveal d1">
+          Tre cose, <em>fatte bene.</em>
+        </h2>
+      </div>
+
+      <ul class="what-list">
+        <li class="what-item reveal">
+          <span class="what-marker">01</span>
+          <p class="what-text">
+            Sviluppiamo <strong>Pregacuore</strong>, lo spazio digitale
+            di preghiera quotidiana che vedi su questo sito. Vangelo del
+            giorno, riflessione breve, comunità parrocchiale.
+          </p>
+        </li>
+        <li class="what-item reveal d1">
+          <span class="what-marker">02</span>
+          <p class="what-text">
+            Lo offriamo <strong>gratuito ai fedeli</strong>, con un piccolo
+            abbonamento annuale alle parrocchie. Niente listini gonfiati,
+            niente piano premium, niente upsell.
+          </p>
+        </li>
+        <li class="what-item reveal d2">
+          <span class="what-marker">03</span>
+          <p class="what-text">
+            Cresciamo <strong>insieme alle parrocchie</strong>, una alla
+            volta, senza forzare i tempi della Chiesa. Le novità arrivano
+            quando hanno senso, non quando fanno marketing.
+          </p>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ── CONTATTI ── -->
+  <section class="contact">
+    <div class="contact-inner">
+      <p class="section-label reveal">Scrivici</p>
+      <h2 class="contact-title reveal d1">
+        Una domanda, un'idea,<br><em>un saluto.</em>
+      </h2>
+      <p class="contact-sub reveal d2">
+        Rispondiamo a tutte le email, anche se ci mettiamo qualche
+        giorno. Per le parrocchie c'è un indirizzo dedicato.
+      </p>
+      <div class="contact-actions reveal d3">
+        <a href="mailto:info@pregacuore.it" class="btn-primary">info@pregacuore.it</a>
+        <a href="mailto:parrocchie@pregacuore.it" class="btn-secondary">parrocchie@pregacuore.it</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── STRISCIA NEWSLETTER (pre-footer) ── -->
+  <section class="newsletter-strip" id="newsletter-strip" data-state="idle">
+    <div class="newsletter-strip-inner">
+      <div class="newsletter-strip-text">
+        <h3>Ricevi il pensiero ogni mattina, via email.</h3>
+        <p>7:30 ogni mattina. Niente spam. Ti disiscrivi con un clic.</p>
+      </div>
+      <form class="newsletter-strip-form" id="newsletter-strip-form" novalidate>
+        <input type="email" name="email" placeholder="la tua email"
+               required aria-label="La tua email">
+        <button type="submit" class="btn-primary">Iscrivimi →</button>
+      </form>
+      <p class="newsletter-strip-success">
+        Controlla la tua casella per la mail di conferma.
+      </p>
+    </div>
+  </section>
+
+  <!-- ── FOOTER ── -->
+  <footer>
+    <div class="footer-inner">
+
+      <div class="footer-col footer-brand-col">
+        <div class="footer-brand">
+          <svg width="26" height="26" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <rect width="1024" height="1024" rx="200" fill="#7B1F22"/>
+            <rect x="482" y="410" width="60" height="450" rx="6" fill="#F5EBD8"/>
+            <path d="M 512 320 C 542 355, 542 395, 512 410 C 482 395, 482 355, 512 320 Z" fill="#D4A24A"/>
+            <path d="M 512 690 C 360 590, 232 480, 232 350 C 232 250, 305 190, 380 190 C 442 190, 490 230, 512 290 C 534 230, 582 190, 644 190 C 719 190, 792 250, 792 350 C 792 480, 664 590, 512 690 Z"
+                  fill="none" stroke="#F5EBD8" stroke-width="52" stroke-linejoin="round"/>
+          </svg>
+          <span class="footer-wordmark">pregacuore</span>
+        </div>
+        <p class="footer-tagline">Prega col cuore.<br>Mai da solo.</p>
+        <p class="footer-copy">© 2026 pregacuore</p>
+      </div>
+
+      <div class="footer-col">
+        <h4>Pagine</h4>
+        <a href="/">Home</a>
+        <a href="/parrocchie">Parrocchie</a>
+        <a href="/chi-siamo">Chi siamo</a>
+      </div>
+
+      <div class="footer-col">
+        <h4>Risorse</h4>
+        <a href="/#pensiero">Il pensiero di oggi</a>
+        <a href="https://www.instagram.com/pregacuore" rel="noopener" target="_blank">Vangelo del giorno</a>
+      </div>
+
+      <div class="footer-col">
+        <h4>Social</h4>
+        <a href="https://www.instagram.com/pregacuore" rel="noopener" target="_blank">Instagram</a>
+        <a href="https://www.facebook.com/pregacuore" rel="noopener" target="_blank">Facebook</a>
+        <a href="https://www.pinterest.com/pregacuore" rel="noopener" target="_blank">Pinterest</a>
+      </div>
+
+      <div class="footer-col">
+        <h4>Contatti</h4>
+        <a href="mailto:info@pregacuore.it">info@pregacuore.it</a>
+        <a href="mailto:parrocchie@pregacuore.it">parrocchie@pregacuore.it</a>
+      </div>
+
+    </div>
+
+    <div class="footer-legal">
+      <a href="/privacy">Privacy</a>
+      <a href="/termini">Termini</a>
+      <a href="/cookie">Cookie</a>
+    </div>
+  </footer>
+
+  <!-- ── JS NAV ── -->
+  <script>
+    const nav = document.getElementById('nav');
+    window.addEventListener('scroll', () => {
+      nav.style.boxShadow = window.scrollY > 30
+        ? '0 2px 24px rgba(58,58,63,0.07)'
+        : 'none';
+    }, { passive: true });
+
+    const navToggle = document.getElementById('nav-toggle');
+    const navLinks = document.getElementById('nav-links');
+    navToggle.addEventListener('click', () => {
+      const isOpen = navLinks.classList.toggle('is-open');
+      navToggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+      navToggle.setAttribute('aria-label', isOpen ? 'Chiudi menu' : 'Apri menu');
+    });
+    navLinks.querySelectorAll('a').forEach(a => {
+      a.addEventListener('click', () => {
+        navLinks.classList.remove('is-open');
+        navToggle.setAttribute('aria-expanded', 'false');
+      });
+    });
+
+    // Scroll reveal
+    const reveals = document.querySelectorAll('.reveal');
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('in'); });
+    }, { threshold: 0.12, rootMargin: '0px 0px -30px 0px' });
+    reveals.forEach(el => io.observe(el));
+  </script>
+
+  <!-- ── JS NEWSLETTER STRIP (placeholder, come home) ── -->
+  <script>
+    (function () {
+      const section = document.getElementById('newsletter-strip');
+      const form    = document.getElementById('newsletter-strip-form');
+      if (!form) return;
+
+      form.addEventListener('submit', async function (ev) {
+        ev.preventDefault();
+        const email = form.querySelector('input[type="email"]').value.trim();
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+          form.querySelector('input[type="email"]').focus();
+          return;
+        }
+        const btn = form.querySelector('button');
+        btn.disabled = true;
+        btn.textContent = 'Invio…';
+
+        // Placeholder: backend reale in S2 (Brevo + Supabase Edge Function)
+        try {
+          await new Promise(r => setTimeout(r, 700));
+          section.setAttribute('data-state', 'success');
+        } catch (e) {
+          console.warn('newsletter strip:', e);
+          btn.disabled = false;
+          btn.textContent = 'Iscrivimi →';
+        }
+      });
+    })();
+  </script>
+</body>
+</html>
