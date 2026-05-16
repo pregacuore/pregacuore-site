@@ -1,0 +1,21 @@
+# Documentazione interna e file di lavoro
+pregacuore-site/HANDOFF_*.md
+pregacuore-site/Strategia_*.docx
+pregacuore-site/pregacuore_brand_book.md
+pregacuore-site/indexold.html
+pregacuore-site/_preview_server.py
+pregacuore-site/assets/landscapes_preview.html
+
+# Config tool locali
+pregacuore-site/.claude/
+.claude/
+
+# Sistema
+.DS_Store
+Thumbs.db
+*.log
+
+# Node
+node_modules/
+.env
+.env.local

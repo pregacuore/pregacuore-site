@@ -1081,7 +1081,20 @@
         btn.textContent = 'Invio…';
 
         try {
-          await new Promise(r => setTimeout(r, 700));
+          const _res = await fetch('https://vnzkmluglswcltdgwcex.supabase.co/functions/v1/newsletter-subscribe', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              email: email,
+              gdpr: true,
+              source: 'website_chi_siamo',
+              referrer: window.location.href
+            })
+          });
+          if (!_res.ok) {
+            const _err = await _res.json().catch(() => ({}));
+            throw new Error(_err.error || 'Errore di rete');
+          }
           section.setAttribute('data-state', 'success');
         } catch (e) {
           console.warn('newsletter strip:', e);
