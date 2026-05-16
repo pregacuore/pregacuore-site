@@ -1,0 +1,1633 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- ── SEO ── -->
+  <title>Pregacuore per la tua parrocchia — 3 mesi gratis</title>
+  <meta name="description"
+    content="Il Vangelo del giorno con riflessione, ogni mattina, per i tuoi parrocchiani. Pregacuore è uno strumento al servizio della parrocchia italiana. 3 mesi gratis per le parrocchie pioniere.">
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Pregacuore per la tua parrocchia — 3 mesi gratis">
+  <meta property="og:description"
+    content="Pensato per parroci italiani. Niente tecnologia complicata. 3 mesi gratis, soddisfatto o rimborsato.">
+  <meta property="og:image" content="https://pregacuore.it/og-image.png">
+  <meta property="og:url" content="https://pregacuore.it/parrocchie">
+  <meta property="og:locale" content="it_IT">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <meta name="theme-color" content="#7B1F22">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bordeaux: #7B1F22;
+      --cream: #F5EBD8;
+      --gold: #D4A24A;
+      --piombo: #3A3A3F;
+      --avorio: #FAF6EE;
+      --serif: 'Cormorant Garamond', Georgia, serif;
+      --sans: 'Inter', system-ui, sans-serif;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: var(--sans);
+      color: var(--piombo);
+      background: var(--avorio);
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+
+    a { color: inherit; }
+
+    /* ─── NAV ─────────────────────────────────── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      height: 64px;
+      padding: 0 2.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(250, 246, 238, 0.93);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid rgba(123, 31, 34, 0.08);
+      transition: box-shadow 0.3s;
+    }
+
+    .nav-brand { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+    .nav-logo { width: 34px; height: 34px; }
+    .nav-wordmark {
+      font-family: var(--serif);
+      font-size: 1.3rem;
+      font-weight: 500;
+      color: var(--bordeaux);
+      letter-spacing: -0.01em;
+    }
+
+    .nav-links { display: flex; align-items: center; gap: 2rem; }
+    .nav-link {
+      font-family: var(--sans);
+      font-size: 0.82rem;
+      font-weight: 500;
+      color: var(--bordeaux);
+      opacity: 0.72;
+      text-decoration: none;
+      letter-spacing: 0.01em;
+      transition: opacity 0.2s;
+    }
+    .nav-link:hover { opacity: 1; }
+    .nav-link[aria-current="page"] { opacity: 1; font-weight: 600; }
+
+    .nav-cta {
+      font-family: var(--sans);
+      font-size: 0.72rem;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--bordeaux);
+      border: 1.5px solid rgba(123, 31, 34, 0.5);
+      padding: 9px 22px;
+      border-radius: 100px;
+      text-decoration: none;
+      transition: background 0.22s, color 0.22s, border-color 0.22s;
+    }
+    .nav-cta:hover {
+      background: var(--bordeaux);
+      color: var(--cream);
+      border-color: var(--bordeaux);
+    }
+
+    .nav-toggle {
+      display: none; background: none; border: none; cursor: pointer; padding: 8px;
+    }
+    .nav-toggle span {
+      display: block; width: 22px; height: 1.5px;
+      background: var(--bordeaux); margin: 5px 0;
+      transition: transform 0.25s, opacity 0.25s;
+    }
+
+    /* ─── BOTTONI ─────────────────────────────── */
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--gold);
+      color: #2A1506;
+      font-family: var(--sans);
+      font-size: 0.78rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 16px 36px;
+      border-radius: 100px;
+      text-decoration: none;
+      border: none;
+      cursor: pointer;
+      transition: transform 0.22s, box-shadow 0.22s, background 0.22s;
+      box-shadow: 0 4px 24px rgba(212, 162, 74, 0.28);
+    }
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 36px rgba(212, 162, 74, 0.4);
+    }
+
+    .btn-secondary {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: transparent;
+      color: rgba(245, 235, 216, 0.75);
+      font-family: var(--sans);
+      font-size: 0.78rem;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 16px 36px;
+      border-radius: 100px;
+      text-decoration: none;
+      border: 1.5px solid rgba(245, 235, 216, 0.25);
+      transition: border-color 0.22s, color 0.22s, background 0.22s;
+    }
+    .btn-secondary:hover {
+      border-color: rgba(245, 235, 216, 0.7);
+      color: var(--cream);
+      background: rgba(245, 235, 216, 0.06);
+    }
+
+    .btn-outline-bordeaux {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: transparent;
+      color: var(--bordeaux);
+      font-family: var(--sans);
+      font-size: 0.78rem;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 14px 28px;
+      border-radius: 100px;
+      text-decoration: none;
+      border: 1.5px solid rgba(123, 31, 34, 0.35);
+      transition: background 0.22s, color 0.22s, border-color 0.22s;
+    }
+    .btn-outline-bordeaux:hover {
+      background: var(--bordeaux);
+      color: var(--cream);
+      border-color: var(--bordeaux);
+    }
+
+    /* ─── HERO ─────────────────────────────── */
+    .hero {
+      background: var(--bordeaux);
+      padding: 160px 2.5rem 110px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      width: 800px; height: 800px;
+      border-radius: 50%;
+      border: 1px solid rgba(245, 235, 216, 0.05);
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+    }
+    .hero::after {
+      content: '';
+      position: absolute;
+      width: 500px; height: 500px;
+      border-radius: 50%;
+      border: 1px solid rgba(245, 235, 216, 0.04);
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+    }
+
+    .hero-inner {
+      max-width: 820px;
+      margin: 0 auto;
+      position: relative;
+      z-index: 1;
+    }
+
+    .hero-badge {
+      display: inline-block;
+      font-family: var(--sans);
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--gold);
+      background: rgba(212, 162, 74, 0.1);
+      border: 1px solid rgba(212, 162, 74, 0.4);
+      padding: 8px 16px;
+      border-radius: 100px;
+      margin-bottom: 2rem;
+    }
+
+    .hero-h1 {
+      font-family: var(--serif);
+      font-size: clamp(2.4rem, 5.5vw, 4.2rem);
+      font-weight: 500;
+      color: var(--cream);
+      line-height: 1.1;
+      margin-bottom: 1.6rem;
+      letter-spacing: -0.005em;
+    }
+    .hero-h1 em { font-style: italic; font-weight: 500; }
+
+    .hero-lead {
+      font-family: var(--serif);
+      font-size: clamp(1.15rem, 2.2vw, 1.45rem);
+      font-weight: 400;
+      color: rgba(245, 235, 216, 0.78);
+      line-height: 1.55;
+      max-width: 640px;
+      margin: 0 auto 2.5rem;
+    }
+
+    .hero-actions {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    /* ─── SEZIONI COMUNI ─────────────────────── */
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .section-label {
+      font-family: var(--sans);
+      font-size: 0.65rem;
+      font-weight: 500;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--bordeaux);
+      opacity: 0.55;
+      margin-bottom: 1rem;
+    }
+
+    .section-title {
+      font-family: var(--serif);
+      font-size: clamp(2rem, 4vw, 3rem);
+      font-weight: 500;
+      line-height: 1.15;
+      color: var(--bordeaux);
+      margin-bottom: 1.4rem;
+    }
+    .section-title em { font-style: italic; font-weight: 500; }
+
+    .section-sub {
+      font-family: var(--sans);
+      font-size: 1rem;
+      font-weight: 400;
+      color: var(--piombo);
+      line-height: 1.75;
+      opacity: 0.78;
+      max-width: 620px;
+    }
+
+    /* ─── RASSICURAZIONE TECH ───────────────── */
+    .reassure {
+      background: var(--cream);
+      padding: 90px 2.5rem;
+    }
+
+    .reassure-inner {
+      max-width: 780px;
+      margin: 0 auto;
+      text-align: center;
+    }
+
+    .reassure-quote {
+      font-family: var(--serif);
+      font-size: clamp(1.5rem, 3vw, 2.1rem);
+      font-style: italic;
+      font-weight: 500;
+      color: var(--bordeaux);
+      line-height: 1.35;
+      margin-bottom: 2rem;
+    }
+
+    .reassure-body {
+      font-family: var(--sans);
+      font-size: 1.02rem;
+      font-weight: 400;
+      color: var(--piombo);
+      line-height: 1.75;
+      opacity: 0.85;
+      max-width: 620px;
+      margin: 0 auto;
+    }
+
+    /* ─── PROBLEMA RICONOSCIUTO ─────────────── */
+    .problem {
+      background: var(--avorio);
+      padding: 100px 2.5rem;
+    }
+
+    .problem-header {
+      max-width: 720px;
+      margin: 0 auto 3rem;
+      text-align: center;
+    }
+
+    .problem-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2.5rem;
+      max-width: 880px;
+      margin: 0 auto;
+    }
+
+    .problem-col h3 {
+      font-family: var(--sans);
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--bordeaux);
+      opacity: 0.6;
+      margin-bottom: 1.2rem;
+    }
+
+    .problem-col p {
+      font-family: var(--serif);
+      font-size: 1.15rem;
+      font-weight: 400;
+      color: var(--piombo);
+      line-height: 1.6;
+    }
+
+    .problem-col.before {
+      padding-right: 2rem;
+      border-right: 1px solid rgba(123, 31, 34, 0.12);
+    }
+
+    .problem-col.before p { opacity: 0.7; }
+
+    .problem-col.after p {
+      font-style: italic;
+      color: var(--bordeaux);
+    }
+
+    /* ─── COSA OFFRIAMO ────────────────────── */
+    .offering {
+      background: var(--cream);
+      padding: 110px 2.5rem;
+    }
+
+    .offering-header {
+      max-width: 720px;
+      margin: 0 auto 4rem;
+      text-align: center;
+    }
+
+    .offering-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2px;
+      background: rgba(123, 31, 34, 0.1);
+      border-radius: 20px;
+      overflow: hidden;
+    }
+
+    .offering-item {
+      background: var(--avorio);
+      padding: 2.8rem 2.4rem;
+    }
+
+    .offering-num {
+      font-family: var(--serif);
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--gold);
+      letter-spacing: 0.1em;
+      margin-bottom: 0.7rem;
+    }
+
+    .offering-title {
+      font-family: var(--sans);
+      font-size: 1.15rem;
+      font-weight: 600;
+      color: var(--bordeaux);
+      margin-bottom: 1rem;
+      line-height: 1.2;
+    }
+
+    .offering-desc {
+      font-family: var(--sans);
+      font-size: 0.96rem;
+      font-weight: 400;
+      color: var(--piombo);
+      line-height: 1.65;
+      opacity: 0.85;
+    }
+
+    /* ─── PACCHETTI ──────────────────────────── */
+    .pricing {
+      background: var(--avorio);
+      padding: 110px 2.5rem;
+    }
+
+    .pricing-header {
+      max-width: 760px;
+      margin: 0 auto 1rem;
+      text-align: center;
+    }
+
+    .pricing-promo {
+      max-width: 760px;
+      margin: 0 auto 4rem;
+      text-align: center;
+      background: var(--bordeaux);
+      color: var(--cream);
+      padding: 1.6rem 2rem;
+      border-radius: 14px;
+    }
+
+    .pricing-promo-eyebrow {
+      font-family: var(--sans);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 0.5rem;
+    }
+
+    .pricing-promo-text {
+      font-family: var(--serif);
+      font-size: 1.2rem;
+      font-style: italic;
+      line-height: 1.4;
+    }
+    .pricing-promo-text strong {
+      font-weight: 600;
+      font-style: normal;
+      color: var(--gold);
+    }
+
+    .pricing-promo-fine {
+      font-family: var(--sans);
+      font-size: 0.78rem;
+      color: rgba(245, 235, 216, 0.55);
+      margin-top: 0.6rem;
+    }
+
+    .pricing-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.4rem;
+      margin-bottom: 3.5rem;
+    }
+
+    .pricing-card {
+      background: var(--cream);
+      border-radius: 20px;
+      padding: 2.6rem 2rem;
+      border: 1.5px solid rgba(123, 31, 34, 0.08);
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.25s, border-color 0.25s;
+    }
+
+    .pricing-card:hover {
+      transform: translateY(-3px);
+      border-color: rgba(123, 31, 34, 0.2);
+    }
+
+    .pricing-card.is-featured {
+      border-color: var(--gold);
+      background: linear-gradient(180deg, var(--cream) 0%, var(--cream) 100%);
+      position: relative;
+    }
+
+    .pricing-card.is-featured::before {
+      content: 'Più scelta';
+      position: absolute;
+      top: -12px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--gold);
+      color: #2A1506;
+      font-family: var(--sans);
+      font-size: 0.65rem;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      padding: 5px 14px;
+      border-radius: 100px;
+    }
+
+    .pricing-name {
+      font-family: var(--serif);
+      font-size: 1.5rem;
+      font-weight: 500;
+      color: var(--bordeaux);
+      margin-bottom: 0.4rem;
+    }
+
+    .pricing-target {
+      font-family: var(--sans);
+      font-size: 0.82rem;
+      font-weight: 400;
+      color: var(--piombo);
+      opacity: 0.65;
+      line-height: 1.5;
+      margin-bottom: 1.6rem;
+      min-height: 2.5em;
+    }
+
+    .pricing-price {
+      font-family: var(--serif);
+      font-size: 2.6rem;
+      font-weight: 500;
+      color: var(--bordeaux);
+      line-height: 1;
+      margin-bottom: 0.3rem;
+    }
+
+    .pricing-price .currency {
+      font-size: 1.4rem;
+      vertical-align: super;
+      font-weight: 400;
+    }
+
+    .pricing-period {
+      font-family: var(--sans);
+      font-size: 0.85rem;
+      font-weight: 400;
+      color: var(--piombo);
+      opacity: 0.6;
+      margin-bottom: 1.8rem;
+    }
+
+    .pricing-features {
+      list-style: none;
+      padding: 0;
+      margin: 0 0 2rem 0;
+      flex: 1;
+    }
+
+    .pricing-features li {
+      font-family: var(--sans);
+      font-size: 0.9rem;
+      font-weight: 400;
+      color: var(--piombo);
+      line-height: 1.55;
+      padding: 0.5rem 0 0.5rem 1.7rem;
+      position: relative;
+      opacity: 0.92;
+    }
+
+    .pricing-features li::before {
+      content: '';
+      position: absolute;
+      left: 0; top: 0.85rem;
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: var(--gold);
+    }
+
+    .pricing-card .btn-outline-bordeaux {
+      width: 100%;
+      justify-content: center;
+    }
+
+    .pricing-card.is-featured .btn-outline-bordeaux {
+      background: var(--bordeaux);
+      color: var(--cream);
+      border-color: var(--bordeaux);
+    }
+
+    /* ─── BOX DIOCESI ─────────────────────── */
+    .diocese-box {
+      max-width: 880px;
+      margin: 0 auto;
+      background: linear-gradient(135deg, #2c1517 0%, #1f0f10 100%);
+      border-radius: 20px;
+      padding: 2.8rem 3rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 2rem;
+      flex-wrap: wrap;
+    }
+
+    .diocese-box-text {
+      flex: 1;
+      min-width: 280px;
+    }
+
+    .diocese-box h3 {
+      font-family: var(--serif);
+      font-size: 1.6rem;
+      font-weight: 500;
+      color: var(--cream);
+      line-height: 1.25;
+      margin-bottom: 0.6rem;
+    }
+    .diocese-box h3 em { font-style: italic; color: var(--gold); }
+
+    .diocese-box p {
+      font-family: var(--sans);
+      font-size: 0.95rem;
+      font-weight: 400;
+      color: rgba(245, 235, 216, 0.6);
+      line-height: 1.65;
+    }
+
+    .diocese-box .btn-primary {
+      flex-shrink: 0;
+    }
+
+    /* ─── FAQ ─────────────────────────────── */
+    .faq {
+      background: var(--cream);
+      padding: 100px 2.5rem;
+    }
+
+    .faq-header {
+      text-align: center;
+      max-width: 600px;
+      margin: 0 auto 3rem;
+    }
+
+    .faq-list {
+      max-width: 760px;
+      margin: 0 auto;
+    }
+
+    .faq-item {
+      border-bottom: 1px solid rgba(123, 31, 34, 0.12);
+      padding: 0;
+    }
+
+    .faq-item summary {
+      list-style: none;
+      cursor: pointer;
+      padding: 1.4rem 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+      font-family: var(--sans);
+      font-size: 1rem;
+      font-weight: 500;
+      color: var(--bordeaux);
+      transition: color 0.2s;
+    }
+
+    .faq-item summary::-webkit-details-marker { display: none; }
+
+    .faq-item summary::after {
+      content: '+';
+      font-family: var(--serif);
+      font-size: 1.5rem;
+      color: var(--gold);
+      transition: transform 0.25s;
+      flex-shrink: 0;
+    }
+
+    .faq-item[open] summary::after {
+      transform: rotate(45deg);
+    }
+
+    .faq-answer {
+      font-family: var(--sans);
+      font-size: 0.95rem;
+      font-weight: 400;
+      color: var(--piombo);
+      line-height: 1.7;
+      opacity: 0.85;
+      padding-bottom: 1.4rem;
+      max-width: 640px;
+    }
+
+    /* ─── FORM ───────────────────────────────── */
+    .contact {
+      background: var(--bordeaux);
+      padding: 110px 2.5rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .contact::before {
+      content: '';
+      position: absolute;
+      width: 700px; height: 700px;
+      border-radius: 50%;
+      border: 1px solid rgba(245, 235, 216, 0.05);
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+    }
+
+    .contact-inner {
+      max-width: 600px;
+      margin: 0 auto;
+      position: relative;
+      z-index: 1;
+    }
+
+    .contact-header {
+      text-align: center;
+      margin-bottom: 2.5rem;
+    }
+
+    .contact .section-label {
+      color: var(--gold);
+      opacity: 1;
+    }
+
+    .contact-title {
+      font-family: var(--serif);
+      font-size: clamp(2rem, 4vw, 2.8rem);
+      font-weight: 500;
+      color: var(--cream);
+      line-height: 1.18;
+      margin-bottom: 1.2rem;
+    }
+    .contact-title em { font-style: italic; }
+
+    .contact-sub {
+      font-family: var(--sans);
+      font-size: 0.98rem;
+      font-weight: 400;
+      color: rgba(245, 235, 216, 0.7);
+      line-height: 1.65;
+      max-width: 520px;
+      margin: 0 auto;
+    }
+
+    .contact-form {
+      background: var(--cream);
+      border-radius: 20px;
+      padding: 2.5rem 2.4rem;
+    }
+
+    .form-row {
+      margin-bottom: 1.2rem;
+    }
+
+    .form-row.is-double {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    .form-label {
+      display: block;
+      font-family: var(--sans);
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: var(--bordeaux);
+      margin-bottom: 0.4rem;
+      letter-spacing: 0.02em;
+    }
+
+    .form-label .optional {
+      font-weight: 300;
+      color: rgba(58, 58, 63, 0.5);
+      font-size: 0.72rem;
+      margin-left: 6px;
+    }
+
+    .form-input,
+    .form-select,
+    .form-textarea {
+      width: 100%;
+      font-family: var(--sans);
+      font-size: 0.95rem;
+      font-weight: 400;
+      color: var(--piombo);
+      background: var(--avorio);
+      border: 1.5px solid rgba(123, 31, 34, 0.15);
+      border-radius: 8px;
+      padding: 12px 14px;
+      transition: border-color 0.2s;
+    }
+
+    .form-input:focus,
+    .form-select:focus,
+    .form-textarea:focus {
+      outline: none;
+      border-color: var(--bordeaux);
+    }
+
+    .form-input::placeholder,
+    .form-textarea::placeholder {
+      color: rgba(58, 58, 63, 0.4);
+    }
+
+    .form-textarea {
+      resize: vertical;
+      min-height: 90px;
+      font-family: var(--sans);
+    }
+
+    .form-gdpr {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      margin: 1.4rem 0 1.4rem;
+      font-family: var(--sans);
+      font-size: 0.82rem;
+      font-weight: 400;
+      color: var(--piombo);
+      opacity: 0.75;
+      line-height: 1.5;
+      cursor: pointer;
+    }
+
+    .form-gdpr input[type="checkbox"] {
+      margin-top: 3px;
+      accent-color: var(--bordeaux);
+      flex-shrink: 0;
+    }
+
+    .form-gdpr a {
+      color: var(--bordeaux);
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+
+    .contact-form .btn-primary {
+      width: 100%;
+      justify-content: center;
+      margin-top: 0.4rem;
+    }
+
+    .contact-error {
+      display: none;
+      font-family: var(--sans);
+      font-size: 0.88rem;
+      color: var(--bordeaux);
+      margin-top: 0.8rem;
+      text-align: center;
+    }
+
+    .contact-success {
+      display: none;
+      background: rgba(212, 162, 74, 0.12);
+      border: 1px solid rgba(212, 162, 74, 0.4);
+      border-radius: 14px;
+      padding: 2rem 2rem;
+      font-family: var(--serif);
+      font-size: 1.1rem;
+      font-style: italic;
+      color: var(--cream);
+      line-height: 1.6;
+      text-align: center;
+    }
+
+    .contact[data-state="success"] .contact-form { display: none; }
+    .contact[data-state="success"] .contact-header { margin-bottom: 1.5rem; }
+    .contact[data-state="success"] .contact-success { display: block; }
+    .contact[data-state="error"] .contact-error { display: block; }
+
+    .contact-alt {
+      text-align: center;
+      margin-top: 2rem;
+      font-family: var(--sans);
+      font-size: 0.85rem;
+      color: rgba(245, 235, 216, 0.55);
+    }
+    .contact-alt a {
+      color: var(--gold);
+      text-decoration: none;
+      border-bottom: 1px solid rgba(212, 162, 74, 0.3);
+    }
+
+    /* ─── FOOTER (uguale alle altre) ─────────── */
+    footer {
+      background: #261214;
+      padding: 4rem 2.5rem 2rem;
+    }
+
+    .footer-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1.4fr 1fr 1fr 1fr 1fr;
+      gap: 2.5rem;
+      align-items: start;
+    }
+
+    .footer-brand-col { display: flex; flex-direction: column; gap: 0.8rem; }
+    .footer-brand { display: flex; align-items: center; gap: 10px; margin-bottom: 0.6rem; }
+    .footer-wordmark {
+      font-family: var(--serif);
+      font-size: 1.2rem;
+      font-weight: 500;
+      color: rgba(245, 235, 216, 0.7);
+    }
+    .footer-tagline {
+      font-family: var(--serif);
+      font-size: 0.95rem;
+      font-style: italic;
+      color: rgba(245, 235, 216, 0.5);
+      line-height: 1.5;
+    }
+    .footer-copy {
+      font-family: var(--sans);
+      font-size: 0.72rem;
+      font-weight: 300;
+      color: rgba(245, 235, 216, 0.25);
+      margin-top: 0.6rem;
+    }
+    .footer-col h4 {
+      font-family: var(--sans);
+      font-size: 0.74rem;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: rgba(245, 235, 216, 0.55);
+      margin-bottom: 1.1rem;
+    }
+    .footer-col a {
+      display: block;
+      font-family: var(--sans);
+      font-size: 0.85rem;
+      color: rgba(245, 235, 216, 0.4);
+      text-decoration: none;
+      margin-bottom: 0.55rem;
+      transition: color 0.2s;
+    }
+    .footer-col a:hover { color: rgba(245, 235, 216, 0.85); }
+    .footer-legal {
+      max-width: 1100px;
+      margin: 3rem auto 0;
+      padding-top: 1.6rem;
+      border-top: 1px solid rgba(245, 235, 216, 0.08);
+      display: flex;
+      justify-content: flex-end;
+      gap: 1.8rem;
+    }
+    .footer-legal a {
+      font-family: var(--sans);
+      font-size: 0.72rem;
+      color: rgba(245, 235, 216, 0.3);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .footer-legal a:hover { color: rgba(245, 235, 216, 0.7); }
+
+    /* ─── SCROLL REVEAL ──────────────────────── */
+    .reveal {
+      opacity: 0;
+      transform: translateY(28px);
+      transition: opacity 0.75s ease, transform 0.75s ease;
+    }
+    .reveal.in { opacity: 1; transform: translateY(0); }
+    .d1 { transition-delay: 0.1s; }
+    .d2 { transition-delay: 0.2s; }
+    .d3 { transition-delay: 0.3s; }
+
+    /* ─── RESPONSIVE ─────────────────────────── */
+    @media (max-width: 960px) {
+      .footer-inner { grid-template-columns: 1fr 1fr 1fr; }
+      .footer-brand-col { grid-column: 1 / -1; margin-bottom: 1rem; }
+      .pricing-grid { grid-template-columns: 1fr; max-width: 420px; margin-left: auto; margin-right: auto; }
+      .pricing-card.is-featured::before { top: -12px; }
+      .offering-grid { grid-template-columns: 1fr; }
+      .problem-grid { grid-template-columns: 1fr; gap: 2.5rem; }
+      .problem-col.before { padding-right: 0; border-right: none; border-bottom: 1px solid rgba(123, 31, 34, 0.12); padding-bottom: 2.5rem; }
+    }
+
+    @media (max-width: 860px) {
+      .nav-links { display: none; }
+      .nav-toggle { display: block; }
+      .nav-links.is-open {
+        display: flex; position: absolute; top: 64px; left: 0; right: 0;
+        background: var(--avorio); flex-direction: column;
+        padding: 1.5rem 2.5rem 2rem; gap: 1.2rem;
+        border-bottom: 1px solid rgba(123, 31, 34, 0.08);
+      }
+      .nav-links.is-open .nav-cta { align-self: flex-start; }
+      .diocese-box { flex-direction: column; align-items: flex-start; }
+    }
+
+    @media (max-width: 600px) {
+      nav { padding: 0 1.25rem; }
+      .hero, .reassure, .problem, .offering, .pricing, .faq, .contact {
+        padding-left: 1.25rem; padding-right: 1.25rem;
+      }
+      .hero { padding-top: 140px; padding-bottom: 90px; }
+      .reassure, .problem, .offering, .pricing, .faq, .contact { padding-top: 80px; padding-bottom: 80px; }
+      .form-row.is-double { grid-template-columns: 1fr; }
+      .contact-form { padding: 2rem 1.6rem; }
+      .pricing-card { padding: 2rem 1.6rem; }
+      .diocese-box { padding: 2.2rem 1.8rem; }
+      .footer-inner { grid-template-columns: 1fr 1fr; gap: 2rem; }
+      .footer-legal { justify-content: center; flex-wrap: wrap; }
+      .hero-actions { flex-direction: column; align-items: stretch; }
+      .hero-actions .btn-primary, .hero-actions .btn-secondary { justify-content: center; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ── NAV ── -->
+  <nav id="nav">
+    <a href="/" class="nav-brand" aria-label="Pregacuore — home">
+      <svg class="nav-logo" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+        <rect width="1024" height="1024" rx="200" fill="#7B1F22"/>
+        <rect x="482" y="410" width="60" height="450" rx="6" fill="#F5EBD8"/>
+        <path d="M 512 320 C 542 355, 542 395, 512 410 C 482 395, 482 355, 512 320 Z" fill="#D4A24A"/>
+        <path d="M 512 690 C 360 590, 232 480, 232 350 C 232 250, 305 190, 380 190 C 442 190, 490 230, 512 290 C 534 230, 582 190, 644 190 C 719 190, 792 250, 792 350 C 792 480, 664 590, 512 690 Z"
+              fill="none" stroke="#F5EBD8" stroke-width="52" stroke-linejoin="round"/>
+      </svg>
+      <span class="nav-wordmark">pregacuore</span>
+    </a>
+
+    <button class="nav-toggle" id="nav-toggle" aria-label="Apri menu" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+
+    <div class="nav-links" id="nav-links">
+      <a href="/parrocchie" class="nav-link" aria-current="page">Parrocchie</a>
+      <a href="/chi-siamo" class="nav-link">Chi siamo</a>
+      <a href="#contact" class="nav-cta">Contattaci</a>
+    </div>
+  </nav>
+
+  <!-- ── HERO ── -->
+  <section class="hero">
+    <div class="hero-inner">
+      <p class="hero-badge">Offerta Fondatori — fino al 31 dicembre 2026</p>
+      <h1 class="hero-h1">
+        Per la tua parrocchia,<br>
+        <em>uno spazio di preghiera quotidiana.</em>
+      </h1>
+      <p class="hero-lead">
+        Il Vangelo del giorno con una breve riflessione, ogni mattina,
+        nelle tasche dei tuoi parrocchiani. Aggiunge una cosa sola,
+        quella che mancava: un luogo sereno per la preghiera comunitaria,
+        ogni giorno della settimana.
+      </p>
+      <div class="hero-actions">
+        <a href="#pacchetti" class="btn-primary">Scopri i pacchetti</a>
+        <a href="#contact" class="btn-secondary">Parlaci della tua parrocchia</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── RASSICURAZIONE TECH (la paura disinnescata per prima) ── -->
+  <section class="reassure">
+    <div class="reassure-inner">
+      <p class="reassure-quote reveal">
+        «Se sai mandare un messaggio WhatsApp,<br>
+        sai usare Pregacuore.»
+      </p>
+      <p class="reassure-body reveal d1">
+        Niente da installare per te. Niente codice da configurare.
+        I tuoi parrocchiani scaricano gratis l'app dal loro telefono e
+        inseriscono il codice della parrocchia. Tu hai una pagina sola
+        per gestire tutto: scritta in italiano, fatta per parroci, non
+        per programmatori. Per qualunque dubbio, ti rispondiamo
+        in giornata via email.
+      </p>
+    </div>
+  </section>
+
+  <!-- ── PROBLEMA RICONOSCIUTO (before/after) ── -->
+  <section class="problem">
+    <div class="problem-header">
+      <p class="section-label reveal">Riconosciamo il problema</p>
+      <h2 class="section-title reveal d1">
+        La parrocchia parla,<br><em>ma sempre più sparsa.</em>
+      </h2>
+      <p class="section-sub reveal d2" style="margin: 0 auto; text-align: center;">
+        Pregacuore non vuole sostituire niente di quello che già fai.
+        Aggiunge una cosa sola.
+      </p>
+    </div>
+
+    <div class="problem-grid">
+      <div class="problem-col before reveal">
+        <h3>Oggi nella tua parrocchia</h3>
+        <p>
+          Tre gruppi WhatsApp diversi. Una pagina Facebook che hai
+          dimenticato di aggiornare. Un bollettino cartaceo che leggono
+          in pochi. Avvisi che si perdono tra i meme. Comunicazione
+          frammentata, dispersa, faticosa.
+        </p>
+      </div>
+      <div class="problem-col after reveal d1">
+        <h3>Con Pregacuore</h3>
+        <p>
+          Tutto quello che già fai resta dov'è. Pregacuore aggiunge
+          un luogo solo, quieto, dedicato alla preghiera del giorno.
+          Ogni mattina, il Vangelo nelle tasche dei tuoi fedeli.
+          Niente meme, niente rumore.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── COSA OFFRIAMO ── -->
+  <section class="offering">
+    <div class="container">
+      <div class="offering-header">
+        <p class="section-label reveal">Cosa offre Pregacuore</p>
+        <h2 class="section-title reveal d1">
+          Tre cose semplici,<br><em>fatte ogni giorno.</em>
+        </h2>
+      </div>
+
+      <div class="offering-grid">
+        <article class="offering-item reveal">
+          <p class="offering-num">01</p>
+          <h3 class="offering-title">Il Vangelo di oggi, ogni mattina</h3>
+          <p class="offering-desc">
+            Il Vangelo del giorno della liturgia cattolica italiana,
+            con una breve riflessione scritta in italiano sobrio.
+            Notifica delicata alle 7:30, mai più tardi, mai più di una
+            volta. Riposo dell'occhio e del cuore.
+          </p>
+        </article>
+
+        <article class="offering-item reveal d1">
+          <p class="offering-num">02</p>
+          <h3 class="offering-title">Intenzioni di preghiera comunitarie</h3>
+          <p class="offering-desc">
+            I tuoi parrocchiani possono condividere intenzioni di
+            preghiera con discrezione, e ricevere risposte sobrie
+            («ho pregato per te») dagli altri fratelli. Tu moderi
+            in pochi minuti la sera, con un pannello chiaro.
+          </p>
+        </article>
+
+        <article class="offering-item reveal d2">
+          <p class="offering-num">03</p>
+          <h3 class="offering-title">Lo spazio della tua comunità</h3>
+          <p class="offering-desc">
+            Il logo della tua parrocchia, il nome del santo patrono,
+            gli orari delle Messe, gli annunci della settimana. Uno
+            spazio riconoscibile dove i tuoi fedeli sanno di essere
+            a casa, anche fuori dalla chiesa.
+          </p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── PACCHETTI ── -->
+  <section class="pricing" id="pacchetti">
+    <div class="container">
+      <div class="pricing-header">
+        <p class="section-label reveal">I pacchetti</p>
+        <h2 class="section-title reveal d1">
+          Trasparenza piena,<br><em>scegli quello che fa per te.</em>
+        </h2>
+      </div>
+
+      <div class="pricing-promo reveal d2">
+        <p class="pricing-promo-eyebrow">Offerta Fondatori</p>
+        <p class="pricing-promo-text">
+          <strong>3 mesi gratis</strong> per le parrocchie pioniere.<br>
+          Poi, se decidi di continuare, <strong>30 giorni soddisfatto o rimborsato.</strong>
+        </p>
+        <p class="pricing-promo-fine">
+          Offerta valida fino al 31 dicembre 2026. Senza vincoli, senza rinnovi automatici nascosti.
+        </p>
+      </div>
+
+      <div class="pricing-grid">
+        <!-- PARROCCHIA -->
+        <article class="pricing-card reveal">
+          <h3 class="pricing-name">Parrocchia</h3>
+          <p class="pricing-target">
+            Una sola comunità, fino a 500 fedeli iscritti.
+          </p>
+          <p class="pricing-price"><span class="currency">€</span>290</p>
+          <p class="pricing-period">all'anno · 3 mesi gratis</p>
+          <ul class="pricing-features">
+            <li>Pensiero del giorno per tutti i fedeli</li>
+            <li>1 codice di accesso parrocchia</li>
+            <li>Branding parrocchia (logo, nome, patrono)</li>
+            <li>Pannello moderazione preghiere</li>
+            <li>Annunci settimanali</li>
+            <li>Supporto via email in giornata</li>
+          </ul>
+          <a href="#contact" class="btn-outline-bordeaux">Richiedi info →</a>
+        </article>
+
+        <!-- UNITÀ PASTORALE (FEATURED) -->
+        <article class="pricing-card is-featured reveal d1">
+          <h3 class="pricing-name">Unità Pastorale</h3>
+          <p class="pricing-target">
+            Più parrocchie sotto un solo parroco, fino a 2000 fedeli totali.
+          </p>
+          <p class="pricing-price"><span class="currency">€</span>480</p>
+          <p class="pricing-period">all'anno · 3 mesi gratis</p>
+          <ul class="pricing-features">
+            <li>Tutto del pacchetto Parrocchia</li>
+            <li>Fino a 4 codici parrocchia distinti</li>
+            <li>Dashboard unificata per il parroco</li>
+            <li>1 sessione di training video</li>
+            <li>Annunci differenziati per parrocchia</li>
+            <li>Supporto prioritario via email</li>
+          </ul>
+          <a href="#contact" class="btn-outline-bordeaux">Richiedi info →</a>
+        </article>
+
+        <!-- SANTUARIO -->
+        <article class="pricing-card reveal d2">
+          <h3 class="pricing-name">Santuario o Basilica</h3>
+          <p class="pricing-target">
+            Parrocchia urbana grande, santuario, basilica con flusso di pellegrini.
+          </p>
+          <p class="pricing-price"><span class="currency">€</span>780</p>
+          <p class="pricing-period">all'anno · 3 mesi gratis</p>
+          <ul class="pricing-features">
+            <li>Tutto del pacchetto Unità Pastorale</li>
+            <li>Branding completo personalizzato</li>
+            <li>Supporto telefonico dedicato</li>
+            <li>Consulenza editoriale annuale</li>
+            <li>Integrazione calendario liturgico santuario</li>
+            <li>Codici accesso illimitati</li>
+          </ul>
+          <a href="#contact" class="btn-outline-bordeaux">Richiedi info →</a>
+        </article>
+      </div>
+
+      <!-- BOX DIOCESI -->
+      <div class="diocese-box reveal">
+        <div class="diocese-box-text">
+          <h3>Sei un ufficio diocesano?<br><em>Parliamo di Pregacuore Diocesi.</em></h3>
+          <p>
+            Una soluzione dedicata per tutte le parrocchie della tua diocesi,
+            con dashboard vescovo, training parroci, integrazioni con il sito
+            diocesano. Su misura.
+          </p>
+        </div>
+        <a href="/diocesi" class="btn-primary">Scopri Pregacuore Diocesi →</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── FAQ ── -->
+  <section class="faq">
+    <div class="faq-header">
+      <p class="section-label reveal">Domande frequenti</p>
+      <h2 class="section-title reveal d1">
+        Quello che ci chiedono <em>più spesso.</em>
+      </h2>
+    </div>
+
+    <div class="faq-list">
+      <details class="faq-item reveal">
+        <summary>Posso provare prima di pagare?</summary>
+        <p class="faq-answer">
+          Sì. L'Offerta Fondatori prevede 3 mesi completamente gratuiti,
+          senza obbligo di continuare. Decidi solo dopo aver visto
+          come funziona davvero nella tua parrocchia. E se anche dopo
+          il primo pagamento cambi idea, hai 30 giorni per essere
+          rimborsato senza domande.
+        </p>
+      </details>
+
+      <details class="faq-item reveal">
+        <summary>I miei parrocchiani anziani riusciranno a usarla?</summary>
+        <p class="faq-answer">
+          L'app è pensata per essere usata da chi sa già usare WhatsApp.
+          Una persona di 70 anni che riceve messaggi dai nipoti potrà
+          aprire Pregacuore e leggere il pensiero del giorno senza
+          fatica. Caratteri grandi, niente menu nascosti, una sola
+          schermata principale.
+        </p>
+      </details>
+
+      <details class="faq-item reveal">
+        <summary>Pregacuore sostituisce qualcosa nella mia parrocchia?</summary>
+        <p class="faq-answer">
+          No. Pregacuore non sostituisce la Messa, non sostituisce
+          il bollettino, non sostituisce il WhatsApp del gruppo
+          catechisti. Aggiunge una cosa sola: uno spazio quieto
+          per la preghiera del giorno. La voce resta la tua, le
+          decisioni pastorali restano le tue, la comunità reale
+          resta al centro.
+        </p>
+      </details>
+
+      <details class="faq-item reveal">
+        <summary>Come funziona la moderazione?</summary>
+        <p class="faq-answer">
+          Le intenzioni di preghiera dei fedeli passano da un sistema
+          di pre-filtraggio automatico (linguaggio offensivo, spam,
+          contenuti sensibili) e poi le approvi tu con un clic.
+          Tempo medio: 5-10 minuti la sera. Se preferisci, può
+          farlo un volontario di fiducia che nomini tu.
+        </p>
+      </details>
+
+      <details class="faq-item reveal">
+        <summary>Cosa succede ai dati dei miei parrocchiani?</summary>
+        <p class="faq-answer">
+          Tutti i dati restano in server europei, cifrati. Le intenzioni
+          di preghiera sono trattate come dati particolari ai sensi
+          dell'articolo 9 del GDPR. Niente pubblicità, niente
+          profilazione, niente cessione a terzi. Il fedele può
+          eliminare il proprio account e tutti i suoi dati in
+          qualunque momento, con un clic.
+        </p>
+      </details>
+
+      <details class="faq-item reveal">
+        <summary>E se cambio idea dopo il primo anno?</summary>
+        <p class="faq-answer">
+          Nessun problema. Non c'è rinnovo automatico nascosto.
+          Ogni anno decidi tu se continuare. Se interrompi, i tuoi
+          parrocchiani conservano il loro account personale ma
+          perdono l'accesso ai contenuti della parrocchia. Niente
+          penali, niente clausole.
+        </p>
+      </details>
+
+      <details class="faq-item reveal">
+        <summary>Chi ha approvato i contenuti spirituali?</summary>
+        <p class="faq-answer">
+          I contenuti seguono la liturgia cattolica italiana e il
+          calendario CEI. Le riflessioni sono scritte con attenzione
+          alla tradizione e al Magistero, in collaborazione con
+          sacerdoti italiani. Sei tu, come parroco, l'ultima
+          autorità sul contenuto visibile nella tua parrocchia:
+          puoi disattivare i contenuti che non condividi.
+        </p>
+      </details>
+
+      <details class="faq-item reveal">
+        <summary>Avete imprimatur o approvazione diocesana?</summary>
+        <p class="faq-answer">
+          Pregacuore è un progetto italiano indipendente, non un'iniziativa
+          diocesana ufficiale, e non vuole esserlo: siamo uno
+          strumento al servizio delle parrocchie. Lavoriamo con
+          rispetto del Magistero e siamo aperti al confronto con
+          gli uffici diocesani che ce lo chiedono. Per
+          collaborazioni istituzionali, vedi <a href="/diocesi"
+          style="color: var(--bordeaux); text-decoration: underline;">Pregacuore Diocesi</a>.
+        </p>
+      </details>
+    </div>
+  </section>
+
+  <!-- ── CONTACT FORM ── -->
+  <section class="contact" id="contact" data-state="idle">
+    <div class="contact-inner">
+      <div class="contact-header">
+        <p class="section-label reveal">Parlaci della tua parrocchia</p>
+        <h2 class="contact-title reveal d1">
+          Raccontaci la tua situazione,<br><em>ti risponderemo presto.</em>
+        </h2>
+        <p class="contact-sub reveal d2">
+          Compila il modulo qui sotto e ti contatteremo entro 2 giorni
+          lavorativi via email. Se preferisci, scrivici direttamente
+          a <a href="mailto:parrocchie@pregacuore.it" style="color: var(--gold);">parrocchie@pregacuore.it</a>.
+        </p>
+      </div>
+
+      <form class="contact-form reveal d3" id="contact-form" novalidate>
+        <div class="form-row">
+          <label class="form-label" for="cf-name">Il tuo nome</label>
+          <input class="form-input" type="text" id="cf-name" name="name"
+                 placeholder="Don Mario Rossi" required>
+        </div>
+
+        <div class="form-row is-double">
+          <div>
+            <label class="form-label" for="cf-parish">Parrocchia</label>
+            <input class="form-input" type="text" id="cf-parish" name="parish"
+                   placeholder="Sant'Antonio Padova" required>
+          </div>
+          <div>
+            <label class="form-label" for="cf-diocese">Diocesi</label>
+            <input class="form-input" type="text" id="cf-diocese" name="diocese"
+                   placeholder="Diocesi di Padova" required>
+          </div>
+        </div>
+
+        <div class="form-row is-double">
+          <div>
+            <label class="form-label" for="cf-email">Email</label>
+            <input class="form-input" type="email" id="cf-email" name="email"
+                   placeholder="don.mario@parrocchia.it" required>
+          </div>
+          <div>
+            <label class="form-label" for="cf-phone">
+              Telefono <span class="optional">opzionale</span>
+            </label>
+            <input class="form-input" type="tel" id="cf-phone" name="phone"
+                   placeholder="3331234567">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <label class="form-label" for="cf-package">Quale pacchetto ti interessa?</label>
+          <select class="form-select" id="cf-package" name="package" required>
+            <option value="">Scegli un'opzione</option>
+            <option value="parrocchia">Parrocchia (€290/anno)</option>
+            <option value="unita_pastorale">Unità Pastorale (€480/anno)</option>
+            <option value="santuario">Santuario o Basilica (€780/anno)</option>
+            <option value="diocesi">Diocesi (su misura)</option>
+            <option value="non_so">Non so ancora, vorrei capire</option>
+          </select>
+        </div>
+
+        <div class="form-row">
+          <label class="form-label" for="cf-message">
+            Raccontaci qualcosa <span class="optional">opzionale</span>
+          </label>
+          <textarea class="form-textarea" id="cf-message" name="message"
+                    placeholder="Quanti fedeli, in che diocesi, cosa cerchi… qualunque cosa ci aiuti a capire la tua situazione."></textarea>
+        </div>
+
+        <label class="form-gdpr">
+          <input type="checkbox" name="gdpr" id="cf-gdpr" required>
+          <span>Acconsento al trattamento dei miei dati per essere ricontattato, come da <a href="/privacy">Privacy</a>.</span>
+        </label>
+
+        <button type="submit" class="btn-primary" id="cf-submit">
+          <span id="cf-submit-label">Invia la richiesta →</span>
+        </button>
+
+        <p class="contact-error" id="cf-error">
+          Qualcosa non ha funzionato. Riprova tra un momento, o scrivici a parrocchie@pregacuore.it.
+        </p>
+      </form>
+
+      <div class="contact-success" id="cf-success">
+        Grazie. Abbiamo ricevuto la tua richiesta.<br>
+        Ti risponderemo via email entro 2 giorni lavorativi.
+        <br><br>
+        — Il team di Pregacuore
+      </div>
+
+      <p class="contact-alt">
+        Oppure scrivici direttamente a
+        <a href="mailto:parrocchie@pregacuore.it">parrocchie@pregacuore.it</a>
+      </p>
+    </div>
+  </section>
+
+  <!-- ── FOOTER ── -->
+  <footer>
+    <div class="footer-inner">
+
+      <div class="footer-col footer-brand-col">
+        <div class="footer-brand">
+          <svg width="26" height="26" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <rect width="1024" height="1024" rx="200" fill="#7B1F22"/>
+            <rect x="482" y="410" width="60" height="450" rx="6" fill="#F5EBD8"/>
+            <path d="M 512 320 C 542 355, 542 395, 512 410 C 482 395, 482 355, 512 320 Z" fill="#D4A24A"/>
+            <path d="M 512 690 C 360 590, 232 480, 232 350 C 232 250, 305 190, 380 190 C 442 190, 490 230, 512 290 C 534 230, 582 190, 644 190 C 719 190, 792 250, 792 350 C 792 480, 664 590, 512 690 Z"
+                  fill="none" stroke="#F5EBD8" stroke-width="52" stroke-linejoin="round"/>
+          </svg>
+          <span class="footer-wordmark">pregacuore</span>
+        </div>
+        <p class="footer-tagline">Prega col cuore.<br>Mai da solo.</p>
+        <p class="footer-copy">© 2026 pregacuore</p>
+      </div>
+
+      <div class="footer-col">
+        <h4>Pagine</h4>
+        <a href="/">Home</a>
+        <a href="/parrocchie">Parrocchie</a>
+        <a href="/diocesi">Diocesi</a>
+        <a href="/chi-siamo">Chi siamo</a>
+      </div>
+
+      <div class="footer-col">
+        <h4>Risorse</h4>
+        <a href="/#pensiero">Il pensiero di oggi</a>
+        <a href="https://www.instagram.com/pregacuore" rel="noopener" target="_blank">Vangelo del giorno</a>
+      </div>
+
+      <div class="footer-col">
+        <h4>Social</h4>
+        <a href="https://www.instagram.com/pregacuore" rel="noopener" target="_blank">Instagram</a>
+        <a href="https://www.facebook.com/pregacuore" rel="noopener" target="_blank">Facebook</a>
+        <a href="https://www.pinterest.com/pregacuore" rel="noopener" target="_blank">Pinterest</a>
+      </div>
+
+      <div class="footer-col">
+        <h4>Contatti</h4>
+        <a href="mailto:info@pregacuore.it">info@pregacuore.it</a>
+        <a href="mailto:parrocchie@pregacuore.it">parrocchie@pregacuore.it</a>
+      </div>
+
+    </div>
+
+    <div class="footer-legal">
+      <a href="/privacy">Privacy</a>
+      <a href="/termini">Termini</a>
+      <a href="/cookie">Cookie</a>
+    </div>
+  </footer>
+
+  <!-- ── JS NAV + SCROLL REVEAL ── -->
+  <script>
+    const nav = document.getElementById('nav');
+    window.addEventListener('scroll', () => {
+      nav.style.boxShadow = window.scrollY > 30
+        ? '0 2px 24px rgba(58,58,63,0.07)' : 'none';
+    }, { passive: true });
+
+    const navToggle = document.getElementById('nav-toggle');
+    const navLinks = document.getElementById('nav-links');
+    navToggle.addEventListener('click', () => {
+      const isOpen = navLinks.classList.toggle('is-open');
+      navToggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+    });
+    navLinks.querySelectorAll('a').forEach(a => {
+      a.addEventListener('click', () => navLinks.classList.remove('is-open'));
+    });
+
+    const reveals = document.querySelectorAll('.reveal');
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('in'); });
+    }, { threshold: 0.12, rootMargin: '0px 0px -30px 0px' });
+    reveals.forEach(el => io.observe(el));
+  </script>
+
+  <!-- ── JS FORM PARROCCHIE (placeholder fino al backend) ── -->
+  <script>
+    (function () {
+      const section = document.getElementById('contact');
+      const form    = document.getElementById('contact-form');
+      const submit  = document.getElementById('cf-submit');
+      const label   = document.getElementById('cf-submit-label');
+
+      form.addEventListener('submit', async function (ev) {
+        ev.preventDefault();
+
+        const data = {
+          name:    form.name.value.trim(),
+          parish:  form.parish.value.trim(),
+          diocese: form.diocese.value.trim(),
+          email:   form.email.value.trim(),
+          phone:   form.phone.value.trim(),
+          package: form.package.value,
+          message: form.message.value.trim(),
+          gdpr:    form.gdpr.checked,
+          source:  'parrocchie_page',
+        };
+
+        // Validazione semplice
+        const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email);
+        if (!data.name || !data.parish || !data.diocese || !emailOk || !data.package || !data.gdpr) {
+          section.setAttribute('data-state', 'error');
+          return;
+        }
+
+        submit.disabled = true;
+        label.textContent = 'Invio…';
+
+        // PLACEHOLDER — backend reale in S2
+        // Quando pronto:
+        //   await fetch('/api/parishes/inquiry', {
+        //     method: 'POST',
+        //     headers: { 'Content-Type': 'application/json' },
+        //     body: JSON.stringify(data),
+        //   });
+        try {
+          await new Promise(r => setTimeout(r, 700));
+          // Log temporaneo per non perdere le prime richieste:
+          console.log('[Pregacuore] Inquiry parrocchia:', data);
+          section.setAttribute('data-state', 'success');
+        } catch (e) {
+          console.warn('parish inquiry:', e);
+          section.setAttribute('data-state', 'error');
+          submit.disabled = false;
+          label.textContent = 'Invia la richiesta →';
+        }
+      });
+    })();
+  </script>
+</body>
+</html>
