@@ -19,7 +19,7 @@ const CORS_HEADERS = {
 };
 
 const SITE_URL = "https://pregacuore.it";
-const FROM_EMAIL = "onboarding@resend.dev"; // poi: newsletter@pregacuore.it
+const FROM_EMAIL = "newsletter@pregacuore.it";// poi: newsletter@pregacuore.it
 const FROM_NAME = "Pregacuore";
 const ADMIN_EMAIL = "info@pregacuore.it";
 
@@ -238,7 +238,7 @@ serve(async (req: Request) => {
     const resendKey = Deno.env.get("RESEND_API_KEY") ?? "";
     if (!resendKey) throw new Error("RESEND_API_KEY non configurata");
 
-    const confirmUrl = `${SITE_URL}/api/newsletter-confirm?token=${confirmToken}`;
+    const confirmUrl = `${SITE_URL}/conferma-iscrizione?token=${confirmToken}`;
     await sendResendEmail({
       to: email,
       subject: "Conferma la tua iscrizione a Pregacuore",

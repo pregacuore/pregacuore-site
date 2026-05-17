@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Conferma iscrizione — Pregacuore</title>
+  <meta name="description" content="Conferma la tua iscrizione alla newsletter di Pregacuore.">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <meta name="theme-color" content="#7B1F22">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bordeaux: #7B1F22;
+      --cream: #F5EBD8;
+      --gold: #D4A24A;
+      --piombo: #3A3A3F;
+      --avorio: #FAF6EE;
+      --serif: 'Cormorant Garamond', Georgia, serif;
+      --sans: 'Inter', system-ui, sans-serif;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: var(--sans);
+      color: var(--piombo);
+      background: var(--avorio);
+      -webkit-font-smoothing: antialiased;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    a { color: inherit; }
+
+    /* ─── NAV minimale ─── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      height: 68px;
+      padding: 0 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(250, 246, 238, 0.93);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid rgba(123, 31, 34, 0.08);
+    }
+
+    .nav-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+    }
+
+    .nav-logo { width: 32px; height: 32px; }
+
+    .nav-wordmark {
+      font-family: var(--serif);
+      font-size: 1.25rem;
+      font-weight: 500;
+      color: var(--bordeaux);
+      letter-spacing: -0.01em;
+    }
+
+    /* ─── MAIN ─── */
+    main {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 110px 1.5rem 60px;
+    }
+
+    .card {
+      width: 100%;
+      max-width: 560px;
+      background: #FFFFFF;
+      border-radius: 20px;
+      padding: 64px 48px 56px;
+      text-align: center;
+      box-shadow: 0 4px 40px rgba(58, 58, 63, 0.06);
+      border: 1px solid rgba(123, 31, 34, 0.06);
+    }
+
+    .icon {
+      width: 84px;
+      height: 84px;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 28px;
+      transition: background 0.3s;
+    }
+
+    .icon svg { width: 38px; height: 38px; }
+
+    /* Loading: pulse oro su cerchio cream */
+    [data-state="loading"] .icon { background: var(--cream); }
+    [data-state="loading"] .icon svg { animation: pulse 1.4s ease-in-out infinite; }
+
+    /* Success: bordeaux pieno, check cream */
+    [data-state="success"] .icon { background: var(--bordeaux); }
+
+    /* Error: bordeaux desaturato, X cream */
+    [data-state="error"] .icon { background: #a83b3e; }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 0.4; transform: scale(0.95); }
+      50% { opacity: 1; transform: scale(1.05); }
+    }
+
+    h1 {
+      font-family: var(--serif);
+      font-size: 2.2rem;
+      font-weight: 500;
+      font-style: italic;
+      line-height: 1.2;
+      color: var(--bordeaux);
+      margin-bottom: 18px;
+    }
+
+    .message {
+      font-size: 1.02rem;
+      line-height: 1.7;
+      color: var(--piombo);
+      opacity: 0.88;
+      margin-bottom: 32px;
+      max-width: 440px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--gold);
+      color: #2A1506;
+      padding: 15px 34px;
+      border-radius: 100px;
+      text-decoration: none;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-size: 0.78rem;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(212, 162, 74, 0.3);
+    }
+
+    .quote {
+      font-family: var(--serif);
+      font-size: 0.95rem;
+      font-style: italic;
+      color: var(--bordeaux);
+      opacity: 0.5;
+      margin-top: 36px;
+    }
+
+    /* Stati visibili condizionali */
+    [data-state="loading"] .state-success,
+    [data-state="loading"] .state-error,
+    [data-state="success"] .state-loading,
+    [data-state="success"] .state-error,
+    [data-state="error"] .state-loading,
+    [data-state="error"] .state-success {
+      display: none;
+    }
+
+    /* Mobile */
+    @media (max-width: 600px) {
+      main { padding: 90px 1rem 40px; }
+      .card { padding: 48px 28px 40px; border-radius: 16px; }
+      h1 { font-size: 1.8rem; }
+      .icon { width: 72px; height: 72px; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <a href="/" class="nav-brand" aria-label="Pregacuore — torna alla home">
+      <svg class="nav-logo" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <rect width="64" height="64" rx="14" fill="#7B1F22"/>
+        <path d="M32 50 C16 38 12 28 18 21 C22 16 28 17 32 22 C36 17 42 16 46 21 C52 28 48 38 32 50 Z" fill="none" stroke="#F5EBD8" stroke-width="3.5" stroke-linejoin="round"/>
+        <rect x="29" y="26" width="6" height="18" rx="1" fill="#F5EBD8"/>
+        <path d="M32 22 C30 24 30 26 32 28 C34 26 34 24 32 22 Z" fill="#D4A24A"/>
+      </svg>
+      <span class="nav-wordmark">pregacuore</span>
+    </a>
+  </nav>
+
+  <main>
+    <div class="card" id="card" data-state="loading">
+
+      <!-- STATO: loading -->
+      <div class="state-loading">
+        <div class="icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#7B1F22" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2 L12 6 M12 18 L12 22 M4.93 4.93 L7.76 7.76 M16.24 16.24 L19.07 19.07 M2 12 L6 12 M18 12 L22 12 M4.93 19.07 L7.76 16.24 M16.24 7.76 L19.07 4.93"/>
+          </svg>
+        </div>
+        <h1>Un momento…</h1>
+        <p class="message">Sto confermando la tua iscrizione.</p>
+      </div>
+
+      <!-- STATO: success -->
+      <div class="state-success">
+        <div class="icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#F5EBD8" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="5 12 10 17 19 7"/>
+          </svg>
+        </div>
+        <h1 id="success-title">Iscrizione confermata</h1>
+        <p class="message" id="success-message">
+          Grazie. Riceverai il pensiero del giorno ogni mattina alle 7:30.
+        </p>
+        <a class="btn-primary" href="https://pregacuore.it">Torna a pregacuore.it</a>
+        <p class="quote">Prega col cuore. Mai da solo.</p>
+      </div>
+
+      <!-- STATO: error -->
+      <div class="state-error">
+        <div class="icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#F5EBD8" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="6" y1="6" x2="18" y2="18"/>
+            <line x1="18" y1="6" x2="6" y2="18"/>
+          </svg>
+        </div>
+        <h1 id="error-title">Qualcosa non ha funzionato</h1>
+        <p class="message" id="error-message">
+          Il link di conferma non è valido o è già stato usato.
+        </p>
+        <a class="btn-primary" href="https://pregacuore.it#newsletter">Iscriviti di nuovo</a>
+        <p class="quote">Prega col cuore. Mai da solo.</p>
+      </div>
+
+    </div>
+  </main>
+
+  <script>
+    (function () {
+      const SUPABASE_URL  = 'https://vnzkmluglswcltdgwcex.supabase.co';
+      const SUPABASE_ANON = 'sb_publishable_wpjM6fw003VTLFvV7ReCDQ_pmCIv_9k';
+      const ENDPOINT = SUPABASE_URL + '/functions/v1/newsletter-confirm';
+
+      const card = document.getElementById('card');
+
+      function setState(state) {
+        card.setAttribute('data-state', state);
+      }
+
+      function showError(title, message) {
+        if (title)   document.getElementById('error-title').textContent = title;
+        if (message) document.getElementById('error-message').textContent = message;
+        setState('error');
+      }
+
+      function showSuccess(title, message) {
+        if (title)   document.getElementById('success-title').textContent = title;
+        if (message) document.getElementById('success-message').textContent = message;
+        setState('success');
+      }
+
+      // 1. Estrai token da URL
+      const params = new URLSearchParams(window.location.search);
+      const token = (params.get('token') || '').trim();
+
+      if (!token) {
+        showError(
+          'Link non valido',
+          'Il link di conferma non contiene un token. Controlla di aver cliccato il bottone giusto nell\u2019email.'
+        );
+        return;
+      }
+
+      // 2. Chiama la Edge Function
+      (async function () {
+        try {
+          const res = await fetch(ENDPOINT, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'apikey': SUPABASE_ANON,
+              'Authorization': 'Bearer ' + SUPABASE_ANON,
+            },
+            body: JSON.stringify({ token: token }),
+          });
+
+          const data = await res.json().catch(function () { return {}; });
+
+          if (res.ok && data && data.ok === true) {
+            if (data.already === true) {
+              showSuccess(
+                'Eri già iscritto',
+                'La tua email risulta già confermata. Riceverai il pensiero del giorno ogni mattina alle 7:30.'
+              );
+            } else {
+              showSuccess(
+                'Iscrizione confermata',
+                'Grazie. La tua iscrizione a Pregacuore è confermata. Riceverai il pensiero del giorno ogni mattina alle 7:30.'
+              );
+            }
+            return;
+          }
+
+          // Errori applicativi
+          const err = (data && data.error) || 'unknown';
+          if (err === 'missing_token' || err === 'invalid_token') {
+            showError(
+              'Link scaduto o già usato',
+              'Questo link di conferma non è più valido. Se non hai ancora confermato l\u2019iscrizione, prova a iscriverti di nuovo dal sito.'
+            );
+          } else {
+            showError(
+              'Errore tecnico',
+              'Non sono riuscito a confermare l\u2019iscrizione. Riprova tra qualche minuto o scrivici a info@pregacuore.it.'
+            );
+          }
+        } catch (e) {
+          console.warn('newsletter-confirm fetch failed:', e);
+          showError(
+            'Errore di rete',
+            'Non riesco a contattare il server. Controlla la connessione e ricarica la pagina.'
+          );
+        }
+      })();
+    })();
+  </script>
+
+</body>
+</html>

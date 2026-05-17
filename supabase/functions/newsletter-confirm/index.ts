@@ -1,59 +1,93 @@
 // supabase/functions/newsletter-confirm/index.ts
 //
 // Edge Function: gestisce la conferma del double opt-in.
-// Riceve GET /?token=XXX → marca subscriber come 'confirmed' → mostra pagina HTML di successo
+// VERSIONE 3 — JSON-only.
+//
+// La presentazione (pagina di successo/errore) è servita da Vercel come
+// pagina statica /conferma-iscrizione.html, che chiama questa funzione
+// via fetch. Questa funzione restituisce SOLO JSON, niente HTML, così
+// non incappiamo più nella sandbox CSP che Supabase impone alle Edge
+// Function quando servono HTML al browser.
+//
+// Endpoint:
+//   POST  /functions/v1/newsletter-confirm   body: { token: string }
+//   GET   /functions/v1/newsletter-confirm?token=XXX   (per debug/curl)
+//
+// Risposte:
+//   200 { ok: true, already: false }   -> appena confermato
+//   200 { ok: true, already: true }    -> era già confermato
+//   400 { ok: false, error: "missing_token" }
+//   400 { ok: false, error: "invalid_token" }   -> token non trovato/usato
+//   500 { ok: false, error: "server_error" }
+//
+// CORS: aperto a pregacuore.it (+ localhost per dev), include OPTIONS.
 
 import { serve } from "https://deno.land/std@0.208.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.0";
 
-const SITE_URL = "https://pregacuore.it";
+const ALLOWED_ORIGINS = new Set([
+  "https://pregacuore.it",
+  "https://www.pregacuore.it",
+  "http://localhost:3000",
+  "http://localhost:5173",
+  "http://127.0.0.1:3000",
+  "http://127.0.0.1:5173",
+]);
 
-function pageHtml(opts: { success: boolean; message: string }): string {
-  const color = opts.success ? "#7B1F22" : "#a83b3e";
-  const icon = opts.success ? "✓" : "✗";
-  return `
-<!DOCTYPE html>
-<html lang="it">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Pregacuore — ${opts.success ? "Iscrizione confermata" : "Errore"}</title>
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital@0;1&family=Inter:wght@400;500&display=swap" rel="stylesheet">
-  <style>
-    *{margin:0;padding:0;box-sizing:border-box}
-    body{font-family:'Inter',sans-serif;background:#FAF6EE;color:#3A3A3F;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;}
-    .card{background:#FFF;border-radius:20px;padding:60px 40px;max-width:520px;text-align:center;box-shadow:0 4px 40px rgba(0,0,0,0.04);}
-    .icon{width:80px;height:80px;background:${color};border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:36px;color:#F5EBD8;margin-bottom:30px;}
-    h1{font-family:'Cormorant Garamond',Georgia,serif;font-size:36px;font-weight:500;color:${color};margin-bottom:20px;font-style:italic;line-height:1.2;}
-    p{font-size:16px;line-height:1.7;margin-bottom:30px;opacity:0.85;}
-    a.btn{background:#D4A24A;color:#2A1506;padding:14px 32px;border-radius:100px;text-decoration:none;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;font-size:12px;display:inline-block;}
-    a.btn:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(212,162,74,0.3);}
-    .quote{font-family:'Cormorant Garamond',serif;font-size:14px;font-style:italic;color:#7B1F22;opacity:0.5;margin-top:40px;}
-  </style>
-</head>
-<body>
-  <div class="card">
-    <div class="icon">${icon}</div>
-    <h1>${opts.success ? "Iscrizione confermata" : "Qualcosa non ha funzionato"}</h1>
-    <p>${opts.message}</p>
-    <a class="btn" href="${SITE_URL}">Torna a pregacuore.it</a>
-    <p class="quote">Prega col cuore. Mai da solo.</p>
-  </div>
-</body>
-</html>
-  `.trim();
+function corsHeaders(origin: string | null): Record<string, string> {
+  const allow = origin && ALLOWED_ORIGINS.has(origin) ? origin : "https://pregacuore.it";
+  return {
+    "Access-Control-Allow-Origin": allow,
+    "Access-Control-Allow-Methods": "POST, GET, OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type, Authorization, apikey, x-client-info",
+    "Vary": "Origin",
+  };
+}
+
+function json(body: unknown, status: number, origin: string | null): Response {
+  return new Response(JSON.stringify(body), {
+    status,
+    headers: {
+      ...corsHeaders(origin),
+      "Content-Type": "application/json; charset=utf-8",
+      "Cache-Control": "no-store",
+    },
+  });
+}
+
+async function extractToken(req: Request): Promise<string | null> {
+  // Prova prima il body (POST), poi la query (GET fallback)
+  if (req.method === "POST") {
+    try {
+      const body = await req.json();
+      const t = (body?.token ?? "").toString().trim();
+      if (t) return t;
+    } catch (_) {
+      // body non JSON: cade nel query fallback
+    }
+  }
+  const url = new URL(req.url);
+  const q = (url.searchParams.get("token") ?? "").trim();
+  return q || null;
 }
 
 serve(async (req: Request) => {
+  const origin = req.headers.get("origin");
+
+  // CORS preflight
+  if (req.method === "OPTIONS") {
+    return new Response(null, { status: 204, headers: corsHeaders(origin) });
+  }
+
+  if (req.method !== "POST" && req.method !== "GET") {
+    return json({ ok: false, error: "method_not_allowed" }, 405, origin);
+  }
+
   try {
-    const url = new URL(req.url);
-    const token = url.searchParams.get("token");
+    const token = await extractToken(req);
 
     if (!token || token.length < 10) {
-      return new Response(pageHtml({
-        success: false,
-        message: "Link non valido. Prova a iscriverti di nuovo dal sito.",
-      }), { status: 400, headers: { "Content-Type": "text/html; charset=utf-8" } });
+      return json({ ok: false, error: "missing_token" }, 400, origin);
     }
 
     const supabase = createClient(
@@ -61,7 +95,7 @@ serve(async (req: Request) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
     );
 
-    // Trova subscriber col token
+    // 1. Cerca subscriber col token
     const { data: sub, error: selErr } = await supabase
       .from("newsletter_subscribers")
       .select("id, email, status")
@@ -70,42 +104,32 @@ serve(async (req: Request) => {
 
     if (selErr) throw selErr;
 
+    // Token non trovato: o non è mai esistito, o è stato già usato (lo invalidiamo a confirmed)
     if (!sub) {
-      return new Response(pageHtml({
-        success: false,
-        message: "Token scaduto o già usato. Se non hai ancora confermato, prova a iscriverti di nuovo.",
-      }), { status: 404, headers: { "Content-Type": "text/html; charset=utf-8" } });
+      return json({ ok: false, error: "invalid_token" }, 400, origin);
     }
 
+    // Già confermato (caso teorico: token non ancora nullified per qualche motivo)
     if (sub.status === "confirmed") {
-      return new Response(pageHtml({
-        success: true,
-        message: "La tua email è già confermata. Riceverai il pensiero del giorno ogni mattina alle 7:30.",
-      }), { status: 200, headers: { "Content-Type": "text/html; charset=utf-8" } });
+      return json({ ok: true, already: true }, 200, origin);
     }
 
-    // Conferma
+    // 2. Conferma: flip status + nullifica token (single-use)
     const { error: updErr } = await supabase
       .from("newsletter_subscribers")
       .update({
         status: "confirmed",
         confirmed_at: new Date().toISOString(),
-        confirm_token: null, // invalida il token, è single-use
+        confirm_token: null,
       })
       .eq("id", sub.id);
 
     if (updErr) throw updErr;
 
-    return new Response(pageHtml({
-      success: true,
-      message: "Grazie. La tua iscrizione a Pregacuore è confermata. Riceverai il pensiero del giorno ogni mattina alle 7:30.",
-    }), { status: 200, headers: { "Content-Type": "text/html; charset=utf-8" } });
+    return json({ ok: true, already: false }, 200, origin);
 
   } catch (e) {
     console.error("newsletter-confirm error:", e);
-    return new Response(pageHtml({
-      success: false,
-      message: "Errore tecnico. Riprova tra qualche minuto o scrivici a info@pregacuore.it.",
-    }), { status: 500, headers: { "Content-Type": "text/html; charset=utf-8" } });
+    return json({ ok: false, error: "server_error" }, 500, origin);
   }
 });

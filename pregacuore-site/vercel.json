@@ -1,11 +1,5 @@
 {
   "version": 2,
   "cleanUrls": true,
-  "trailingSlash": false,
-  "rewrites": [
-    {
-      "source": "/api/newsletter-confirm",
-      "destination": "https://vnzkmluglswcltdgwcex.supabase.co/functions/v1/newsletter-confirm"
-    }
-  ]
+  "trailingSlash": false
 }
