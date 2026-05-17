@@ -453,6 +453,109 @@
     }
     .pensiero-audio svg { width: 14px; height: 14px; }
 
+    /* ── Bottone "Leggi il Vangelo completo" ────────────── */
+    .pensiero-actions {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-top: 1.4rem;
+    }
+
+    .pensiero-read {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(123, 31, 34, 0.06);
+      color: var(--bordeaux);
+      font-family: var(--sans);
+      font-size: 0.78rem;
+      font-weight: 500;
+      letter-spacing: 0.06em;
+      padding: 12px 22px 12px 18px;
+      border-radius: 100px;
+      text-decoration: none;
+      cursor: pointer;
+      border: none;
+      transition: background 0.22s, transform 0.22s;
+    }
+    .pensiero-read:hover {
+      background: rgba(123, 31, 34, 0.12);
+      transform: translateY(-1px);
+    }
+    .pensiero-read svg {
+      width: 14px;
+      height: 14px;
+      transition: transform 0.3s ease;
+    }
+    .pensiero-read[aria-expanded="true"] svg {
+      transform: rotate(180deg);
+    }
+
+    /* Contenitore del testo Vangelo completo (collapsed by default) */
+    .gospel-full {
+      max-width: 680px;
+      margin: 2rem auto 0;
+      max-height: 0;
+      overflow: hidden;
+      opacity: 0;
+      transition: max-height 0.55s ease, opacity 0.4s ease, margin 0.4s ease;
+    }
+    .gospel-full[data-open="true"] {
+      max-height: 9000px;
+      opacity: 1;
+      margin-top: 2.5rem;
+    }
+
+    .gospel-full-inner {
+      background: var(--cream);
+      border-radius: 16px;
+      padding: 40px 36px 32px;
+      text-align: left;
+      box-shadow: 0 2px 24px rgba(123, 31, 34, 0.04);
+    }
+
+    .gospel-full-label {
+      display: block;
+      font-family: var(--sans);
+      font-size: 0.7rem;
+      font-weight: 500;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 14px;
+      opacity: 0.9;
+    }
+
+    .gospel-full-text {
+      font-family: var(--serif);
+      font-style: italic;
+      font-size: 1.18rem;
+      font-weight: 400;
+      line-height: 1.7;
+      color: var(--piombo);
+      white-space: pre-wrap;
+    }
+
+    .gospel-full-source {
+      display: block;
+      font-family: var(--sans);
+      font-size: 0.72rem;
+      font-weight: 400;
+      letter-spacing: 0.04em;
+      color: rgba(58, 58, 63, 0.5);
+      margin-top: 22px;
+      padding-top: 18px;
+      border-top: 1px solid rgba(123, 31, 34, 0.08);
+      font-style: italic;
+    }
+
+    @media (max-width: 600px) {
+      .gospel-full-inner { padding: 32px 22px 26px; border-radius: 12px; }
+      .gospel-full-text { font-size: 1.08rem; line-height: 1.65; }
+    }
+
     @keyframes shimmer {
       0%   { background-position: -600px 0; }
       100% { background-position:  600px 0; }
@@ -1313,11 +1416,39 @@
       <p class="pensiero-quote reveal d1" id="pg-quote">«…»</p>
       <p class="pensiero-text reveal d2" id="pg-text"></p>
       <p class="pensiero-ref reveal d3" id="pg-ref">—</p>
-      <button class="pensiero-audio reveal d3" aria-label="Ascolta il Vangelo del giorno" id="pg-audio" style="display:none;">
-        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
-        Ascolta il Vangelo
-      </button>
+
+      <div class="pensiero-actions reveal d3">
+        <button class="pensiero-read"
+                id="pg-read"
+                type="button"
+                aria-expanded="false"
+                aria-controls="pg-gospel-full"
+                style="display:none;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <polyline points="6 9 12 15 18 9"/>
+          </svg>
+          <span id="pg-read-label">Leggi il Vangelo</span>
+        </button>
+
+        <button class="pensiero-audio"
+                aria-label="Ascolta il Vangelo del giorno"
+                id="pg-audio"
+                type="button"
+                style="display:none;">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
+          Ascolta il Vangelo
+        </button>
+      </div>
+
       <p class="pensiero-ai-badge" id="pg-ai-badge" style="display:none;">✦ Riflessione del giorno</p>
+
+      <div class="gospel-full" id="pg-gospel-full" data-open="false" aria-hidden="true">
+        <div class="gospel-full-inner">
+          <span class="gospel-full-label" id="pg-gospel-full-label">Vangelo del giorno</span>
+          <div class="gospel-full-text" id="pg-gospel-full-text"></div>
+          <span class="gospel-full-source">Testo: Bibbia Diodati, 1649 (pubblico dominio)</span>
+        </div>
+      </div>
     </div>
   </section>
 
@@ -1855,6 +1986,39 @@
             new Audio(r.audio_url).play();
           });
         }
+
+        // ── Bottone "Leggi il Vangelo completo" ──────────────────
+        var gospelText = (r.gospel_text || '').trim();
+        if (gospelText && gospelText.length > 20) {
+          var readBtn   = el('pg-read');
+          var fullBox   = el('pg-gospel-full');
+          var fullText  = el('pg-gospel-full-text');
+          var fullLabel = el('pg-gospel-full-label');
+          var readLabel = el('pg-read-label');
+
+          fullText.textContent = gospelText;
+          if (r.gospel_reference) {
+            fullLabel.textContent = r.gospel_reference;
+          }
+          readBtn.style.display = '';
+
+          readBtn.addEventListener('click', function() {
+            var open = readBtn.getAttribute('aria-expanded') === 'true';
+            var nowOpen = !open;
+            readBtn.setAttribute('aria-expanded', nowOpen ? 'true' : 'false');
+            fullBox.setAttribute('data-open', nowOpen ? 'true' : 'false');
+            fullBox.setAttribute('aria-hidden', nowOpen ? 'false' : 'true');
+            readLabel.textContent = nowOpen ? 'Chiudi' : 'Leggi il Vangelo';
+            if (nowOpen) {
+              setTimeout(function() {
+                var rect = fullBox.getBoundingClientRect();
+                if (rect.bottom > window.innerHeight) {
+                  fullBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+              }, 450);
+            }
+          });
+        }
       }
 
       function showFallback(msg) {
@@ -1880,7 +2044,7 @@
         var today = todayISO();
         var url = SUPABASE_URL + '/rest/v1/daily_content'
           + '?content_date=eq.' + today
-          + '&select=content_date,liturgical_day,gospel_reference,quote,pensiero,audio_url,llm_model,saint_of_day'
+          + '&select=content_date,liturgical_day,gospel_reference,gospel_text,quote,pensiero,audio_url,llm_model,saint_of_day'
           + '&limit=1';
 
         try {
