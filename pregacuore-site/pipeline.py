@@ -5,9 +5,9 @@ PREGACUORE — Pipeline contenuto quotidiano (v2.1)
 Cosa cambia rispetto a v2.0:
     • Fix FinishReason.RECITATION: il prompt chiedeva la versione CEI 2008
       (coperta da copyright). Gemini lo blocca preventivamente.
-    • Ora chiediamo la Diodati 1641 (pubblico dominio, in linea con la scelta
-      MVP del progetto).
-    • Retry chain a 3 livelli: Diodati → parafrasi → solo riferimento.
+    • Ora chiediamo la Riveduta Luzzi 1925 (pubblico dominio, lingua più
+      moderna della Diodati, in linea con la scelta del progetto).
+    • Retry chain a 3 livelli: Luzzi → parafrasi → solo riferimento.
       La pipeline non si pianta più su RECITATION.
     • Fallback non-null per gospel_text (in caso il campo resti NOT NULL).
 
@@ -52,8 +52,35 @@ SUPABASE_SERVICE_KEY = os.environ["SUPABASE_SERVICE_KEY"]
 MODEL_NAME = "gemini-2.5-flash"
 BATCH_DELAY_SECONDS = 5
 
-# Modalità di generazione gospel_text in ordine di preferenza
-GOSPEL_MODES = ["diodati", "paraphrase", "reference_only"]
+# gospel_text NON è più generato dall'AI: viene preso dal testo REALE della
+# Riveduta Luzzi 1925 (luzzi.json) via estrai_con_note() — che ritorna anche le
+# note dei versetti della tradizione ricevuta (gospel_text_notes). All'AI
+# chiediamo solo il riferimento + i contenuti redazionali, in modalità
+# reference_only (gospel_text vuoto), così niente rischio di blocco RECITATION
+# né di testo allucinato.
+GOSPEL_MODES = ["reference_only"]
+
+# Carica il testo Luzzi (Vangeli + Atti) e l'estrattore CEI.
+_LUZZI_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "luzzi")
+sys.path.insert(0, _LUZZI_DIR)
+try:
+    from luzzi_extract import estrai_con_note, RiferimentoNonValido
+    with open(os.path.join(_LUZZI_DIR, "luzzi.json"), encoding="utf-8") as _f:
+        LUZZI = json.load(_f)
+    # Note dei versetti della tradizione "ricevuta" (assenti nei codici antichi):
+    # opzionale, se manca il file le note semplicemente non vengono applicate.
+    try:
+        with open(os.path.join(_LUZZI_DIR, "luzzi_note.json"), encoding="utf-8") as _f:
+            LUZZI_NOTE = json.load(_f)
+    except FileNotFoundError:
+        LUZZI_NOTE = {}
+    print(f"[luzzi] caricati {len(LUZZI)} libri da luzzi.json"
+          f" ({sum(len(c) for b in LUZZI_NOTE.values() for c in b.values())} note)")
+except Exception as _e:  # pragma: no cover
+    LUZZI = None
+    LUZZI_NOTE = {}
+    RiferimentoNonValido = Exception  # type: ignore
+    print(f"[luzzi] ATTENZIONE: luzzi.json non caricato ({_e}). gospel_text resterà placeholder.")
 
 
 # ------------------------------------------------------------------
@@ -78,8 +105,9 @@ Pubblico target:
 
 Importante sul copyright:
 - La traduzione CEI 2008 e' coperta da copyright. NON riportarla mai integralmente.
-- Per il testo del Vangelo, usa SOLO la versione Diodati 1641 (pubblico dominio mondiale)
-  oppure una parafrasi originale, secondo le istruzioni che ti darò.
+- Anche Nuova Diodati e Nuova Riveduta sono coperte da copyright: NON usarle.
+- Per il testo del Vangelo, usa SOLO la versione Riveduta Luzzi 1925 (pubblico
+  dominio mondiale) oppure una parafrasi originale, secondo le istruzioni che ti darò.
 
 Niente disclaimer, niente "io penso che", niente "ricordiamo che". Vai dritto al senso.
 """
@@ -90,12 +118,13 @@ Niente disclaimer, niente "io penso che", niente "ricordiamo che". Vai dritto al
 # ------------------------------------------------------------------
 def _gospel_text_instruction(mode: str) -> str:
     """Restituisce la riga di prompt per il campo gospel_text in base al modo."""
-    if mode == "diodati":
+    if mode == "luzzi":
         return (
-            '"gospel_text": "Il testo del Vangelo del giorno nella versione DIODATI 1641 '
-            '(traduzione italiana del XVII secolo, pubblico dominio mondiale). '
-            'Riportalo esattamente come si trova nelle edizioni storiche. '
-            'NON usare CEI 2008 ne IEP ne altre versioni moderne coperte da copyright."'
+            '"gospel_text": "Il testo del Vangelo del giorno nella versione RIVEDUTA '
+            'LUZZI 1925 (traduzione italiana di Giovanni Luzzi, pubblico dominio mondiale). '
+            'Riportalo fedelmente come si trova nelle edizioni della Riveduta 1925. '
+            'NON usare CEI 2008 ne Nuova Diodati ne Nuova Riveduta ne altre versioni '
+            'moderne coperte da copyright."'
         )
     if mode == "paraphrase":
         return (
@@ -283,7 +312,7 @@ def _extract_json_from_blob(blob: str) -> Optional[dict]:
 
 
 # ------------------------------------------------------------------
-# 6. Generazione con retry chain Diodati -> parafrasi -> solo riferimento
+# 6. Generazione con retry chain Luzzi -> parafrasi -> solo riferimento
 # ------------------------------------------------------------------
 _EMPTY_RESPONSE_RETRIES = 3
 _EMPTY_RESPONSE_BACKOFF = [5, 15, 30]  # secondi tra i retry
@@ -317,7 +346,7 @@ def generate_daily_content(target_date: date) -> dict:
                 data = _generate_attempt(target_date, weekday, mode,
                                          use_search=use_search)
                 data["_gospel_text_mode"] = mode
-                return _validate_and_normalize(data, target_date)
+                return _fill_gospel_from_luzzi(_validate_and_normalize(data, target_date))
 
             except RecitationBlocked as e:
                 print(f"    !!  {e}. Provo modalita' successiva...")
@@ -383,11 +412,87 @@ def _validate_and_normalize(data: dict, target_date: date) -> dict:
     if not gospel_text.strip():
         ref = data.get("gospel_reference", "")
         data["gospel_text"] = (
-            f"[Testo del Vangelo: {ref} - Diodati 1641, da popolare "
+            f"[Testo del Vangelo: {ref} - Riveduta Luzzi 1925, da popolare "
             f"dall'importer della Bibbia.]"
         )
         print(f"    !!  gospel_text vuoto: placeholder applicato")
 
+    return data
+
+
+def _quote_verbatim_luzzi(quote_ai: Optional[str], gospel_text: str) -> str:
+    """La citazione breve delle card dev'essere Luzzi VERBATIM (pubblico
+    dominio), non una parafrasi AI (che a volte scivolava su forme CEI). Sceglie
+    la frase del brano Luzzi che condivide più parole con la quote suggerita
+    dall'AI (cioè il versetto "saliente"); se nessuna combacia, usa la prima
+    frase. Toglie eventuali numeri di versetto iniziali, accorcia con grazia, e
+    racchiude fra caporali."""
+    g = (gospel_text or "").strip()
+    qa = (quote_ai or "").strip()
+    if not g:
+        return qa
+
+    def norm(s: str) -> str:
+        return re.sub(r"\s+", " ", re.sub(r"[^0-9a-zàèéìòóù ]", "", (s or "").lower())).strip()
+
+    # 1. Se la quote dell'AI è GIÀ Luzzi verbatim (a meno di punteggiatura),
+    #    tienila: è breve e saliente.
+    qn = norm(qa)
+    if len(qn) >= 12 and qn in norm(g):
+        clean = re.sub(r"^\d+\s*", "", qa.strip("«»\"' ")).strip()
+        return f"«{clean}»"
+
+    # 2. Altrimenti (parafrasi AI): la frase del brano Luzzi con più parole in
+    #    comune con la quote AI; se nessuna, la prima frase.
+    frasi = [f.strip() for f in re.split(r"(?<=[.!?;])\s+|\n+", g) if f.strip()]
+    if not frasi:
+        return f"«{qa}»" if qa else ""
+
+    def parole(s: str) -> set:
+        return set(re.findall(r"[a-zàèéìòóù]{3,}", (s or "").lower()))
+
+    target = parole(qa)
+    best, best_score = frasi[0], -1
+    for f in frasi:
+        score = len(parole(f) & target)
+        if score > best_score:
+            best, best_score = f, score
+    best = re.sub(r"^\d+\s*", "", best).strip()  # "28 Poi..." -> "Poi..."
+    if len(best) > 100:
+        best = best[:100].rsplit(" ", 1)[0].rstrip(",;:") + "…"
+    return f"«{best}»"
+
+
+def _fill_gospel_from_luzzi(data: dict) -> dict:
+    """Sostituisce gospel_text col testo REALE della Riveduta Luzzi 1925,
+    estratto da luzzi.json in base a gospel_reference (modalità clemente:
+    completa la frase a fine brano). Se il riferimento non è nel corpus
+    (es. una prima lettura AT che non abbiamo, o sigla non interpretabile)
+    o luzzi.json non è caricato, lascia il placeholder e segna la fonte 'none'."""
+    ref = (data.get("gospel_reference") or "").strip()
+    data["_gospel_source"] = "none"
+    data["gospel_text_notes"] = None
+    if not LUZZI or not ref:
+        return data
+    try:
+        testo, note_app = estrai_con_note(ref, LUZZI, LUZZI_NOTE, clemente=True)
+    except RiferimentoNonValido as e:
+        print(f"    !!  Luzzi: riferimento non estraibile '{ref}' ({e}); gospel_text resta placeholder")
+        return data
+    if testo and testo.strip():
+        data["gospel_text"] = testo
+        data["gospel_long_text"] = testo
+        data["_gospel_source"] = "luzzi-1925"
+        # Note dei versetti della tradizione ricevuta toccati dal brano (se ci sono):
+        # mappa {"<versetto>": "<nota>"}, NULL altrimenti.
+        if note_app:
+            data["gospel_text_notes"] = {str(v): n for v, n in note_app}
+            print(f"    ==  gospel_text da Riveduta Luzzi 1925 ({len(testo)} car.; "
+                  f"note: {', '.join(str(v) for v, _ in note_app)})")
+        else:
+            print(f"    ==  gospel_text da Riveduta Luzzi 1925 ({len(testo)} car.)")
+        # La quote delle card: Luzzi verbatim, non parafrasi AI.
+        data["quote"] = _quote_verbatim_luzzi(data.get("quote"), testo)
     return data
 
 
@@ -401,6 +506,7 @@ def save_to_supabase(target_date: date, content: dict) -> None:
         "content_date":      target_date.isoformat(),
         "gospel_reference":  content["gospel_reference"],
         "gospel_text":       content["gospel_text"],
+        "gospel_long_text":  content.get("gospel_long_text"),
         "quote":             content["quote"],
         "pensiero":          content["pensiero"],
         "caption_instagram": content["caption_instagram"],
@@ -408,10 +514,19 @@ def save_to_supabase(target_date: date, content: dict) -> None:
         "hashtags":          content["hashtags"],
         "liturgical_day":    content.get("liturgical_day"),
         "saint_of_day":      content.get("saint_of_day"),
-        "llm_model":         f"{MODEL_NAME} ({content.get('_gospel_text_mode', 'unknown')})",
+        "llm_model":         f"{MODEL_NAME} (gospel: {content.get('_gospel_source', 'unknown')})",
         "generated_at":      datetime.now(timezone.utc).isoformat(),
         "is_published":      True,
     }
+
+    # Licenza/fonte del testo del Vangelo: valorizzate solo quando il testo è
+    # davvero la Riveduta Luzzi 1925 (pubblico dominio).
+    if content.get("_gospel_source") == "luzzi-1925":
+        row["liturgy_source"] = "Riveduta Luzzi 1925"
+        row["liturgy_text_license"] = "Riveduta Luzzi 1925 — pubblico dominio"
+        row["liturgy_fetched_at"] = datetime.now(timezone.utc).isoformat()
+        # Note dei versetti della tradizione ricevuta (NULL se nessuna).
+        row["gospel_text_notes"] = content.get("gospel_text_notes")
 
     result = (
         supabase.table("daily_content")
