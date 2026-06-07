@@ -1,0 +1,61 @@
+name: Pregacuore — Fill Missing (rete di sicurezza)
+
+# Ripara i buchi di daily_content nella finestra-buffer (oggi..oggi+30):
+# giorni senza contenuto o senza card (social_card_url) -> rigenera contenuto
+# Luzzi e/o card. Gira 1h dopo la Daily Content, così cattura i giri falliti
+# (es. 503 Gemini) prima che diventino buchi visibili all'utente e prima che
+# Make fallisca la pubblicazione per 'image_url' mancante.
+
+on:
+  schedule:
+    # 05:00 UTC ogni giorno (1h dopo daily-content alle 04:00).
+    - cron: '0 5 * * *'
+  workflow_dispatch:
+    inputs:
+      days:
+        description: 'Ampiezza finestra in giorni'
+        required: false
+        default: '30'
+
+concurrency:
+  group: fill-missing
+  cancel-in-progress: false
+
+defaults:
+  run:
+    working-directory: pregacuore-site
+
+jobs:
+  fill:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Setup Python 3.11
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+          cache-dependency-path: pregacuore-site/requirements.txt
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Genera asset visuali (pittogrammi, papiro)
+        run: |
+          if [ -f setup_assets.py ]; then
+            python setup_assets.py
+          else
+            echo "setup_assets.py non presente, skip."
+          fi
+
+      - name: Ripara i buchi (contenuto + card)
+        env:
+          GEMINI_API_KEY:       ${{ secrets.GEMINI_API_KEY }}
+          SUPABASE_URL:         ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+        run: python fill_missing.py --days ${{ github.event.inputs.days || '30' }}
