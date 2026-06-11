@@ -1226,7 +1226,8 @@ def santino_draw_date(draw, fmt, day, mese_anno, fonts):
 
     pad = round(box_side * 0.08)
     inner_w = box_side - 2 * pad
-    num_font = _fit_height(fonts["cormorant_medium"], day, round(box_side * 0.70), weight=600)
+    # 0.60 (era 0.70): padding tra il numero e il bordo del riquadro.
+    num_font = _fit_height(fonts["cormorant_medium"], day, round(box_side * 0.60), weight=600)
     nb = num_font.getbbox(day)
     num_w, num_h = nb[2] - nb[0], nb[3] - nb[1]
     ma_font = _fit_width(fonts["cormorant_medium"], mese_anno, inner_w,
