@@ -73,11 +73,12 @@ ARTWORK_DIR = ASSETS_DIR / "artwork"
 OUTPUT_DIR = Path(os.environ.get("TEMP", "/tmp")) / "pregacuore_cards"
 OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
-# Dimensioni dei tre formati (DEVONO essere allineati a download_landscapes.py)
+# Dimensioni dei tre formati. v4 (card-santino): allineati a card_layout.formats
+# nel landscape_manifest.yml e agli asset HOUSE incorniciati (assets/immagini).
 CARD_SIZES = {
-    "post":      (1080, 1080),
+    "post":      (1254, 1254),
     "story":     (1080, 1920),
-    "pinterest": (1080, 1620),
+    "pinterest": (1000, 1500),
 }
 
 
@@ -1079,6 +1080,286 @@ def _compose_card_fallback_v2(quote: str, gospel_reference: str, fmt: str,
 
 
 # ------------------------------------------------------------------
+# 8bis. LAYOUT "CARD-SANTINO" (v4)
+# ------------------------------------------------------------------
+# Passe-partout crema (#F5EBD8): riquadro DATA in alto a sinistra (numero
+# grande + mese/anno), VERSETTO bordeaux a destra, finestra immagine con
+# keyline oro, LOGO al piede a destra. Sorgente di stile: SPEC_card_generator
+# + `card_layout` in landscape_manifest.yml.
+#
+# Due fonti (SPEC §1): HOUSE (`local_file`) arrivano GIA' incorniciate in
+# assets/immagini/<base>_<fmt>.png (bande+immagine+keyline+logo bakeati) →
+# qui si disegnano solo data+versetto. PD (`wikimedia_file`) vengono
+# incorniciati a runtime (cover-crop nella finestra + tonalizzazione
+# desaturate 0.45 + velo bordeaux 0.35 + bande/keyline/logo).
+#
+# La geometria delle bande DEVE combaciare con estendi_verticali_house.py
+# (gli asset HOUSE sono bakeati con questi valori).
+GOLD_FRAME = (201, 162, 75)      # #C9A24B — keyline/cornice
+BORDEAUX_TENUE = (150, 75, 78)   # riferimento del versetto
+
+MESI_IT = ["gennaio", "febbraio", "marzo", "aprile", "maggio", "giugno",
+           "luglio", "agosto", "settembre", "ottobre", "novembre", "dicembre"]
+
+SANTINO_LAYOUT = {
+    "post":      {"W": 1254, "H": 1254, "top": 320, "bottom": 150, "verse_scale": 1.15},
+    "story":     {"W": 1080, "H": 1920, "top": 500, "bottom": 150, "verse_scale": 1.00},
+    "pinterest": {"W": 1000, "H": 1500, "top": 320, "bottom": 150, "verse_scale": 1.00},
+}
+SANTINO_LOGO_H = 65
+SANTINO_LOGO_MARGIN_PCT = 0.05
+
+
+def _sized_font(path, size, weight=None):
+    f = ImageFont.truetype(path, max(6, int(size)))
+    if weight is not None:
+        try:
+            f.set_variation_by_axes([weight])   # Cormorant variabile: peso
+        except Exception:
+            pass
+    return f
+
+
+def _fit_height(path, text, target_h, weight=None):
+    """Font la cui altezza-bbox del testo ~= target_h."""
+    size = max(8, target_h)
+    for _ in range(40):
+        f = _sized_font(path, size, weight)
+        bb = f.getbbox(text)
+        h = bb[3] - bb[1]
+        if h <= 0:
+            break
+        ratio = target_h / h
+        if abs(ratio - 1) < 0.02:
+            break
+        size = max(6, int(size * ratio))
+    return _sized_font(path, size, weight)
+
+
+def _fit_width(path, text, target_w, max_size, weight=None):
+    size = max_size
+    while size > 8:
+        f = _sized_font(path, size, weight)
+        if f.getlength(text) <= target_w:
+            return f
+        size -= 2
+    return _sized_font(path, 8, weight)
+
+
+def _cover(src, W, Hh):
+    sw, sh = src.size
+    scale = max(W / sw, Hh / sh)
+    nw, nh = round(sw * scale), round(sh * scale)
+    r = src.resize((nw, nh), Image.LANCZOS)
+    l, t = (nw - W) // 2, (nh - Hh) // 2
+    return r.crop((l, t, l + W, t + Hh))
+
+
+def _trim_alpha(img):
+    bb = img.getbbox()
+    return img.crop(bb) if bb else img
+
+
+def tonalize_pd(art: Image.Image) -> Image.Image:
+    """PD: desaturazione 0.45 + velo bordeaux 0.35 (card_layout.tonalization.pd)."""
+    art = ImageEnhance.Color(art).enhance(1.0 - 0.45)
+    veil = Image.new("RGB", art.size, BORDEAUX)
+    return Image.blend(art, veil, 0.35)
+
+
+def santino_draw_logo(canvas, fmt, fonts, pictograms):
+    pit = (pictograms or {}).get("pictogram_bordeaux")
+    if pit is None:
+        return
+    L = SANTINO_LAYOUT[fmt]
+    W, H, bottom = L["W"], L["H"], L["bottom"]
+    pit = _trim_alpha(pit)
+    logo_h = min(SANTINO_LOGO_H, bottom - round(0.018 * H))
+    margin = round(SANTINO_LOGO_MARGIN_PCT * W)
+    pw, ph = pit.size
+    pic_w = round(pw * (logo_h / ph))
+    pic = pit.resize((pic_w, logo_h), Image.LANCZOS)
+
+    font = _sized_font(fonts["cormorant_medium"], round(logo_h * 1.25), 600)
+    draw = ImageDraw.Draw(canvas)
+    wbb = draw.textbbox((0, 0), "pregacuore", font=font)
+    gap = round(logo_h * 0.32)
+    total_w = pic_w + gap + (wbb[2] - wbb[0])
+    x0 = W - margin - total_w
+    cy = H - bottom // 2
+    canvas.paste(pic, (x0, cy - logo_h // 2), pic)
+    draw.text((x0 + pic_w + gap - wbb[0], cy - (wbb[3] + wbb[1]) // 2),
+              "pregacuore", font=font, fill=BORDEAUX)
+
+
+def santino_build_frame(src, fmt, fonts, pictograms, is_pd):
+    """Cornice a runtime (bande crema + finestra immagine + keyline + logo).
+    Usata per i PD e come fallback se manca l'asset HOUSE incorniciato.
+    Le HOUSE pre-incorniciate NON passano di qui."""
+    L = SANTINO_LAYOUT[fmt]
+    W, H, top, bottom = L["W"], L["H"], L["top"], L["bottom"]
+    region_h = H - top - bottom
+
+    canvas = Image.new("RGB", (W, H), CREAM)
+    art = _cover(src.convert("RGB"), W, region_h)
+    if is_pd:
+        art = tonalize_pd(art)
+    canvas.paste(art, (0, top))
+
+    draw = ImageDraw.Draw(canvas)
+    draw.line([(0, top - 1), (W, top - 1)], fill=GOLD_FRAME, width=1)
+    draw.line([(0, top + region_h), (W, top + region_h)], fill=GOLD_FRAME, width=1)
+
+    santino_draw_logo(canvas, fmt, fonts, pictograms)
+    return canvas
+
+
+def santino_draw_date(draw, fmt, day, mese_anno, fonts):
+    """Riquadro quadrato a sinistra: keyline oro, numero grande, mese+anno."""
+    L = SANTINO_LAYOUT[fmt]
+    band_h = L["top"]
+    box_side = round(band_h * 0.50)
+    inset = round(band_h * 0.05)
+    x0 = inset
+    y0 = (band_h - box_side) // 2
+    draw.rectangle([x0, y0, x0 + box_side, y0 + box_side], outline=GOLD_FRAME, width=3)
+
+    pad = round(box_side * 0.08)
+    inner_w = box_side - 2 * pad
+    num_font = _fit_height(fonts["cormorant_medium"], day, round(box_side * 0.70), weight=600)
+    nb = num_font.getbbox(day)
+    num_w, num_h = nb[2] - nb[0], nb[3] - nb[1]
+    ma_font = _fit_width(fonts["cormorant_medium"], mese_anno, inner_w,
+                         round(box_side * 0.20), weight=600)
+    mb = ma_font.getbbox(mese_anno)
+    ma_w, ma_h = mb[2] - mb[0], mb[3] - mb[1]
+
+    gap = round(box_side * 0.05)
+    block_h = num_h + gap + ma_h
+    top_y = y0 + (box_side - block_h) // 2
+    cx = x0 + box_side // 2
+    draw.text((cx - num_w / 2 - nb[0], top_y - nb[1]), day, font=num_font, fill=BORDEAUX)
+    my = top_y + num_h + gap
+    draw.text((cx - ma_w / 2 - mb[0], my - mb[1]), mese_anno, font=ma_font, fill=BORDEAUX)
+    return x0 + box_side
+
+
+def santino_draw_verse(draw, fmt, quote, ref, box_right, fonts):
+    """Versetto bordeaux corsivo centro/destra + riferimento sotto."""
+    L = SANTINO_LAYOUT[fmt]
+    band_h, W, scale = L["top"], L["W"], L["verse_scale"]
+    margin = round(0.045 * W)
+    gap = round(0.03 * W)
+    zx0 = box_right + gap
+    zone_w = W - zx0 - margin
+
+    ideal = round(band_h * 0.17 * scale)
+    vmin = round(band_h * 0.08)
+    size = ideal
+    while size > vmin:
+        f = _sized_font(fonts["cormorant_italic"], size)
+        lines = wrap_text(quote.strip(), f, zone_w)
+        too_wide = any(f.getlength(ln) > zone_w for ln in lines)
+        if not too_wide and len(lines) <= 5:
+            break
+        size -= 2
+    v_font = _sized_font(fonts["cormorant_italic"], size)
+    v_lines = wrap_text(quote.strip(), v_font, zone_w)
+    vh = v_font.getbbox("Ag")
+    vlh = int((vh[3] - vh[1]) * 1.22)
+
+    r_font = _sized_font(fonts["cormorant_italic"], round(size * 0.5))
+    rb = r_font.getbbox(ref or "Ag")
+    ref_h = rb[3] - rb[1]
+    ref_gap = round(band_h * 0.05)
+
+    block_h = vlh * len(v_lines) + (ref_gap + ref_h if ref else 0)
+    vy = (band_h - block_h) // 2
+    cx = zx0 + zone_w // 2
+    for ln in v_lines:
+        lw = v_font.getlength(ln)
+        draw.text((cx - lw / 2, vy), ln, font=v_font, fill=BORDEAUX)
+        vy += vlh
+    if ref:
+        rw = r_font.getlength(ref)
+        draw.text((cx - rw / 2, vy + ref_gap), ref, font=r_font, fill=BORDEAUX_TENUE)
+
+
+def santino_resolve_source(entry, fmt):
+    """Risolve il file sorgente per (entry, formato).
+    HOUSE (local_file) → asset incorniciato immagini/<base>_<fmt>.png
+      ('house_framed'); fallback al quadrato grezzo ('house_raw').
+    PD (wikimedia_file) → crop puro landscapes/<slug>_<fmt>.png ('pd'),
+      fallback al crop _post. Ritorna (kind, Path) o (None, None)."""
+    if not entry:
+        return (None, None)
+    if entry.get("local_file"):
+        base = Path(entry["local_file"]).stem
+        framed = ASSETS_DIR / "immagini" / f"{base}_{fmt}.png"
+        if framed.exists():
+            return ("house_framed", framed)
+        raw = ASSETS_DIR / "immagini" / f"{base}.png"
+        if raw.exists():
+            return ("house_raw", raw)
+        return (None, None)
+    slug = entry.get("slug", "")
+    for cand in (LANDSCAPES_DIR / f"{slug}_{fmt}.png",
+                 LANDSCAPES_DIR / f"{slug}_post.png"):
+        if cand.exists():
+            return ("pd", cand)
+    return (None, None)
+
+
+def select_entry_for_day(target_date, season, palette, manifest):
+    """Come select_landscape_for_day ma ritorna l'ENTRY del manifest (per
+    distinguere HOUSE/PD), verificando che esista un file usabile."""
+    if not manifest:
+        return None
+    palette_row = palette.get(season) if palette else None
+    moods = set(palette_row.get("landscape_mood") or []) if palette_row else set()
+    if moods:
+        candidates = [l for l in manifest if set(l.get("moods", [])) & moods]
+    else:
+        candidates = list(manifest)
+    if not candidates:
+        candidates = list(manifest)
+    non_reserve = [c for c in candidates if not c.get("reserve")]
+    if len(non_reserve) >= 3:
+        candidates = non_reserve
+
+    import hashlib
+    seed = int(hashlib.md5(target_date.isoformat().encode()).hexdigest()[:8], 16)
+    n = len(candidates)
+    start = seed % n
+    for off in range(n):
+        cand = candidates[(start + off) % n]
+        if santino_resolve_source(cand, "post")[1] is not None:
+            return cand
+    return None
+
+
+def compose_card_santino(target_date, quote, ref, fmt, fonts,
+                         kind, src_path, pictograms):
+    """Compone la card-santino per un formato. `kind` da santino_resolve_source."""
+    pictograms = pictograms or {}
+    if kind == "house_framed":
+        base = Image.open(src_path).convert("RGB")
+    elif kind in ("house_raw", "pd"):
+        src = Image.open(src_path)
+        base = santino_build_frame(src, fmt, fonts, pictograms, is_pd=(kind == "pd"))
+    else:
+        # Nessuno sfondo disponibile: fallback bordeaux pieno (v2.1)
+        return _compose_card_fallback_v2(quote, ref, fmt, fonts, None, pictograms, "bordeaux")
+
+    draw = ImageDraw.Draw(base)
+    day = str(target_date.day)
+    mese_anno = f"{MESI_IT[target_date.month - 1]} {target_date.year}"
+    box_right = santino_draw_date(draw, fmt, day, mese_anno, fonts)
+    santino_draw_verse(draw, fmt, quote, ref, box_right, fonts)
+    return base
+
+
+# ------------------------------------------------------------------
 # 9. Lettura/scrittura Supabase
 # ------------------------------------------------------------------
 def get_supabase() -> Client:
@@ -1191,56 +1472,29 @@ def process_date(target_date: date, fonts: dict,
 
     quote = row["quote"]
     ref = row["gospel_reference"]
-    saint = row.get("saint_of_day") or ""
-    liturgical_day = row.get("liturgical_day") or ""
-    template = select_template(target_date)
 
-    # Determino la season liturgica per la palette
+    # Season liturgica → mood per la scelta dello sfondo (v4: il template
+    # giorno-settimana non incide piu' sul look, la card-santino e' unica)
     season = derive_season_from_row(row, target_date)
-    palette_row = palette.get(season) if palette else None
 
-    # Selezione paesaggio (se attivato e disponibile)
-    landscape = None
-    landscape_origin = "neutro"
+    # Selezione ENTRY del manifest (HOUSE o PD), deterministica sulla data
+    entry = None
+    origin = "neutro (fallback bordeaux)"
     if use_landscape:
-        # 1) Prova landscape_manifest v3.0
-        landscape = select_landscape_for_day(
-            target_date, season, palette, landscape_manifest
-        )
-        if landscape:
-            landscape_origin = f"landscape: {landscape.stem}"
-        else:
-            # 2) Fallback legacy artwork_calendar.yml
-            legacy_art = find_artwork_for_day(saint, liturgical_day, legacy_artwork_manifest)
-            if legacy_art:
-                landscape = legacy_art
-                landscape_origin = f"legacy artwork: {landscape.name}"
+        entry = select_entry_for_day(target_date, season, palette, landscape_manifest)
+        if entry:
+            tipo = "house" if entry.get("local_file") else "pd"
+            origin = f"{tipo}: {entry.get('slug', '?')}"
 
-    print(f">>  {target_date.isoformat()} [{template}/{season}] - {landscape_origin}")
+    print(f">>  {target_date.isoformat()} [{season}] - {origin}")
     print(f"    {quote[:80]}{'...' if len(quote) > 80 else ''}")
 
-    # Genero le 3 card (post, story, pinterest)
+    # Genero le 3 card-santino (post, story, pinterest)
     images = {}
     for fmt in ("post", "story", "pinterest"):
-        # Per landscape diversi formati uso file specifici se disponibili,
-        # altrimenti fallback al file post (sara' croppato a runtime)
-        if landscape:
-            stem = landscape.stem.replace("_post", "")
-            specific = LANDSCAPES_DIR / f"{stem}_{fmt}.png"
-            landscape_for_fmt = specific if specific.exists() else landscape
-        else:
-            landscape_for_fmt = None
-
-        images[fmt] = compose_card(
-            template=template,
-            quote=quote,
-            gospel_reference=ref,
-            fmt=fmt,
-            fonts=fonts,
-            paper_texture=paper_texture,
-            landscape_path=landscape_for_fmt,
-            pictograms=pictograms,
-            palette_row=palette_row,
+        kind, src_path = santino_resolve_source(entry, fmt)
+        images[fmt] = compose_card_santino(
+            target_date, quote, ref, fmt, fonts, kind, src_path, pictograms
         )
 
     # Salvataggio locale: PNG + JPEG per ciascun formato

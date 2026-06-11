@@ -1,42 +1,181 @@
 # ==============================================================================
-# Pregacuore - landscape_manifest.yml v3.0
+# Pregacuore - landscape_manifest.yml v3.1
 # ==============================================================================
 #
-# Catalogo dei paesaggi di pubblico dominio usati come sfondo per le card.
-# Tutti i quadri elencati sono di artisti morti da oltre 95 anni, quindi
-# in PD secondo la legge europea (Italia: morte + 70 anni; UE: morte + 70).
+# Catalogo sfondi per le card "frase del giorno" (social/Make e card in-app).
+# DUE fonti, distinte dal campo file di ogni entry:
+#   - local_file:    immagini HOUSE generate da noi (gia tonalizzate oro/bordeaux)
+#                    -> NIENTE velo bordeaux in fase di render
+#   - wikimedia_file: quadri PD (artisti morti da oltre 70 anni)
+#                    -> desaturazione + velo bordeaux come prima
 #
-# Direzione visiva (definita il 14 maggio 2026):
-#   - SI: serenita, fiducia, pittoricita
-#   - SI: impressionisti (Monet, Renoir, Pissarro, Sisley)
-#   - SI: post-impressionisti luminosi (Van Gogh paesaggi, mietitori, mandorli)
-#   - SI: Hudson River School (Bierstadt, Church, Cole, Inness)
-#   - SI: Aivazovsky mari calmi e luminosi
-#   - SI: Hokusai / stampe giapponesi (carattere, sereno)
-#   - SI: Constable, Corot, Turner luminosi
-#   - LIMITATO: Friedrich/Grimshaw (romantici tedeschi) - mantenuti come
-#     "riserva" con flag reserve: true, scelti solo in mancanza di alternative
+# NOVITA v3.1 (09/06/2026):
+#   - aggiunto blocco `card_layout` = stile unico della card (cornice, data in
+#     alto, logo in basso, font Cormorant). Lo leggono SIA card_generator.py
+#     (social) SIA share-card.ts (in-app), cosi la card e identica ovunque.
+#   - aggiunte 16 immagini HOUSE in /assets/immagini (cieli e paesaggi calmi).
 #
-# Il card_generator.py legge questo file e, per ogni card:
-#   1. Determina la `season` liturgica del giorno via tabella liturgical_palette
-#   2. Filtra i paesaggi con almeno un `mood` compatibile con season.landscape_mood
-#   3. Esclude paesaggi con reserve:true se ci sono >= 3 candidati non-riserva
-#   4. Sceglie uno deterministicamente: hash(content_date) % len(candidates)
-#   5. Lo applica come sfondo desaturato con opacita da palette
+# Flusso card_generator.py (invariato per i PD):
+#   1. season liturgica del giorno (tabella liturgical_palette)
+#   2. filtra landscapes con un mood compatibile con season.landscape_mood
+#   3. sceglie deterministicamente: hash(content_date) % len(candidates)
+#   4. render via `card_layout` (velo bordeaux SOLO se wikimedia_file)
 #
 # ==============================================================================
 
-# Mood vocabulary (allineato a liturgical_palette.landscape_mood)
-# ---------------------------------------------------------------
+# ------------------------------------------------------------------------------
+# CARD LAYOUT - stile unico della card (fonte di verita per ENTRAMBI i renderer)
+# ------------------------------------------------------------------------------
+card_layout:
+  formats:
+    post:      { w: 1080, h: 1080 }   # WhatsApp / feed (quadrato)
+    story:     { w: 1080, h: 1920 }   # Storie / stato
+    pinterest: { w: 1000, h: 1500 }   # social automatico
+
+  font:
+    family: "Cormorant Garamond"      # bundlare il .ttf nel generator
+    verse_weight: 600                 # corsivo 600: leggibilita 55+
+    date_weight: 500
+    logo_weight: 600
+
+  colors:
+    verse_text:     "#F5EBD8"         # crema
+    date_text:      "#D4A24A"         # oro
+    bordeaux:       "#7B1F22"
+    bordeaux_deep:  "#5A1419"
+    gold_frame:     "#C9A24B"
+
+  frame:                              # cornice sobria, come il concorrente
+    enabled: true
+    style: "thin double gold line with small corner ornaments"
+    inset_pct: 4
+    opacity: 0.55
+
+  date:                               # IN ALTO, dentro la cornice
+    position: top
+    format: "D MMMM YYYY"             # "9 giugno 2026" (IT), NON 09/06
+    locale: it
+    align: center
+
+  verse:                              # blocco versetto + riferimento
+    position: center                  # centrato, gravita verso il terzo medio/basso
+    max_width_pct: 80
+    align: center
+    reference_italic: true            # es. "Matteo 5,16" piu piccolo, corsivo
+    scrim: true                       # velo scuro dietro il testo
+    scrim_opacity: 0.28               # alzare se lo sfondo li e chiaro
+
+  logo:                               # IN BASSO: marchio, NON l'url
+    position: bottom
+    type: "pittogramma cuore-candela + wordmark pregacuore"
+    color: "#F5EBD8"
+    opacity: 0.85
+    height_pct: 7
+
+  tonalization:                       # applicata SOLO ai PD (wikimedia_file)
+    pd:    { desaturate: 0.45, bordeaux_veil_opacity: 0.35 }
+    house: { desaturate: 0.0,  bordeaux_veil_opacity: 0.0 }
+
+# ------------------------------------------------------------------------------
+# Mood vocabulary (invariato, allineato a liturgical_palette.landscape_mood)
+# ------------------------------------------------------------------------------
 #   bare_tree, candle, contemplation, countryside, dawn, desert,
 #   evening_quiet, fog, forest, forest_misty, golden_hour, light,
 #   light_rays, meadow, meadow_flowers, misty, mountain, mountain_austere,
 #   mountain_dawn, rocks, ruins, sea_calm, snow_calm, spring_bloom,
 #   starry_night, sunrise, sunset_quiet, warm_interior, winter_quiet
-#
-# Ogni paesaggio ha 2-4 mood. Piu mood = piu polivalente = piu scelto.
 
 landscapes:
+
+  # ============================================================================
+  # HOUSE - generate da noi, gia tonalizzate (NIENTE velo bordeaux)
+  # File in /assets/immagini/  (nomi attuali slug1..16 mantenuti)
+  # ============================================================================
+
+  - slug: house_alba_sopra_nubi
+    title: "Alba sopra le nubi"
+    moods: [sunrise, dawn, light_rays, light, golden_hour]
+    local_file: "assets/immagini/slug1.png"
+
+  - slug: house_notte_stellata
+    title: "Notte stellata sulla collina"
+    moods: [starry_night, evening_quiet]
+    local_file: "assets/immagini/slug2.png"
+
+  - slug: house_mare_sole_basso
+    title: "Sole basso sul mare calmo"
+    moods: [sea_calm, sunset_quiet, dawn, light]
+    local_file: "assets/immagini/slug3.png"
+
+  - slug: house_campagna_ora_doro
+    title: "Campagna all'ora d'oro"
+    moods: [countryside, meadow, golden_hour, light]
+    local_file: "assets/immagini/slug4.png"
+
+  - slug: house_neve_chiesetta
+    title: "Neve silenziosa con chiesetta"
+    moods: [snow_calm, winter_quiet, bare_tree]
+    local_file: "assets/immagini/slug5.png"
+
+  - slug: house_raggi_tra_nubi
+    title: "Raggi di luce tra le nubi"
+    moods: [light_rays, light, sunrise, golden_hour]
+    local_file: "assets/immagini/slug6.png"
+
+  - slug: house_crepuscolo_luna
+    title: "Crepuscolo con luna e prima stella"
+    moods: [evening_quiet, sunset_quiet]
+    local_file: "assets/immagini/slug7.png"
+
+  - slug: house_vetta_tra_nubi
+    title: "Vetta tra le nubi dorate"
+    moods: [mountain, mountain_austere, light_rays, golden_hour, misty]
+    local_file: "assets/immagini/slug8.png"
+
+  - slug: house_colline_nebbia
+    title: "Colline nella nebbia all'alba"
+    moods: [misty, mountain_dawn, fog, contemplation, mountain]
+    local_file: "assets/immagini/slug9.png"
+
+  - slug: house_pianura_crepuscolo
+    title: "Pianura al crepuscolo"
+    moods: [sunset_quiet, evening_quiet, contemplation]
+    local_file: "assets/immagini/slug10.png"
+
+  - slug: house_alberi_riflesso
+    title: "Alberi riflessi nell'acqua calma"
+    moods: [sea_calm, forest_misty, misty, contemplation, golden_hour, evening_quiet]
+    local_file: "assets/immagini/slug11.png"
+
+  - slug: house_croce_tramonto
+    title: "Croce al tramonto"
+    moods: [sunset_quiet, golden_hour, contemplation]   # simbolo forte: ideale Quaresima / Venerdi / Pasqua
+    local_file: "assets/immagini/slug12.png"
+
+  - slug: house_gloria_luce
+    title: "Gloria di luce tra le nubi"
+    moods: [light, light_rays, golden_hour, sunrise]     # radiosa: ideale feste / Pasqua / Pentecoste
+    local_file: "assets/immagini/slug13.png"
+
+  - slug: house_albero_arcobaleno
+    title: "Albero solitario sotto l'arcobaleno"
+    moods: [meadow, countryside, light, contemplation, golden_hour]  # arcobaleno = alleanza / speranza
+    local_file: "assets/immagini/slug14.png"
+
+  - slug: house_sole_sul_lago
+    title: "Sole sul lago"
+    moods: [sunrise, dawn, sea_calm, light_rays, golden_hour, light]
+    local_file: "assets/immagini/slug15.png"
+
+  - slug: house_monti_riflessi_lago
+    title: "Monti innevati riflessi nel lago"
+    moods: [mountain, sea_calm, mountain_dawn, golden_hour, light_rays, contemplation]
+    local_file: "assets/immagini/slug16.png"
+
+  # ============================================================================
+  # PD - quadri di pubblico dominio (Wikimedia). Render CON velo bordeaux.
+  # ============================================================================
+
 
   - slug: bierstadt_sierra_nevada
     artist: "Albert Bierstadt"
@@ -285,18 +424,20 @@ landscapes:
 
 
 # ==============================================================================
-# Note operative
+# Note operative v3.1
 # ==============================================================================
 #
-# Catalogo curato: 35 paesaggi adatti al brand pregacuore (luce, gioia,
-# speranza, no cornici, no opere "a matita" o troppo scure). Comprende
-# 13 Bierstadt (Hudson River School, luce gloriosa). I primi 5 sono stati
-# confermati visivamente dall'utente (Sierra Nevada, Yosemite Valley,
-# Cathedral Rock, Lander's Peak, Sunrise Yosemite). Gli altri 8 sono
-# selezionati da Wikimedia Commons Category:Paintings by Albert Bierstadt
-# con nomi-file verificati (Hetch Hetchy, Matterhorn, Lake Lucerne, Sunset
-# Yosemite, Sundown Yosemite, Lake Louise, Looking Up Yosemite, Estes Park).
-# Friedrich, Grimshaw, Roberts deserti, Aivazovsky e Constable sono stati
-# rimossi dal manifest perche' non coerenti con la direzione visiva.
+# - 16 HOUSE (cieli e paesaggi calmi) + 35 PD = 51 sfondi.
+# - HOUSE: gia tonalizzate -> il render NON applica velo bordeaux (vedi
+#   card_layout.tonalization.house). I PD restano come prima (velo 0.35).
+# - HOUSE sono QUADRATE 1254x1254:
+#     * post 1080x1080  -> downscale, ok
+#     * story 1080x1920 / pinterest 1000x1500 -> serve estensione verticale:
+#       per ora "blurred-extend" (riempi sopra/sotto con lo sfondo sfocato);
+#       in alternativa generare versioni verticali piu avanti. (DECISIONE PM)
+# - La data va in formato italiano esteso ("9 giugno 2026"), non 09/06.
+# - Il logo in basso e il PITTOGRAMMA + wordmark, non l'url pregacuore.it.
+# - Stessa `card_layout` per card_generator.py (social) e share-card.ts (in-app).
 #
-# Per aggiungere un nuovo paesaggio: vedi download_landscapes.py.
+# Per aggiungere un PD: vedi download_landscapes.py.
+# ==============================================================================
