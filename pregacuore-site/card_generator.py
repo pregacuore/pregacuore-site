@@ -1102,7 +1102,7 @@ MESI_IT = ["gennaio", "febbraio", "marzo", "aprile", "maggio", "giugno",
            "luglio", "agosto", "settembre", "ottobre", "novembre", "dicembre"]
 
 SANTINO_LAYOUT = {
-    "post":      {"W": 1254, "H": 1254, "top": 320, "bottom": 150, "verse_scale": 1.15},
+    "post":      {"W": 1254, "H": 1254, "top": 320, "bottom": 150, "verse_scale": 1.15, "box_scale": 1.20},
     "story":     {"W": 1080, "H": 1920, "top": 500, "bottom": 150, "verse_scale": 1.00},
     "pinterest": {"W": 1000, "H": 1500, "top": 320, "bottom": 150, "verse_scale": 1.00},
 }
@@ -1218,7 +1218,7 @@ def santino_draw_date(draw, fmt, day, mese_anno, fonts):
     """Riquadro quadrato a sinistra: keyline oro, numero grande, mese+anno."""
     L = SANTINO_LAYOUT[fmt]
     band_h = L["top"]
-    box_side = round(band_h * 0.50)
+    box_side = round(band_h * 0.50 * L.get("box_scale", 1.0))
     inset = round(band_h * 0.05)
     x0 = inset
     y0 = (band_h - box_side) // 2
@@ -1226,12 +1226,15 @@ def santino_draw_date(draw, fmt, day, mese_anno, fonts):
 
     pad = round(box_side * 0.08)
     inner_w = box_side - 2 * pad
-    # 0.60 (era 0.70): padding tra il numero e il bordo del riquadro.
-    num_font = _fit_height(fonts["cormorant_medium"], day, round(box_side * 0.60), weight=600)
+    # Numero/mese su `verse_scale` (= le scritte), INDIPENDENTI da `box_scale`, così
+    # il riquadro può crescere più delle scritte. Baseline numero 0.30·banda
+    # (= 0.50·0.60, 0.60 dà padding numero↔bordo), mese 0.10·banda.
+    text_scale = L.get("verse_scale", 1.0)
+    num_font = _fit_height(fonts["cormorant_medium"], day, round(band_h * 0.30 * text_scale), weight=600)
     nb = num_font.getbbox(day)
     num_w, num_h = nb[2] - nb[0], nb[3] - nb[1]
     ma_font = _fit_width(fonts["cormorant_medium"], mese_anno, inner_w,
-                         round(box_side * 0.20), weight=600)
+                         round(band_h * 0.10 * text_scale), weight=600)
     mb = ma_font.getbbox(mese_anno)
     ma_w, ma_h = mb[2] - mb[0], mb[3] - mb[1]
 
