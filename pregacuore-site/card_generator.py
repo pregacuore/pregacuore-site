@@ -1257,14 +1257,19 @@ def santino_draw_verse(draw, fmt, quote, ref, box_right, fonts):
     zx0 = box_right + gap
     zone_w = W - zx0 - margin
 
+    # Auto-shrink finché il versetto sta nella zona per LARGHEZZA *e* ALTEZZA della
+    # banda → i versetti lunghi vanno a capo e si riducono un filo, senza debordare.
     ideal = round(band_h * 0.17 * scale)
-    vmin = round(band_h * 0.08)
+    vmin = round(band_h * 0.075)
+    max_block_h = round(band_h * 0.82)
     size = ideal
     while size > vmin:
         f = _sized_font(fonts["cormorant_italic"], size)
         lines = wrap_text(quote.strip(), f, zone_w)
         too_wide = any(f.getlength(ln) > zone_w for ln in lines)
-        if not too_wide and len(lines) <= 5:
+        ref_h_loop = (round(band_h * 0.05) + round(size * 0.5)) if ref else 0
+        block_h_loop = len(lines) * size * 1.22 + ref_h_loop
+        if not too_wide and block_h_loop <= max_block_h:
             break
         size -= 2
     v_font = _sized_font(fonts["cormorant_italic"], size)
