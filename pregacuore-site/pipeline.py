@@ -420,59 +420,59 @@ def _validate_and_normalize(data: dict, target_date: date) -> dict:
     return data
 
 
+_VERBI_DIRE = (
+    r"(diss\w*|dicendo|dice|dicea|diceva|rispos\w*|grid\w*|esclam\w*|"
+    r"scriss\w*|domand\w*|soggiuns\w*)"
+)
+
+
 def _quote_verbatim_luzzi(quote_ai: Optional[str], gospel_text: str) -> str:
-    """La citazione breve delle card dev'essere Luzzi VERBATIM (pubblico
-    dominio), non una parafrasi AI (che a volte scivolava su forme CEI). Sceglie
-    la frase del brano Luzzi che condivide più parole con la quote suggerita
-    dall'AI (cioè il versetto "saliente"); se nessuna combacia, usa la prima
-    frase. Toglie eventuali numeri di versetto iniziali, accorcia con grazia, e
-    racchiude fra caporali. Tiene le quote brevi ma COMPLETE (es. «la tua fede
-    t'ha guarita»); scarta solo i frammenti appesi a un'attribuzione (es. «...
-    disse loro: Andate»), sostituendoli con una frase Luzzi sostanziosa."""
-    MIN_FRASE, MAX_LEN = 40, 120  # lunghezza minima della frase di fallback
+    """Citazione breve per le card: Luzzi VERBATIM, CORTA (deve entrare nella
+    card), senza attribuzioni narrative («Ed egli disse loro:»). Sceglie una
+    frase del brano in una finestra di lunghezza buona, dando priorità ai
+    "detti" (frasi introdotte da un verbo di dire) sulle narrazioni, e a quella
+    con più parole in comune con la quote suggerita dall'AI."""
+    MIN_LEN, MAX_LEN, TARGET = 20, 82, 52
     g = (gospel_text or "").strip()
     qa = (quote_ai or "").strip()
     if not g:
         return qa
 
-    def norm(s: str) -> str:
-        return re.sub(r"\s+", " ", re.sub(r"[^0-9a-zàèéìòóù ]", "", (s or "").lower())).strip()
-
-    def n_parole(s: str) -> int:
-        return len(re.findall(r"[a-zàèéìòóù]{2,}", (s or "").lower()))
-
-    # Frasi del brano Luzzi (senza numero di versetto iniziale).
-    frasi = [
-        re.sub(r"^\d+\s*", "", f.strip()).strip()
-        for f in re.split(r"(?<=[.!?;])\s+|\n+", g)
-        if f.strip()
-    ]
-    if not frasi:
-        return f"«{qa}»" if qa else ""
-
-    # 1. Quote AI verbatim e COMPLETA → tienila. "Completa" = ciò che resta dopo
-    #    un'eventuale attribuzione ("...disse loro:") ha almeno 3 parole, così
-    #    «la tua fede t'ha guarita» resta ma «...disse loro: Andate» no.
-    qn = norm(qa)
-    core = qa.rsplit(":", 1)[-1]
-    if qn and qn in norm(g) and n_parole(core) >= 3:
-        clean = re.sub(r"^\d+\s*", "", qa.strip("«»\"' ")).strip()
-        return f"«{clean}»"
-
-    # 2. Altrimenti: frase Luzzi sostanziosa con più parole in comune con la
-    #    quote AI; a parità, la più lunga.
     def parole(s: str) -> set:
         return set(re.findall(r"[a-zàèéìòóù]{3,}", (s or "").lower()))
 
     target = parole(qa)
-    candidate = [f for f in frasi if len(f) >= MIN_FRASE] or frasi
-    best, best_key = candidate[0], (-1, -1)
-    for f in candidate:
-        key = (len(parole(f) & target), len(f))  # overlap, poi lunghezza
-        if key > best_key:
-            best, best_key = f, key
+    frasi = [
+        re.sub(r"^\d+\s*", "", f.strip()).strip()
+        for f in re.split(r"(?<=[.!?])\s+|\n+", g)
+        if f.strip()
+    ]
+
+    # Candidati (testo, è_un_detto): tolgo l'attribuzione narrativa iniziale
+    # ("Ed egli disse loro: <detto>" -> "<detto>") quando c'è un verbo di dire
+    # prima dei due punti; i "detti" avranno priorità sulle narrazioni.
+    cand = []
+    for f in frasi:
+        m = re.match(r"^.{0,90}?\b" + _VERBI_DIRE + r"\b[^:]*:\s*(.+)$", f, re.IGNORECASE)
+        detto = bool(m)
+        if m:
+            f = m.group(2).strip()
+        f = f.strip(",;:. ")
+        if f:
+            cand.append((f, detto))
+    if not cand:
+        return f"«{qa}»" if qa else ""
+
+    win = [(c, d) for c, d in cand if MIN_LEN <= len(c) <= MAX_LEN] or cand
+
+    def punteggio(item):
+        testo, detto = item
+        return (len(parole(testo) & target) + (3 if detto else 0), -abs(len(testo) - TARGET))
+
+    best = max(win, key=punteggio)[0]
     if len(best) > MAX_LEN:
         best = best[:MAX_LEN].rsplit(" ", 1)[0].rstrip(",;:") + "…"
+    best = best[0].upper() + best[1:] if best else best
     return f"«{best}»"
 
 
