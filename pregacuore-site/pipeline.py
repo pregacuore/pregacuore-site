@@ -426,7 +426,10 @@ def _quote_verbatim_luzzi(quote_ai: Optional[str], gospel_text: str) -> str:
     la frase del brano Luzzi che condivide più parole con la quote suggerita
     dall'AI (cioè il versetto "saliente"); se nessuna combacia, usa la prima
     frase. Toglie eventuali numeri di versetto iniziali, accorcia con grazia, e
-    racchiude fra caporali."""
+    racchiude fra caporali. Tiene le quote brevi ma COMPLETE (es. «la tua fede
+    t'ha guarita»); scarta solo i frammenti appesi a un'attribuzione (es. «...
+    disse loro: Andate»), sostituendoli con una frase Luzzi sostanziosa."""
+    MIN_FRASE, MAX_LEN = 40, 120  # lunghezza minima della frase di fallback
     g = (gospel_text or "").strip()
     qa = (quote_ai or "").strip()
     if not g:
@@ -435,31 +438,41 @@ def _quote_verbatim_luzzi(quote_ai: Optional[str], gospel_text: str) -> str:
     def norm(s: str) -> str:
         return re.sub(r"\s+", " ", re.sub(r"[^0-9a-zàèéìòóù ]", "", (s or "").lower())).strip()
 
-    # 1. Se la quote dell'AI è GIÀ Luzzi verbatim (a meno di punteggiatura),
-    #    tienila: è breve e saliente.
-    qn = norm(qa)
-    if len(qn) >= 12 and qn in norm(g):
-        clean = re.sub(r"^\d+\s*", "", qa.strip("«»\"' ")).strip()
-        return f"«{clean}»"
+    def n_parole(s: str) -> int:
+        return len(re.findall(r"[a-zàèéìòóù]{2,}", (s or "").lower()))
 
-    # 2. Altrimenti (parafrasi AI): la frase del brano Luzzi con più parole in
-    #    comune con la quote AI; se nessuna, la prima frase.
-    frasi = [f.strip() for f in re.split(r"(?<=[.!?;])\s+|\n+", g) if f.strip()]
+    # Frasi del brano Luzzi (senza numero di versetto iniziale).
+    frasi = [
+        re.sub(r"^\d+\s*", "", f.strip()).strip()
+        for f in re.split(r"(?<=[.!?;])\s+|\n+", g)
+        if f.strip()
+    ]
     if not frasi:
         return f"«{qa}»" if qa else ""
 
+    # 1. Quote AI verbatim e COMPLETA → tienila. "Completa" = ciò che resta dopo
+    #    un'eventuale attribuzione ("...disse loro:") ha almeno 3 parole, così
+    #    «la tua fede t'ha guarita» resta ma «...disse loro: Andate» no.
+    qn = norm(qa)
+    core = qa.rsplit(":", 1)[-1]
+    if qn and qn in norm(g) and n_parole(core) >= 3:
+        clean = re.sub(r"^\d+\s*", "", qa.strip("«»\"' ")).strip()
+        return f"«{clean}»"
+
+    # 2. Altrimenti: frase Luzzi sostanziosa con più parole in comune con la
+    #    quote AI; a parità, la più lunga.
     def parole(s: str) -> set:
         return set(re.findall(r"[a-zàèéìòóù]{3,}", (s or "").lower()))
 
     target = parole(qa)
-    best, best_score = frasi[0], -1
-    for f in frasi:
-        score = len(parole(f) & target)
-        if score > best_score:
-            best, best_score = f, score
-    best = re.sub(r"^\d+\s*", "", best).strip()  # "28 Poi..." -> "Poi..."
-    if len(best) > 100:
-        best = best[:100].rsplit(" ", 1)[0].rstrip(",;:") + "…"
+    candidate = [f for f in frasi if len(f) >= MIN_FRASE] or frasi
+    best, best_key = candidate[0], (-1, -1)
+    for f in candidate:
+        key = (len(parole(f) & target), len(f))  # overlap, poi lunghezza
+        if key > best_key:
+            best, best_key = f, key
+    if len(best) > MAX_LEN:
+        best = best[:MAX_LEN].rsplit(" ", 1)[0].rstrip(",;:") + "…"
     return f"«{best}»"
 
 

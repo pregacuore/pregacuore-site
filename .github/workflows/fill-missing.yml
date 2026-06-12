@@ -59,3 +59,20 @@ jobs:
           SUPABASE_URL:         ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
         run: python fill_missing.py --days ${{ github.event.inputs.days || '30' }}
+
+      # Email di allerta SOLO se qualcosa è fallito (un giorno non riparato:
+      # es. crediti Gemini finiti). In aggiunta alla notifica GitHub. Richiede
+      # i secret RESEND_API_KEY (già usato per le newsletter) e ALERT_EMAIL
+      # (l'indirizzo a cui mandare l'avviso). Se mancano, salta senza errori.
+      - name: Avvisa via email (solo su fallimento)
+        if: failure()
+        env:
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          ALERT_EMAIL:    ${{ secrets.ALERT_EMAIL }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          if [ -z "$RESEND_API_KEY" ] || [ -z "$ALERT_EMAIL" ]; then
+            echo "Secret RESEND_API_KEY/ALERT_EMAIL mancanti: niente email."; exit 0
+          fi
+          BODY=$(python -c 'import json,os; print(json.dumps({"from":"Pregacuore <newsletter@pregacuore.it>","to":[os.environ["ALERT_EMAIL"]],"subject":"Pregacuore: generazione contenuto FALLITA","html":"Il workflow Fill Missing non e riuscito a riparare un giorno di daily_content (contenuto o card). Controlla i crediti Gemini e GitHub Actions.<br><br>Run: "+os.environ.get("RUN_URL","")}))')
+          curl -s -X POST https://api.resend.com/emails -H "Authorization: Bearer $RESEND_API_KEY" -H "Content-Type: application/json" --data "$BODY" && echo "" && echo "Email di allerta inviata a $ALERT_EMAIL."
