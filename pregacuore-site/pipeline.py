@@ -426,9 +426,10 @@ def _quote_verbatim_luzzi(quote_ai: Optional[str], gospel_text: str) -> str:
     la frase del brano Luzzi che condivide più parole con la quote suggerita
     dall'AI (cioè il versetto "saliente"); se nessuna combacia, usa la prima
     frase. Toglie eventuali numeri di versetto iniziali, accorcia con grazia, e
-    racchiude fra caporali. Preferisce frasi di lunghezza decente: evita
-    frammenti troppo corti tipo «Andate.»."""
-    MIN_LEN, MAX_LEN = 40, 120
+    racchiude fra caporali. Tiene le quote brevi ma COMPLETE (es. «la tua fede
+    t'ha guarita»); scarta solo i frammenti appesi a un'attribuzione (es. «...
+    disse loro: Andate»), sostituendoli con una frase Luzzi sostanziosa."""
+    MIN_FRASE, MAX_LEN = 40, 120  # lunghezza minima della frase di fallback
     g = (gospel_text or "").strip()
     qa = (quote_ai or "").strip()
     if not g:
@@ -436,6 +437,9 @@ def _quote_verbatim_luzzi(quote_ai: Optional[str], gospel_text: str) -> str:
 
     def norm(s: str) -> str:
         return re.sub(r"\s+", " ", re.sub(r"[^0-9a-zàèéìòóù ]", "", (s or "").lower())).strip()
+
+    def n_parole(s: str) -> int:
+        return len(re.findall(r"[a-zàèéìòóù]{2,}", (s or "").lower()))
 
     # Frasi del brano Luzzi (senza numero di versetto iniziale).
     frasi = [
@@ -446,21 +450,22 @@ def _quote_verbatim_luzzi(quote_ai: Optional[str], gospel_text: str) -> str:
     if not frasi:
         return f"«{qa}»" if qa else ""
 
-    # 1. Se la quote dell'AI è GIÀ Luzzi verbatim ED è abbastanza lunga, tienila
-    #    (è la frase saliente che l'AI ha scelto).
+    # 1. Quote AI verbatim e COMPLETA → tienila. "Completa" = ciò che resta dopo
+    #    un'eventuale attribuzione ("...disse loro:") ha almeno 3 parole, così
+    #    «la tua fede t'ha guarita» resta ma «...disse loro: Andate» no.
     qn = norm(qa)
-    if len(qn) >= MIN_LEN and qn in norm(g):
+    core = qa.rsplit(":", 1)[-1]
+    if qn and qn in norm(g) and n_parole(core) >= 3:
         clean = re.sub(r"^\d+\s*", "", qa.strip("«»\"' ")).strip()
         return f"«{clean}»"
 
-    # 2. Altrimenti: la frase Luzzi con più parole in comune con la quote AI; a
-    #    parità, la più lunga. Si preferiscono le frasi "sostanziose" (>= MIN_LEN)
-    #    così non escono frammenti tipo «Andate.».
+    # 2. Altrimenti: frase Luzzi sostanziosa con più parole in comune con la
+    #    quote AI; a parità, la più lunga.
     def parole(s: str) -> set:
         return set(re.findall(r"[a-zàèéìòóù]{3,}", (s or "").lower()))
 
     target = parole(qa)
-    candidate = [f for f in frasi if len(f) >= MIN_LEN] or frasi
+    candidate = [f for f in frasi if len(f) >= MIN_FRASE] or frasi
     best, best_key = candidate[0], (-1, -1)
     for f in candidate:
         key = (len(parole(f) & target), len(f))  # overlap, poi lunghezza
