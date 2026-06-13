@@ -178,7 +178,17 @@ def main():
     for ds, fer, mio in diff:
         print(f"    {ds}  UNIVERSALE={str(fer):<22} LEZ={str(mio)}")
 
-    sys.exit(1 if mism else 0)
+    # --- C. Mutua coerenza: ogni override-Vangelo è una celebrazione nel
+    # calendario italiano (LitCal) — due fonti indipendenti che concordano. ---
+    from lezionario import santo_del_giorno
+    sospetti = [(ds, mio) for ds, fer, mio in diff
+                if (santo_del_giorno(date(*map(int, ds.split("-")))) or "").startswith("Feria del")]
+    print(f"[C] Override-Vangelo che NON sono celebrazioni nel calendario: {len(sospetti)} "
+          f"(atteso 0)")
+    for ds, mio in sospetti:
+        print(f"    {ds}  LEZ={mio}  ma calendario dice feria  <<<")
+
+    sys.exit(1 if (mism or sospetti) else 0)
 
 
 if __name__ == "__main__":

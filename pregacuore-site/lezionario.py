@@ -84,6 +84,18 @@ try:
 except FileNotFoundError:  # pragma: no cover
     _ESTENSIONE = {}
 
+# Calendario liturgico italiano (giorno liturgico + santo del giorno) per tutta
+# la finestra 28/06/2026 → 31/12/2027. Sorgente: API LitCal (litcal.johnromanodorazio.com,
+# calendario nazionale ITALIA/CEI) — quindi anche liturgical_day e saint_of_day
+# sono DETERMINISTICI, non più affidati a Gemini. {data: {"lit": ..., "santo": ...}}.
+_CAL_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                         "calendario_italiano.json")
+try:
+    with open(_CAL_PATH, encoding="utf-8") as _f:
+        _CALENDARIO = json.load(_f)
+except FileNotFoundError:  # pragma: no cover
+    _CALENDARIO = {}
+
 
 # ------------------------------------------------------------------
 # 1. Domeniche del Tempo Ordinario — Anno A (settimane 13-34)
@@ -275,37 +287,21 @@ def riferimento_vangelo(d: date) -> Optional[str]:
     return FERIALE.get((_settimana_to(d), d.weekday()))
 
 
-_ORDINALI = {
-    13: "XIII", 14: "XIV", 15: "XV", 16: "XVI", 17: "XVII", 18: "XVIII",
-    19: "XIX", 20: "XX", 21: "XXI", 22: "XXII", 23: "XXIII", 24: "XXIV",
-    25: "XXV", 26: "XXVI", 27: "XXVII", 28: "XXVIII", 29: "XXIX", 30: "XXX",
-    31: "XXXI", 32: "XXXII", 33: "XXXIII", 34: "XXXIV",
-}
-
-
 def giorno_liturgico_label(d: date) -> Optional[str]:
-    """Etichetta del giorno liturgico (per il campo liturgical_day) SOLO per il
-    tratto Tempo Ordinario 2026 risolto dal motore strutturale; None altrove
-    (incluso il tratto esteso, dove liturgical_day resta a Gemini). Es. 'Lunedì
-    della XIII settimana del Tempo Ordinario', 'XXVII Domenica del Tempo
-    Ordinario', il titolo della celebrazione propria."""
-    if d < _OT2026_INIZIO or d > _OT2026_FINE:
-        return None
-    cel = CELEBRAZIONI_FISSE.get((d.month, d.day))
-    is_domenica = d.weekday() == 6
-    # solennità/festa del Signore: vince sempre → mostra la celebrazione
-    if cel and cel[1] in ("solennita", "festa_signore"):
-        return cel[0]
-    sett = _settimana_to(d)
-    if is_domenica:
-        if sett == 34:
-            return "Nostro Signore Gesù Cristo Re dell'Universo"
-        return f"{_ORDINALI.get(sett, sett)} Domenica del Tempo Ordinario"
-    # giorno feriale: festa/memoria propria, altrimenti la feria
-    if cel and cel[1] in ("festa", "memoria"):
-        return cel[0]
-    giorni = ["Lunedì", "Martedì", "Mercoledì", "Giovedì", "Venerdì", "Sabato"]
-    return f"{giorni[d.weekday()]} della {_ORDINALI.get(sett, sett)} settimana del Tempo Ordinario"
+    """Giorno liturgico (campo liturgical_day) dal calendario italiano, per tutta
+    la finestra; None fuori finestra. Es. 'XXVII Domenica del Tempo Ordinario',
+    'Santi Pietro e Paolo, Apostoli', 'Mercoledì della Tredicesima Settimana del
+    Tempo Ordinario'."""
+    c = _CALENDARIO.get(d.isoformat())
+    return c["lit"] if c else None
+
+
+def santo_del_giorno(d: date) -> Optional[str]:
+    """Santo/memoria del giorno (campo saint_of_day) dal calendario italiano, per
+    tutta la finestra; None fuori finestra. Sui giorni senza santo proprio torna
+    'Feria del <tempo liturgico>'."""
+    c = _CALENDARIO.get(d.isoformat())
+    return c["santo"] if c else None
 
 
 def info_giorno(d: date) -> Optional[dict]:
