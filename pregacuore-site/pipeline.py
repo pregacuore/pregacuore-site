@@ -214,6 +214,17 @@ class RecitationBlocked(Exception):
     pass
 
 
+class ContenutoScadente(Exception):
+    """Sollevata quando i contenuti redazionali generati da Gemini non passano
+    il controllo di qualità: si rigenera (entro il budget di retry)."""
+    pass
+
+
+# Controllo di qualità dei contenuti redazionali (gli unici campi che restano a
+# Gemini): in qualita.py, condiviso con audit_qualita.py. Programmatico → quota 0.
+from qualita import valida_contenuto
+
+
 # ------------------------------------------------------------------
 # 5. Singolo tentativo di generazione
 # ------------------------------------------------------------------
@@ -412,7 +423,24 @@ def generate_daily_content(target_date: date) -> dict:
                         data["liturgical_day"] = lit
                     if santo:
                         data["saint_of_day"] = santo
-                return _fill_gospel_from_luzzi(_validate_and_normalize(data, target_date))
+                result = _fill_gospel_from_luzzi(_validate_and_normalize(data, target_date))
+
+                # Controllo di qualità dei contenuti redazionali. I problemi
+                # "veri" (non AVVISO) fanno rigenerare entro il budget di retry;
+                # all'ultimo tentativo si tiene il contenuto ma si segnala.
+                problemi = valida_contenuto(result)
+                veri = [p for p in problemi if not p.startswith("AVVISO")]
+                if problemi:
+                    print("    ~~  qualità: " + "; ".join(problemi))
+                if veri and attempt < _EMPTY_RESPONSE_RETRIES - 1:
+                    raise ContenutoScadente("; ".join(veri))
+                result["_quality_issues"] = problemi
+                return result
+
+            except ContenutoScadente as e:
+                print(f"    !!  contenuto scadente ({e}). Rigenero...")
+                last_error = e
+                continue  # rigenera nello stesso mode
 
             except RecitationBlocked as e:
                 print(f"    !!  {e}. Provo modalita' successiva...")
@@ -701,11 +729,14 @@ def main():
 
     successes = 0
     failures = []
+    qualita = []   # (data, [problemi residui]) per i giorni salvati con avvisi
 
     for i, target in enumerate(dates):
         try:
             content = generate_daily_content(target)
             print_preview(content)
+            if content.get("_quality_issues"):
+                qualita.append((target, content["_quality_issues"]))
             if not args.dry_run:
                 save_to_supabase(target, content)
             successes += 1
@@ -723,6 +754,10 @@ def main():
         print(f"  Falliti:")
         for d, err in failures:
             print(f"    - {d.isoformat()}  ->  {err}")
+    if qualita:
+        print(f"  Avvisi qualità (salvati comunque):")
+        for d, probs in qualita:
+            print(f"    - {d.isoformat()}  ->  {'; '.join(probs)}")
     print("=" * 60 + "\n")
 
     sys.exit(0 if not failures else 1)
