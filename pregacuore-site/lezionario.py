@@ -44,17 +44,45 @@ tutta la finestra — vedi `verifica_lezionario.py`.
 ==============================================================================
 """
 
+import os
+import json
 from datetime import date, timedelta
 from typing import Optional
 
 
 # ------------------------------------------------------------------
-# Finestra coperta + ancora settimanale
+# Finestra coperta
 # ------------------------------------------------------------------
-FINESTRA_INIZIO = date(2026, 6, 28)   # XIII Domenica T.O. (Anno A)
-FINESTRA_FINE = date(2026, 11, 28)    # Sabato XXXIV settimana T.O.
+# La copertura è in due tratti contigui:
+#  • 28/06/2026 → 28/11/2026: Tempo Ordinario Anno A, risolto dal MOTORE
+#    strutturale qui sotto (ciclo settimanale + domeniche Anno A + feste).
+#  • 29/11/2026 → 31/12/2027: tutto l'anno liturgico successivo (Avvento →
+#    Natale → T.O. Anno B → Quaresima → Pasqua → T.O. → Avvento Anno C),
+#    risolto da una MAPPA data→riferimento già verificata
+#    (lezionario_estensione.json). Le stagioni proprie (Avvento/Natale/
+#    Quaresima/Pasqua) non sono un ciclo settimanale: sono letture proprie
+#    giorno-per-giorno, quindi sono dati, non algoritmo. La mappa è stata
+#    costruita dal calendario italiano (liturgia.silvestrini.org) e verificata
+#    giorno per giorno (vedi verifica_lezionario.py): i feriali T.O. combaciano
+#    col ciclo universale, le feste/memorie italiane sono quelle giuste, le
+#    stagioni proprie combaciano col lezionario romano universale.
+FINESTRA_INIZIO = date(2026, 6, 28)
+FINESTRA_FINE = date(2027, 12, 31)
+
+# Tratto risolto dal motore strutturale (Tempo Ordinario Anno A 2026).
+_OT2026_INIZIO = date(2026, 6, 28)   # XIII Domenica T.O. (Anno A)
+_OT2026_FINE = date(2026, 11, 28)    # Sabato XXXIV settimana T.O.
 _ANCORA = date(2026, 6, 28)
 _ANCORA_SETTIMANA = 13
+
+# Mappa data→riferimento per l'anno liturgico esteso (29/11/2026 → 31/12/2027).
+_EST_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                         "lezionario_estensione.json")
+try:
+    with open(_EST_PATH, encoding="utf-8") as _f:
+        _ESTENSIONE = json.load(_f)
+except FileNotFoundError:  # pragma: no cover
+    _ESTENSIONE = {}
 
 
 # ------------------------------------------------------------------
@@ -213,10 +241,18 @@ def riferimento_vangelo(d: date) -> Optional[str]:
     """Riferimento CEI del Vangelo del giorno secondo il calendario italiano,
     oppure None se la data è fuori dalla finestra coperta (→ fallback Gemini).
 
-    Precedenza: solennità > festa del Signore > domenica T.O. > festa di santo
-    > memoria con Vangelo proprio > feriale.
+    Due tratti: la mappa verificata per l'anno liturgico esteso
+    (29/11/2026 → 31/12/2027) ha la precedenza; per il Tempo Ordinario 2026 il
+    motore strutturale (precedenza: solennità > festa del Signore > domenica
+    T.O. > festa di santo > memoria con Vangelo proprio > feriale).
     """
-    if d < FINESTRA_INIZIO or d > FINESTRA_FINE:
+    # Tratto esteso: mappa data→riferimento già verificata.
+    ref = _ESTENSIONE.get(d.isoformat())
+    if ref is not None:
+        return ref
+
+    # Tratto Tempo Ordinario 2026: motore strutturale.
+    if d < _OT2026_INIZIO or d > _OT2026_FINE:
         return None
 
     is_domenica = d.weekday() == 6
@@ -248,11 +284,12 @@ _ORDINALI = {
 
 
 def giorno_liturgico_label(d: date) -> Optional[str]:
-    """Etichetta del giorno liturgico (per il campo liturgical_day), oppure None
-    fuori finestra. Es. 'Lunedì della XIII settimana del Tempo Ordinario',
-    'XXVII Domenica del Tempo Ordinario', il titolo della celebrazione propria,
-    o 'Nostro Signore Gesù Cristo Re dell'Universo' per la 34ª domenica."""
-    if d < FINESTRA_INIZIO or d > FINESTRA_FINE:
+    """Etichetta del giorno liturgico (per il campo liturgical_day) SOLO per il
+    tratto Tempo Ordinario 2026 risolto dal motore strutturale; None altrove
+    (incluso il tratto esteso, dove liturgical_day resta a Gemini). Es. 'Lunedì
+    della XIII settimana del Tempo Ordinario', 'XXVII Domenica del Tempo
+    Ordinario', il titolo della celebrazione propria."""
+    if d < _OT2026_INIZIO or d > _OT2026_FINE:
         return None
     cel = CELEBRAZIONI_FISSE.get((d.month, d.day))
     is_domenica = d.weekday() == 6
@@ -272,25 +309,30 @@ def giorno_liturgico_label(d: date) -> Optional[str]:
 
 
 def info_giorno(d: date) -> Optional[dict]:
-    """Diagnostica: settimana, eventuale celebrazione, riferimento risolto."""
+    """Diagnostica: riferimento risolto + (per il solo tratto T.O. 2026) la
+    settimana e la celebrazione note al motore strutturale."""
     ref = riferimento_vangelo(d)
     if ref is None:
         return None
+    info = {"data": d.isoformat(), "riferimento": ref, "domenica": d.weekday() == 6}
+    if d.isoformat() in _ESTENSIONE:
+        info["fonte"] = "estensione"
+        return info
     cel = CELEBRAZIONI_FISSE.get((d.month, d.day))
-    return {
-        "data": d.isoformat(),
+    info.update({
+        "fonte": "motore-ot2026",
         "settimana": _settimana_to(d),
-        "domenica": d.weekday() == 6,
         "celebrazione": cel[0] if cel else None,
         "grado": cel[1] if cel else ("domenica" if d.weekday() == 6 else "feriale"),
-        "riferimento": ref,
-    }
+    })
+    return info
 
 
 if __name__ == "__main__":
     cur = FINESTRA_INIZIO
     while cur <= FINESTRA_FINE:
         info = info_giorno(cur)
-        extra = f"  [{info['celebrazione']}]" if info and info["celebrazione"] else ""
-        print(f"{cur.isoformat()}  sett.{info['settimana']:>2}  {info['riferimento']:<18}{extra}")
+        extra = f"  [{info.get('celebrazione')}]" if info and info.get("celebrazione") else ""
+        sett = f"sett.{info['settimana']:>2}" if info and "settimana" in info else "  (ext) "
+        print(f"{cur.isoformat()}  {sett}  {info['riferimento']:<20}{extra}")
         cur += timedelta(days=1)

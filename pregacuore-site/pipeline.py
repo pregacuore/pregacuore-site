@@ -370,7 +370,11 @@ def generate_daily_content(target_date: date) -> dict:
     weekday = weekday_it_map[target_date.weekday()]
 
     # Lezionario deterministico: per le date coperte il riferimento è certo.
+    # Gemini genera SOLO i contenuti redazionali/card (pensiero, quote, caption,
+    # hashtags, e — dove non lo diamo noi — liturgical_day/saint_of_day): il
+    # Vangelo (riferimento + testo) NON è più affar suo.
     gospel_ref = riferimento_vangelo(target_date)
+    litlabel = giorno_liturgico_label(target_date)
     if gospel_ref:
         print(f"    ++  gospel_reference dal lezionario: {gospel_ref} (Gemini non lo sceglie)")
     else:
@@ -381,10 +385,12 @@ def generate_daily_content(target_date: date) -> dict:
     last_error = None
     for mode in GOSPEL_MODES:
         for attempt in range(_EMPTY_RESPONSE_RETRIES):
-            # Search grounding: ON al primo tentativo, OFF sui retry. Quando il
-            # riferimento è dato dal lezionario non serve cercarlo → grounding
-            # OFF (riduce risposte vuote/tool_code).
-            use_search = (attempt == 0) and not gospel_ref
+            # Search grounding ON al primo tentativo, OFF sui retry. Lo
+            # disattiviamo del tutto solo quando diamo a Gemini SIA il riferimento
+            # SIA l'etichetta del giorno liturgico (tratto T.O. 2026): lì non
+            # deve cercare nulla. Sul tratto esteso passiamo il riferimento ma non
+            # l'etichetta, quindi teniamo il grounding per liturgical_day/saint_of_day.
+            use_search = (attempt == 0) and not (gospel_ref and litlabel)
             try:
                 grounding_label = "" if use_search else " [no-search]"
                 print(f"    -> tentativo gospel_text mode: '{mode}'" +
