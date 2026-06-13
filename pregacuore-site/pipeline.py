@@ -82,6 +82,18 @@ except Exception as _e:  # pragma: no cover
     RiferimentoNonValido = Exception  # type: ignore
     print(f"[luzzi] ATTENZIONE: luzzi.json non caricato ({_e}). gospel_text resterà placeholder.")
 
+# Lezionario DETERMINISTICO: il gospel_reference NON lo decide più Gemini (che
+# sbagliava il ciclo liturgico). Per le date coperte (Tempo Ordinario
+# 28/06→28/11/2026) il riferimento viene da qui; Gemini riceve il riferimento
+# corretto nel prompt e lo usa per pensiero/quote/caption. Fuori finestra
+# riferimento_vangelo() torna None e si ricade sul comportamento storico (Gemini).
+try:
+    from lezionario import riferimento_vangelo, giorno_liturgico_label
+except Exception as _e:  # pragma: no cover
+    riferimento_vangelo = lambda d: None  # type: ignore
+    giorno_liturgico_label = lambda d: None  # type: ignore
+    print(f"[lezionario] ATTENZIONE: lezionario.py non caricato ({_e}). gospel_reference resta a Gemini.")
+
 
 # ------------------------------------------------------------------
 # 2. System instruction
@@ -139,20 +151,43 @@ def _gospel_text_instruction(mode: str) -> str:
     )
 
 
-def _build_user_prompt(target_date: date, weekday_it: str, gospel_mode: str) -> str:
+def _build_user_prompt(target_date: date, weekday_it: str, gospel_mode: str,
+                       gospel_ref: Optional[str] = None) -> str:
     gospel_text_field = _gospel_text_instruction(gospel_mode)
+
+    if gospel_ref:
+        # Riferimento già determinato dal lezionario: Gemini NON lo cerca né lo
+        # cambia, lo usa solo come base per quote/pensiero/caption.
+        litlabel = giorno_liturgico_label(target_date)
+        lit_hint = (
+            f"Il giorno liturgico e': {litlabel}. Usalo nel campo liturgical_day.\n"
+            if litlabel else ""
+        )
+        vangelo_block = (
+            f"Il Vangelo del giorno e' GIA' DETERMINATO dal calendario liturgico "
+            f"ufficiale: {gospel_ref}. NON cercarlo e NON cambiarlo. TUTTI i contenuti "
+            f"(quote, pensiero, caption) devono riferirsi ESATTAMENTE a questo brano "
+            f"({gospel_ref}). Riporta {gospel_ref} nel campo gospel_reference, identico.\n"
+            + lit_hint + "\n"
+        )
+        gospel_reference_field = f'  "gospel_reference": "{gospel_ref}",'
+    else:
+        vangelo_block = (
+            "Cerca il Vangelo per quella data esatta secondo il calendario liturgico cattolico "
+            "romano italiano (rito romano, non ambrosiano). Verifica con fonti ufficiali italiane: "
+            "Vatican News, lachiesa.it, evangeli.net, chiesacattolica.it.\n\n"
+        )
+        gospel_reference_field = '  "gospel_reference": "es. \'Gv 15,18-21\' (sigla CEI italiana)",'
 
     # Uso concatenazione invece di .format() per evitare problemi con le graffe del JSON
     prompt = (
         f"La data per cui devi generare il contenuto e' ESATTAMENTE: "
         f"{target_date.isoformat()} ({weekday_it}).\n\n"
         f"Non usare la data di oggi se diversa. Lavora sul {target_date.isoformat()}.\n\n"
-        "Cerca il Vangelo per quella data esatta secondo il calendario liturgico cattolico "
-        "romano italiano (rito romano, non ambrosiano). Verifica con fonti ufficiali italiane: "
-        "Vatican News, lachiesa.it, evangeli.net, chiesacattolica.it.\n\n"
+        + vangelo_block +
         "Genera un JSON con QUESTI campi esatti:\n\n"
         "{\n"
-        '  "gospel_reference": "es. \'Gv 15,18-21\' (sigla CEI italiana)",\n'
+        f"{gospel_reference_field}\n"
         f"  {gospel_text_field},\n"
         '  "liturgical_day": "es. \'Sabato V settimana di Pasqua\', \'IV Domenica di Avvento\'. Sempre presente.",\n'
         '  "saint_of_day": "OBBLIGATORIO, mai null. Il santo o la memoria liturgica del giorno secondo il martirologio romano italiano. Esempi: \'Santa Caterina da Siena\', \'San Pio da Pietrelcina, sacerdote\', \'Beata Vergine Maria di Fatima\'. Se e\' una feria senza memoria specifica, scrivi il tempo liturgico: \'Feria del Tempo Pasquale\', \'Feria del Tempo di Avvento\', \'Feria del Tempo Ordinario\'. MAI restituire null o stringa vuota.",\n'
@@ -179,17 +214,20 @@ class RecitationBlocked(Exception):
 # 5. Singolo tentativo di generazione
 # ------------------------------------------------------------------
 def _generate_attempt(target_date: date, weekday_it: str, gospel_mode: str,
-                      use_search: bool = True) -> dict:
+                      use_search: bool = True, gospel_ref: Optional[str] = None) -> dict:
     """Un tentativo di generazione con un certo gospel_mode. Solleva
     RecitationBlocked se il modello blocca per copyright.
 
     `use_search=False` disabilita il google_search grounding: utile
     sui retry, dove il grounding e' la causa principale di "Risposta
     vuota" e di output 'tool_code' anziche' JSON.
+
+    `gospel_ref` (dal lezionario) viene iniettato nel prompt: Gemini non
+    deve più cercare il riferimento, solo scriverci sopra i contenuti.
     """
 
     client = genai.Client(api_key=GEMINI_API_KEY)
-    prompt = _build_user_prompt(target_date, weekday_it, gospel_mode)
+    prompt = _build_user_prompt(target_date, weekday_it, gospel_mode, gospel_ref)
 
     config_kwargs = {
         "system_instruction": SYSTEM_INSTRUCTION,
@@ -331,21 +369,34 @@ def generate_daily_content(target_date: date) -> dict:
     }
     weekday = weekday_it_map[target_date.weekday()]
 
+    # Lezionario deterministico: per le date coperte il riferimento è certo.
+    gospel_ref = riferimento_vangelo(target_date)
+    if gospel_ref:
+        print(f"    ++  gospel_reference dal lezionario: {gospel_ref} (Gemini non lo sceglie)")
+    else:
+        print(f"    ..  data fuori dalla finestra del lezionario: gospel_reference a Gemini")
+
     print(f">>  Genero contenuto per {target_date.isoformat()} ({weekday})...")
 
     last_error = None
     for mode in GOSPEL_MODES:
         for attempt in range(_EMPTY_RESPONSE_RETRIES):
-            # Search grounding: ON al primo tentativo, OFF sui retry.
-            use_search = (attempt == 0)
+            # Search grounding: ON al primo tentativo, OFF sui retry. Quando il
+            # riferimento è dato dal lezionario non serve cercarlo → grounding
+            # OFF (riduce risposte vuote/tool_code).
+            use_search = (attempt == 0) and not gospel_ref
             try:
                 grounding_label = "" if use_search else " [no-search]"
                 print(f"    -> tentativo gospel_text mode: '{mode}'" +
                       (f" (retry {attempt})" if attempt else "") +
                       grounding_label)
                 data = _generate_attempt(target_date, weekday, mode,
-                                         use_search=use_search)
+                                         use_search=use_search, gospel_ref=gospel_ref)
                 data["_gospel_text_mode"] = mode
+                # Il lezionario è la VERITÀ del riferimento: sovrascrivo sempre
+                # ciò che Gemini ha messo nel campo (anche se ha sbagliato a echeggiarlo).
+                if gospel_ref:
+                    data["gospel_reference"] = gospel_ref
                 return _fill_gospel_from_luzzi(_validate_and_normalize(data, target_date))
 
             except RecitationBlocked as e:
