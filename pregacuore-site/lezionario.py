@@ -96,6 +96,27 @@ try:
 except FileNotFoundError:  # pragma: no cover
     _CALENDARIO = {}
 
+# Santo del giorno (popolare) per i giorni liturgicamente VUOTI. Sui feriali e
+# sulle domeniche del Tempo Ordinario il calendario CEI non dà un santo ma la
+# dicitura "Feria…" / "… Domenica del Tempo Ordinario": l'app non vuole mostrare
+# quella. Qui sostituiamo col santo del giorno (MM-DD → nome) da santi_giorno.json
+# (generato da genera_santi_giorno.py, fonte Wikipedia "Calendario dei santi").
+# ⚠️ BOZZA → verificato_PM. Le FESTE/MEMORIE vere restano quelle del CEI (non
+# toccate); le domeniche di Avvento/Quaresima/Pasqua restano il loro tempo.
+_SANTI_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                           "santi_giorno.json")
+try:
+    with open(_SANTI_PATH, encoding="utf-8") as _f:
+        _SANTI_GIORNO = json.load(_f)
+except FileNotFoundError:  # pragma: no cover
+    _SANTI_GIORNO = {}
+
+# Diciture liturgiche "vuote" (niente santo proprio) → sostituibili col santo del
+# giorno. NB: solo le domeniche del TEMPO ORDINARIO; quelle di Avvento/Quaresima/
+# Pasqua ("… di Avvento") NON combaciano e restano il loro tempo.
+import re as _re
+_SENZA_SANTO = _re.compile(r"feria|domenica del tempo ordinario", _re.IGNORECASE)
+
 
 # ------------------------------------------------------------------
 # 1. Domeniche del Tempo Ordinario — Anno A (settimane 13-34)
@@ -298,10 +319,22 @@ def giorno_liturgico_label(d: date) -> Optional[str]:
 
 def santo_del_giorno(d: date) -> Optional[str]:
     """Santo/memoria del giorno (campo saint_of_day) dal calendario italiano, per
-    tutta la finestra; None fuori finestra. Sui giorni senza santo proprio torna
-    'Feria del <tempo liturgico>'."""
+    tutta la finestra; None fuori finestra.
+
+    Sui giorni liturgicamente VUOTI (il CEI dà 'Feria…' o '… Domenica del Tempo
+    Ordinario') sostituiamo col SANTO DEL GIORNO popolare (santi_giorno.json) —
+    così l'app mostra un santo, non 'Feria'. Le feste/memorie vere restano quelle
+    del calendario CEI. Se per quel giorno non c'è un santo in mappa, si tiene la
+    dicitura originale (l'app la nasconde lato client)."""
     c = _CALENDARIO.get(d.isoformat())
-    return c["santo"] if c else None
+    if not c:
+        return None
+    santo = c["santo"]
+    if santo and _SENZA_SANTO.search(santo):
+        sostituto = _SANTI_GIORNO.get(f"{d.month:02d}-{d.day:02d}")
+        if sostituto:
+            return sostituto
+    return santo
 
 
 def info_giorno(d: date) -> Optional[dict]:
