@@ -9,8 +9,8 @@ requests>=2.31.0
 supabase>=2.0.0
 
 # AI
-anthropic>=0.40.0      # pipeline.py: contenuti redazionali con Claude (Haiku 4.5)
-google-genai>=0.2.0    # ancora usato da fill_missing.py (rete di sicurezza, disattivata)
+google-genai>=0.2.0    # pipeline.py + fill_missing.py: contenuti redazionali con Gemini (free tier)
+anthropic>=0.40.0      # solo per il workflow Claude opzionale (disabilitato); pipeline.py usa Gemini
 
 # Image processing
 Pillow>=10.0.0

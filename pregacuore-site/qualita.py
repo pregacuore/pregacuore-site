@@ -103,22 +103,21 @@ def valida_contenuto(data: dict) -> list:
         problemi.append(f"pensiero: {p}")
 
     # Le caption social sono ASSEMBLATE dalla pipeline (versetto Luzzi + pensiero +
-    # riferimento) → portano il pensiero intero: cap di lunghezza generosi.
+    # riferimento): portano il pensiero intero → cap di lunghezza generosi. Su di esse
+    # NON si controlla il registro né gli appellativi: contengono il VERSETTO Luzzi
+    # verbatim, che è testo sacro e può legittimamente avere forme arcaiche ("quivi") o
+    # parole come "fratelli". Quegli aspetti si controllano sul pensiero (sopra). Resta
+    # check_scrittura: ammette il Luzzi verbatim e segnala solo i versetti NON verbatim
+    # (utile sulle caption vecchie non ancora riassemblate).
     ci = (data.get("caption_instagram") or "").strip()
     if not (60 <= len(ci) <= 2200):
         problemi.append(f"caption_instagram fuori range ({len(ci)} caratteri)")
-    if _VIETATE.search(ci):
-        problemi.append("caption_instagram usa un appellativo plurale vietato")
-    for p in check_registro(ci):
-        problemi.append(f"caption_instagram: {p}")
     for p in check_scrittura(ci, fonte):
         problemi.append(f"caption_instagram: {p}")
 
     cw = (data.get("caption_whatsapp") or "").strip()
     if not (12 <= len(cw) <= 2200):
         problemi.append(f"caption_whatsapp fuori range ({len(cw)} caratteri)")
-    for p in check_registro(cw):
-        problemi.append(f"caption_whatsapp: {p}")
     for p in check_scrittura(cw, fonte):
         problemi.append(f"caption_whatsapp: {p}")
 
