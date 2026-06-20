@@ -125,6 +125,24 @@ Importante sul copyright:
 - Per il testo del Vangelo, usa SOLO la versione Riveduta Luzzi 1925 (pubblico
   dominio mondiale) oppure una parafrasi originale, secondo le istruzioni che ti darò.
 
+REGISTRO E LINGUA (vincolo assoluto)
+- Scrivi in italiano contemporaneo, caldo e pastorale, per una donna devota di 68 anni ("Maria").
+  Voce di Pregacuore: un parroco di paese che le vuole bene. Sempre "tu" singolare.
+  Mai plurale maiestatico, mai tono aziendale, mai paternalistico.
+- Frasi brevi e piane. Niente parole arcaiche o letterarie. SONO VIETATE in modo assoluto
+  (e ogni altra forma simile): primieramente, quivi, quinci, perciocché, imperocché,
+  conciossiaché, laonde, eziandio, allorquando, testé, uopo, codesto/codesta, costui/costei/costoro.
+  Usa le forme di oggi: prima/anzitutto, lì/là, perché, e così, anche, quando, questo/quello,
+  lui/lei/loro.
+- Il commento NON è la Scrittura: non deve mai imitarne il registro né "suonare antico".
+
+SCRITTURA = SOLO LUZZI, MAI GENERATA DA TE (vincolo assoluto)
+- Tu scrivi SOLO la riflessione (pensiero), in parole tue. NON citare e NON parafrasare
+  versetti biblici di tua iniziativa, e NON inserire alcuna frase tra virgolette « » nel pensiero.
+- Il versetto del giorno (Riveduta Luzzi 1925) lo aggiunge la pipeline in automatico, all'inizio
+  delle caption e sull'immagine della card: non devi riportarlo, riformularlo né inventarne un altro.
+- Non scrivere versetti a memoria: sbaglieresti le parole (registro arcaico, versione diversa da Luzzi).
+
 Niente disclaimer, niente "io penso che", niente "ricordiamo che". Vai dritto al senso.
 """
 
@@ -174,8 +192,8 @@ def _build_user_prompt(target_date: date, weekday_it: str, gospel_mode: str,
             "riportali NEL JSON IDENTICI, non cercarli e non cambiarli.\n"
             + "\n".join(fissi) + "\n\n"
             f"Il tuo compito e' generare SOLO i contenuti redazionali (quote, pensiero, "
-            f"caption_instagram, caption_whatsapp, hashtags), riferiti ESATTAMENTE al "
-            f"brano {gospel_ref}.\n\n"
+            f"hashtags), riferiti ESATTAMENTE al brano {gospel_ref}. Le caption social NON "
+            f"le scrivi tu: le assembla la pipeline (versetto Luzzi + pensiero + riferimento).\n\n"
         )
         gospel_reference_field = f'  "gospel_reference": "{gospel_ref}",'
     else:
@@ -199,9 +217,7 @@ def _build_user_prompt(target_date: date, weekday_it: str, gospel_mode: str,
         '  "liturgical_day": "es. \'Sabato V settimana di Pasqua\', \'IV Domenica di Avvento\'. Sempre presente.",\n'
         '  "saint_of_day": "OBBLIGATORIO, mai null. Il santo o la memoria liturgica del giorno secondo il martirologio romano italiano. Esempi: \'Santa Caterina da Siena\', \'San Pio da Pietrelcina, sacerdote\', \'Beata Vergine Maria di Fatima\'. Se e\' una feria senza memoria specifica, scrivi il tempo liturgico: \'Feria del Tempo Pasquale\', \'Feria del Tempo di Avvento\', \'Feria del Tempo Ordinario\'. MAI restituire null o stringa vuota.",\n'
         '  "quote": "una citazione brevissima del Vangelo, max 60 caratteri, racchiusa in caporali. Puo\' essere una frase chiave parafrasata se serve evitare verbatim CEI.",\n'
-        '  "pensiero": "una riflessione di 2-4 frasi (60-100 parole) sul Vangelo. Tono pastorale e diretto, mai astratto. Si rivolge al lettore con \'tu\'.",\n'
-        '  "caption_instagram": "post Instagram di 150-220 caratteri. Formula: citazione + 1 frase di pensiero + riferimento.",\n'
-        '  "caption_whatsapp": "messaggio WhatsApp brevissimo, 30-80 caratteri. Formula: citazione tra caporali + saluto del momento.",\n'
+        '  "pensiero": "una riflessione di 2-4 frasi (60-100 parole) sul Vangelo, in parole TUE. Tono pastorale e diretto, mai astratto. Si rivolge al lettore con \'tu\'. NIENTE versetti tra virgolette « »: il versetto lo aggiunge la pipeline.",\n'
         '  "hashtags": ["array di 4-6 hashtag in italiano lowercase senza il simbolo #"]\n'
         "}\n\n"
         "Rispondi SOLO con il JSON. Niente preamboli, niente markdown wrapper, niente spiegazioni.\n"
@@ -381,7 +397,8 @@ def generate_daily_content(target_date: date) -> dict:
                         data["liturgical_day"] = lit
                     if santo:
                         data["saint_of_day"] = santo
-                result = _fill_gospel_from_luzzi(_validate_and_normalize(data, target_date))
+                result = _assembla_caption_da_luzzi(
+                    _fill_gospel_from_luzzi(_validate_and_normalize(data, target_date)))
 
                 # Controllo di qualità dei contenuti redazionali. I problemi
                 # "veri" (non AVVISO) fanno rigenerare entro il budget di retry;
@@ -558,6 +575,26 @@ def _fill_gospel_from_luzzi(data: dict) -> dict:
             print(f"    ==  gospel_text da Riveduta Luzzi 1925 ({len(testo)} car.)")
         # La quote delle card: Luzzi verbatim, non parafrasi AI.
         data["quote"] = _quote_verbatim_luzzi(data.get("quote"), testo)
+    return data
+
+
+def _assembla_caption_da_luzzi(data: dict) -> dict:
+    """Assembla le caption social da pezzi GIÀ verificati invece di farle scrivere
+    all'LLM: versetto del giorno (quote, Luzzi VERBATIM) + riflessione (pensiero) +
+    riferimento. Così la Scrittura nelle caption non può MAI essere inventata, ed è
+    LA STESSA su tutti i canali (Instagram/Facebook = caption_instagram, WhatsApp =
+    caption_whatsapp, Telegram/in-app = pensiero). Niente versione "breve" separata."""
+    quote = (data.get("quote") or "").strip()
+    pensiero = (data.get("pensiero") or "").strip()
+    ref = (data.get("gospel_reference") or "").strip()
+
+    blocchi = [b for b in (quote, pensiero) if b]
+    testo = "\n\n".join(blocchi)
+    if ref:
+        testo += f"\n\n({ref})"
+
+    data["caption_instagram"] = testo
+    data["caption_whatsapp"] = testo
     return data
 
 
