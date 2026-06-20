@@ -10,7 +10,6 @@ supabase>=2.0.0
 
 # AI
 google-genai>=0.2.0    # pipeline.py + fill_missing.py: contenuti redazionali con Gemini (free tier)
-anthropic>=0.40.0      # solo per il workflow Claude opzionale (disabilitato); pipeline.py usa Gemini
 
 # Image processing
 Pillow>=10.0.0
