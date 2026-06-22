@@ -52,6 +52,14 @@ from dotenv import load_dotenv
 from PIL import Image, ImageDraw, ImageFont, ImageEnhance, ImageOps
 from supabase import create_client, Client
 
+# Resa modernizzata 1:1 della Luzzi per il versetto della card. Se il modulo manca
+# → identità (no-op), così il generatore resta robusto.
+try:
+    from modernizza_luzzi import modernizza_luzzi
+except Exception:  # pragma: no cover
+    def modernizza_luzzi(t):  # type: ignore
+        return t
+
 
 # ------------------------------------------------------------------
 # 1. Configurazione
@@ -1479,7 +1487,10 @@ def process_date(target_date: date, fonts: dict,
         print(f">>  {target_date.isoformat()}: nessun pensiero in DB. Salto.")
         return False
 
-    quote = row["quote"]
+    # Versetto della card: resa modernizzata 1:1 della Luzzi (giudicio→giudizio,
+    # acciocché→affinché…), così rigenerando le card escono già leggibili senza
+    # toccare il DB. Stessa mappa di pipeline.py / lib/luzzi-moderno del web.
+    quote = modernizza_luzzi(row["quote"])
     ref = row["gospel_reference"]
 
     # Season liturgica → mood per la scelta dello sfondo (v4: il template
