@@ -249,6 +249,9 @@ landscapes:
     title: "Vento fresco, mattino chiaro (Fuji Rosso)"
     year: 1831
     moods: [mountain_dawn, sunrise, dawn, mountain]
+    reserve: true   # opera intrinsecamente ROSSA: fuori dal mix quotidiano
+                    # (handoff colore-luce §A3: rosso "raro, mai default").
+                    # Resta come riserva per i temi rossi (Pentecoste/martiri).
     wikimedia_file: "Red_Fuji_southern_wind_clear_morning.jpg"
 
   - slug: hokusai_thunderstorm_fuji
@@ -256,6 +259,7 @@ landscapes:
     title: "Temporale sotto il monte"
     year: 1832
     moods: [mountain, contemplation, evening_quiet]
+    reserve: true   # rosso/nero drammatico: fuori dal mix quotidiano (vedi sopra).
     wikimedia_file: "Lightnings_below_the_summit.jpg"
 
   - slug: homer_breezing_up
