@@ -72,8 +72,12 @@ card_layout:
     opacity: 0.85
     height_pct: 7
 
+  # Tonalizzazione SOLO ai PD. NB: valori DOCUMENTATIVI — i numeri vivi sono le
+  # costanti PD_* in card_generator.py (tonalize_pd). Handoff "colore-luce" §2:
+  # velo bordeaux OFF di default (era 0.35 → "rossore diffuso"), colore naturale
+  # + gradazione calda leggera. Il velo si riaccende solo per i temi rossi.
   tonalization:                       # applicata SOLO ai PD (wikimedia_file)
-    pd:    { desaturate: 0.45, bordeaux_veil_opacity: 0.35 }
+    pd:    { desaturate: 0.08, bordeaux_veil_opacity: 0.0, warm_grade: 0.07 }
     house: { desaturate: 0.0,  bordeaux_veil_opacity: 0.0 }
 
 # ------------------------------------------------------------------------------

@@ -1099,7 +1099,8 @@ def _compose_card_fallback_v2(quote: str, gospel_reference: str, fmt: str,
 # assets/immagini/<base>_<fmt>.png (bande+immagine+keyline+logo bakeati) →
 # qui si disegnano solo data+versetto. PD (`wikimedia_file`) vengono
 # incorniciati a runtime (cover-crop nella finestra + tonalizzazione
-# desaturate 0.45 + velo bordeaux 0.35 + bande/keyline/logo).
+# NATURALE: colore quasi pieno + gradazione calda leggera, velo bordeaux OFF
+# di default — vedi tonalize_pd, handoff "card-generator-colore-luce" §2).
 #
 # La geometria delle bande DEVE combaciare con estendi_verticali_house.py
 # (gli asset HOUSE sono bakeati con questi valori).
@@ -1168,11 +1169,33 @@ def _trim_alpha(img):
     return img.crop(bb) if bb else img
 
 
-def tonalize_pd(art: Image.Image) -> Image.Image:
-    """PD: desaturazione 0.45 + velo bordeaux 0.35 (card_layout.tonalization.pd)."""
-    art = ImageEnhance.Color(art).enhance(1.0 - 0.45)
-    veil = Image.new("RGB", art.size, BORDEAUX)
-    return Image.blend(art, veil, 0.35)
+# Tonalizzazione PD (handoff "card-generator-colore-luce" §2 PRIORITA' A).
+# PRIMA: desaturate 0.45 (quasi grayscale) + velo bordeaux 0.35 su OGNI paesaggio
+# PD → "rossore diffuso": il feed scorreva come una macchia rosso-marrone.
+# ORA: colore NATURALE (la luce la portano le immagini) + una gradazione calda
+# leggera e muta per unita' pittorica. Il velo bordeaux e' OFF di default: si
+# riaccende SOLO per i temi dove il rosso e' giusto (Sacro Cuore, Passione/Triduo,
+# Pentecoste, martiri) alzando PD_BORDEAUX_VEIL o passando veil=... a monte.
+# I valori sono costanti per ritararli senza toccare la logica.
+PD_DESATURATE = 0.08            # era 0.45 → appena percepibile, conserva i colori
+PD_WARM_GRADE = 0.07            # gradazione calda leggera (luce "santino"); 0 = off
+PD_WARM_COLOR = (250, 238, 214) # avorio caldo verso cui spingere la gradazione
+PD_BORDEAUX_VEIL = 0.0          # era 0.35 → velo rosso OFF di default
+
+
+def tonalize_pd(art: Image.Image, veil: float = PD_BORDEAUX_VEIL) -> Image.Image:
+    """PD a colore naturale + gradazione calda leggera (handoff colore-luce §2).
+    `veil` (default 0) = opacita' del velo bordeaux: lasciarlo 0 per il default
+    luminoso; alzarlo solo per i temi 'rossi' (Sacro Cuore/Passione/martiri)."""
+    if PD_DESATURATE > 0:
+        art = ImageEnhance.Color(art).enhance(1.0 - PD_DESATURATE)
+    if PD_WARM_GRADE > 0:
+        warm = Image.new("RGB", art.size, PD_WARM_COLOR)
+        art = Image.blend(art, warm, PD_WARM_GRADE)
+    if veil and veil > 0:
+        bordeaux = Image.new("RGB", art.size, BORDEAUX)
+        art = Image.blend(art, bordeaux, veil)
+    return art
 
 
 def santino_draw_logo(canvas, fmt, fonts, pictograms):
