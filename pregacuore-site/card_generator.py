@@ -1400,6 +1400,182 @@ def compose_card_santino(target_date, quote, ref, fmt, fonts,
 
 
 # ------------------------------------------------------------------
+# 8ter. Sfondi STAGIONALI full-bleed — grandi feste (handoff colore-luce §3)
+# ------------------------------------------------------------------
+# Per le GRANDI FESTE l'immagine dipinta riempie TUTTA la card (niente fascia):
+# versetto centrato su un velo morbido, riquadro-data + logo + Cormorant
+# sovrapposti. Stessa resa dell'in-app (disegnaVersettoPieno) -> coerenza
+# app<->social. E' un trattamento SPECIALE dei giorni di festa: il feed
+# quotidiano resta a fascia (santino). Il match e' DAY-preciso (keyword del
+# liturgical_day/saint_of_day) cosi' l'immagine esce SOLO nel giorno giusto,
+# non per tutta la stagione (preserva la varieta' dei paesaggi).
+#
+# /!\ ROUTING DA VERIFICARE: le keyword vanno confrontate con le stringhe REALI
+# di daily_content.liturgical_day / saint_of_day (verificato_PM / proprieta').
+# Nessun match -> None -> paesaggio normale. Marian-preciso (evita "Maria"
+# nei nomi di santi tipo Maria Goretti/Maddalena: cerca "vergine"/"madonna"/...).
+SEASONAL_DIR = ASSETS_DIR / "stagionali"
+
+# scuro=True  -> testo crema/oro + velo scuro;  False -> bordeaux + velo crema.
+# ty = posizione verticale del versetto (frazione d'altezza), tarata per immagine.
+# L'ORDINE e' la PRIORITA': il primo che matcha vince.
+SEASONAL_BACKGROUNDS = [
+    {"slug": "pentecoste", "file": "pentecoste.png", "scuro": False, "ty": 0.62,
+     "day_any": ["pentecoste"]},
+    {"slug": "natale", "file": "natale.png", "scuro": True, "ty": 0.66,
+     "day_any": ["natale", "natività del signore", "nativita del signore",
+                 "santo natale"]},
+    {"slug": "pasqua", "file": "pasqua.png", "scuro": False, "ty": 0.55,
+     "day_any": ["pasqua di risurrezione", "domenica di pasqua",
+                 "risurrezione del signore", "veglia pasquale", "ottava di pasqua",
+                 "lunedì dell'angelo", "lunedi dell'angelo"]},
+    {"slug": "mariane", "file": "mariane.png", "scuro": False, "ty": 0.55,
+     "day_any": ["immacolata", "assunzione", "annunciazione del signore",
+                 "natività della beata vergine", "maria santissima madre di dio",
+                 "beata vergine maria"],
+     "saint_any": ["beata vergine", "madonna", "madre di dio", "nostra signora",
+                   "immacolata", "assunta", "addolorata", "maria ausiliatrice",
+                   "del rosario", "del carmelo", "di lourdes", "di fatima",
+                   "di guadalupe"]},
+    {"slug": "festa", "file": "festa.png", "scuro": False, "ty": 0.70,
+     "day_any": ["santissima trinità", "santissima trinita", "corpus domini",
+                 "santissimo corpo e sangue", "cristo re", "ascensione del signore",
+                 "trasfigurazione", "epifania del signore"]},
+    {"slug": "sobria", "file": "sobria.png", "scuro": True, "ty": 0.62,
+     "day_any": ["commemorazione di tutti i fedeli defunti", "tutti i fedeli defunti",
+                 "venerdì santo", "venerdi santo", "mercoledì delle ceneri",
+                 "mercoledi delle ceneri"]},
+]
+
+
+def select_seasonal_background(row: dict):
+    """Sfondo full-bleed per il giorno (match DAY-preciso su liturgical_day /
+    saint_of_day) o None. Solo se il PNG esiste. Vedi nota ROUTING sopra."""
+    day = (row.get("liturgical_day") or "").lower()
+    saint = (row.get("saint_of_day") or "").lower()
+    for sb in SEASONAL_BACKGROUNDS:
+        hit = any(k in day for k in sb.get("day_any", [])) or \
+              any(k in saint for k in sb.get("saint_any", []))
+        if hit and (SEASONAL_DIR / sb["file"]).exists():
+            return sb
+    return None
+
+
+def _radial_veil(W, H, cx, cy, radius, color_rgb, a0):
+    """Velo radiale (alpha a0 al centro -> 0 al raggio). PIL puro: ellissi
+    concentriche dall'esterno verso l'interno (le piu' piccole, piu' opache,
+    coprono per ultime)."""
+    alpha = Image.new("L", (W, H), 0)
+    d = ImageDraw.Draw(alpha)
+    steps = 72
+    for i in range(steps, 0, -1):
+        r = radius * i / steps
+        av = int(a0 * 255 * (1 - i / steps))
+        d.ellipse([cx - r, cy - r, cx + r, cy + r], fill=av)
+    veil = Image.new("RGB", (W, H), color_rgb)
+    veil.putalpha(alpha)
+    return veil
+
+
+def _seasonal_logo(canvas, fonts, pictograms, W, H, color):
+    """Logo (pittogramma + wordmark) in basso a destra, nel colore dato.
+    Su fondo scuro usa il pittogramma crema, su chiaro quello bordeaux."""
+    pictograms = pictograms or {}
+    is_cream = (color == CREAM)
+    pit = pictograms.get("pictogram_cream" if is_cream else "pictogram_bordeaux")
+    margin = round(0.05 * W)
+    logo_h = round(0.052 * W)
+    word = "pregacuore"
+    draw = ImageDraw.Draw(canvas)
+    font = _sized_font(fonts["cormorant_medium"], round(logo_h * 1.25), 600)
+    wbb = draw.textbbox((0, 0), word, font=font)
+    word_w = wbb[2] - wbb[0]
+    pic_w = gap = 0
+    pic = None
+    if pit is not None:
+        pit = _trim_alpha(pit)
+        pic_w = round(pit.size[0] * (logo_h / pit.size[1]))
+        pic = pit.resize((pic_w, logo_h), Image.LANCZOS)
+        gap = round(logo_h * 0.32)
+    total_w = pic_w + gap + word_w
+    x0 = W - margin - total_w
+    cy = H - margin - logo_h // 2
+    if pic is not None:
+        canvas.paste(pic, (x0, cy - logo_h // 2), pic)
+    draw.text((x0 + pic_w + gap - wbb[0], cy - (wbb[3] + wbb[1]) // 2),
+              word, font=font, fill=color)
+
+
+def compose_card_seasonal(target_date, quote, ref, fmt, fonts, pictograms, sb):
+    """Card STAGIONALE full-bleed per un formato (post/story/pinterest).
+    Immagine intera + velo radiale + riquadro-data + versetto centrato + logo."""
+    L = SANTINO_LAYOUT[fmt]
+    W, H = L["W"], L["H"]
+    scuro = bool(sb.get("scuro", False))
+    ty = float(sb.get("ty", 0.62))
+
+    src = Image.open(SEASONAL_DIR / sb["file"]).convert("RGB")
+    canvas = _cover(src, W, H).convert("RGB")
+
+    # Velo radiale morbido dietro al testo (carico al centro, sfuma ai bordi).
+    veil = _radial_veil(
+        W, H, W // 2, int(H * ty), int(W * 0.82),
+        (28, 8, 9) if scuro else (245, 236, 216),
+        0.62 if scuro else 0.80,
+    )
+    canvas = Image.alpha_composite(canvas.convert("RGBA"), veil).convert("RGB")
+    draw = ImageDraw.Draw(canvas)
+
+    COL = CREAM if scuro else BORDEAUX
+    COL_REF = (231, 210, 173) if scuro else BORDEAUX_TENUE
+
+    # Riquadro data in alto a sinistra (keyline oro).
+    bs = round(W * 0.145)
+    inset = round(W * 0.04)
+    draw.rectangle([inset, inset, inset + bs, inset + bs],
+                   outline=GOLD_FRAME, width=max(2, round(W * 0.003)))
+    day = str(target_date.day)
+    mese_anno = f"{MESI_IT[target_date.month - 1]} {target_date.year}"
+    cx_box = inset + bs / 2
+    nf = _fit_height(fonts["cormorant_medium"], day, round(bs * 0.40), weight=600)
+    nb = nf.getbbox(day)
+    draw.text((cx_box - (nb[2] - nb[0]) / 2 - nb[0], inset + bs * 0.30 - nb[1]),
+              day, font=nf, fill=COL)
+    mf = _fit_width(fonts["cormorant_medium"], mese_anno, bs * 0.84,
+                    round(bs * 0.165), weight=600)
+    mbb = mf.getbbox(mese_anno)
+    draw.text((cx_box - (mbb[2] - mbb[0]) / 2 - mbb[0], inset + bs * 0.66),
+              mese_anno, font=mf, fill=COL)
+
+    # Versetto centrato (su ty) + riferimento sotto.
+    cx = W // 2
+    max_w = W * 0.84
+    psize = round(W * 0.058)
+    v_font = _sized_font(fonts["cormorant_italic"], psize)
+    lines = wrap_text(quote.strip(), v_font, max_w)
+    while len(lines) > 5 and psize > W * 0.036:
+        psize -= 4
+        v_font = _sized_font(fonts["cormorant_italic"], psize)
+        lines = wrap_text(quote.strip(), v_font, max_w)
+    lh = round(psize * 1.3)
+    ref_size = round(W * 0.026)
+    r_font = _sized_font(fonts["cormorant_italic"], ref_size)
+    block_h = len(lines) * lh + (round(ref_size * 1.9) if ref else 0)
+    y = round(H * ty - block_h / 2)
+    for ln in lines:
+        lw = v_font.getlength(ln)
+        draw.text((cx - lw / 2, y), ln, font=v_font, fill=COL)
+        y += lh
+    if ref:
+        rtext = f"— {ref}"
+        rw = r_font.getlength(rtext)
+        draw.text((cx - rw / 2, y + round(ref_size * 0.5)), rtext, font=r_font, fill=COL_REF)
+
+    _seasonal_logo(canvas, fonts, pictograms, W, H, COL)
+    return canvas
+
+
+# ------------------------------------------------------------------
 # 9. Lettura/scrittura Supabase
 # ------------------------------------------------------------------
 def get_supabase() -> Client:
@@ -1520,10 +1696,17 @@ def process_date(target_date: date, fonts: dict,
     # giorno-settimana non incide piu' sul look, la card-santino e' unica)
     season = derive_season_from_row(row, target_date)
 
+    # GRANDI FESTE: sfondo stagionale full-bleed (Natale/Pasqua/Pentecoste/
+    # mariane/feste del Signore/giorni sobri). Ha PRIORITA' sul paesaggio: nel
+    # giorno della festa la card e' il dipinto a tutta tela, non il santino.
+    seasonal = select_seasonal_background(row) if use_landscape else None
+
     # Selezione ENTRY del manifest (HOUSE o PD), deterministica sulla data
     entry = None
     origin = "neutro (fallback bordeaux)"
-    if use_landscape:
+    if seasonal:
+        origin = f"stagionale full-bleed: {seasonal['slug']}"
+    elif use_landscape:
         entry = select_entry_for_day(target_date, season, palette, landscape_manifest)
         if entry:
             tipo = "house" if entry.get("local_file") else "pd"
@@ -1532,13 +1715,19 @@ def process_date(target_date: date, fonts: dict,
     print(f">>  {target_date.isoformat()} [{season}] - {origin}")
     print(f"    {quote[:80]}{'...' if len(quote) > 80 else ''}")
 
-    # Genero le 3 card-santino (post, story, pinterest)
+    # Genero le 3 card (post, story, pinterest): full-bleed stagionale se la
+    # festa lo richiede, altrimenti la card-santino a fascia.
     images = {}
     for fmt in ("post", "story", "pinterest"):
-        kind, src_path = santino_resolve_source(entry, fmt)
-        images[fmt] = compose_card_santino(
-            target_date, quote, ref, fmt, fonts, kind, src_path, pictograms
-        )
+        if seasonal:
+            images[fmt] = compose_card_seasonal(
+                target_date, quote, ref, fmt, fonts, pictograms, seasonal
+            )
+        else:
+            kind, src_path = santino_resolve_source(entry, fmt)
+            images[fmt] = compose_card_santino(
+                target_date, quote, ref, fmt, fonts, kind, src_path, pictograms
+            )
 
     # Salvataggio locale: PNG + JPEG per ciascun formato
     local_paths = {}
