@@ -35,7 +35,8 @@ from datetime import date, datetime, timedelta, timezone
 from typing import Optional
 
 from dotenv import load_dotenv
-import anthropic
+from google import genai
+from google.genai import types
 from supabase import create_client, Client
 
 
@@ -44,15 +45,11 @@ from supabase import create_client, Client
 # ------------------------------------------------------------------
 load_dotenv()
 
-# I contenuti redazionali (pensiero/quote/caption/hashtag) li genera CLAUDE,
-# non più Gemini: niente tetto giornaliero free, qualità più alta, stesso
-# ecosistema. Il Vangelo (riferimento + testo), il giorno liturgico e il santo
-# restano DETERMINISTICI (lezionario + Luzzi + calendario): l'LLM non li sceglie.
-ANTHROPIC_API_KEY = os.environ["ANTHROPIC_API_KEY"]
+GEMINI_API_KEY = os.environ["GEMINI_API_KEY"]
 SUPABASE_URL = os.environ["SUPABASE_URL"]
 SUPABASE_SERVICE_KEY = os.environ["SUPABASE_SERVICE_KEY"]
 
-MODEL_NAME = "claude-haiku-4-5"
+MODEL_NAME = "gemini-2.5-flash"
 BATCH_DELAY_SECONDS = 5
 
 # gospel_text NON è più generato dall'AI: viene preso dal testo REALE della
@@ -125,6 +122,24 @@ Importante sul copyright:
 - Per il testo del Vangelo, usa SOLO la versione Riveduta Luzzi 1925 (pubblico
   dominio mondiale) oppure una parafrasi originale, secondo le istruzioni che ti darò.
 
+REGISTRO E LINGUA (vincolo assoluto)
+- Scrivi in italiano contemporaneo, caldo e pastorale, per una donna devota di 68 anni ("Maria").
+  Voce di Pregacuore: un parroco di paese che le vuole bene. Sempre "tu" singolare.
+  Mai plurale maiestatico, mai tono aziendale, mai paternalistico.
+- Frasi brevi e piane. Niente parole arcaiche o letterarie. SONO VIETATE in modo assoluto
+  (e ogni altra forma simile): primieramente, quivi, quinci, perciocché, imperocché,
+  conciossiaché, laonde, eziandio, allorquando, testé, uopo, codesto/codesta, costui/costei/costoro.
+  Usa le forme di oggi: prima/anzitutto, lì/là, perché, e così, anche, quando, questo/quello,
+  lui/lei/loro.
+- Il commento NON è la Scrittura: non deve mai imitarne il registro né "suonare antico".
+
+SCRITTURA = SOLO LUZZI, MAI GENERATA DA TE (vincolo assoluto)
+- Tu scrivi SOLO la riflessione (pensiero), in parole tue. NON citare e NON parafrasare
+  versetti biblici di tua iniziativa, e NON inserire alcuna frase tra virgolette « » nel pensiero.
+- Il versetto del giorno (Riveduta Luzzi 1925) lo aggiunge la pipeline in automatico, all'inizio
+  delle caption e sull'immagine della card: non devi riportarlo, riformularlo né inventarne un altro.
+- Non scrivere versetti a memoria: sbaglieresti le parole (registro arcaico, versione diversa da Luzzi).
+
 Niente disclaimer, niente "io penso che", niente "ricordiamo che". Vai dritto al senso.
 """
 
@@ -174,8 +189,8 @@ def _build_user_prompt(target_date: date, weekday_it: str, gospel_mode: str,
             "riportali NEL JSON IDENTICI, non cercarli e non cambiarli.\n"
             + "\n".join(fissi) + "\n\n"
             f"Il tuo compito e' generare SOLO i contenuti redazionali (quote, pensiero, "
-            f"caption_instagram, caption_whatsapp, hashtags), riferiti ESATTAMENTE al "
-            f"brano {gospel_ref}.\n\n"
+            f"hashtags), riferiti ESATTAMENTE al brano {gospel_ref}. Le caption social NON "
+            f"le scrivi tu: le assembla la pipeline (versetto Luzzi + pensiero + riferimento).\n\n"
         )
         gospel_reference_field = f'  "gospel_reference": "{gospel_ref}",'
     else:
@@ -199,9 +214,7 @@ def _build_user_prompt(target_date: date, weekday_it: str, gospel_mode: str,
         '  "liturgical_day": "es. \'Sabato V settimana di Pasqua\', \'IV Domenica di Avvento\'. Sempre presente.",\n'
         '  "saint_of_day": "OBBLIGATORIO, mai null. Il santo o la memoria liturgica del giorno secondo il martirologio romano italiano. Esempi: \'Santa Caterina da Siena\', \'San Pio da Pietrelcina, sacerdote\', \'Beata Vergine Maria di Fatima\'. Se e\' una feria senza memoria specifica, scrivi il tempo liturgico: \'Feria del Tempo Pasquale\', \'Feria del Tempo di Avvento\', \'Feria del Tempo Ordinario\'. MAI restituire null o stringa vuota.",\n'
         '  "quote": "una citazione brevissima del Vangelo, max 60 caratteri, racchiusa in caporali. Puo\' essere una frase chiave parafrasata se serve evitare verbatim CEI.",\n'
-        '  "pensiero": "una riflessione di 2-4 frasi (60-100 parole) sul Vangelo. Tono pastorale e diretto, mai astratto. Si rivolge al lettore con \'tu\'.",\n'
-        '  "caption_instagram": "post Instagram di 150-220 caratteri. Formula: citazione + 1 frase di pensiero + riferimento.",\n'
-        '  "caption_whatsapp": "messaggio WhatsApp brevissimo, 30-80 caratteri. Formula: citazione tra caporali + saluto del momento.",\n'
+        '  "pensiero": "una riflessione di 2-4 frasi (60-100 parole) sul Vangelo, in parole TUE. Tono pastorale e diretto, mai astratto. Si rivolge al lettore con \'tu\'. NIENTE versetti tra virgolette « »: il versetto lo aggiunge la pipeline.",\n'
         '  "hashtags": ["array di 4-6 hashtag in italiano lowercase senza il simbolo #"]\n'
         "}\n\n"
         "Rispondi SOLO con il JSON. Niente preamboli, niente markdown wrapper, niente spiegazioni.\n"
@@ -234,32 +247,77 @@ from qualita import valida_contenuto
 def _generate_attempt(target_date: date, weekday_it: str, gospel_mode: str,
                       use_search: bool = True, gospel_ref: Optional[str] = None,
                       lit: Optional[str] = None, santo: Optional[str] = None) -> dict:
-    """Un tentativo di generazione con Claude. Chiede SOLO i contenuti
-    redazionali (pensiero/quote/caption/hashtag) attorno al brano già fissato dal
-    lezionario; il Vangelo/giorno liturgico/santo sono iniettati nel prompt e poi
-    sovrascritti dai valori deterministici. `use_search` è ignorato (Claude non
-    usa grounding qui: il riferimento è già certo). Solleva ValueError su risposta
-    vuota/rifiuto per far scattare il retry."""
+    """Un tentativo di generazione con un certo gospel_mode. Solleva
+    RecitationBlocked se il modello blocca per copyright.
 
-    client = anthropic.Anthropic()  # legge ANTHROPIC_API_KEY dall'ambiente
+    `use_search=False` disabilita il google_search grounding: utile
+    sui retry, dove il grounding e' la causa principale di "Risposta
+    vuota" e di output 'tool_code' anziche' JSON.
+
+    `gospel_ref` (dal lezionario) viene iniettato nel prompt: Gemini non
+    deve più cercare il riferimento, solo scriverci sopra i contenuti.
+    """
+
+    client = genai.Client(api_key=GEMINI_API_KEY)
     prompt = _build_user_prompt(target_date, weekday_it, gospel_mode, gospel_ref, lit, santo)
 
-    response = client.messages.create(
+    config_kwargs = {
+        "system_instruction": SYSTEM_INSTRUCTION,
+        "temperature": 0.7,
+    }
+    if use_search:
+        config_kwargs["tools"] = [types.Tool(google_search=types.GoogleSearch())]
+    else:
+        # Senza grounding richiediamo esplicitamente JSON come response format,
+        # cosi' Gemini non si sbizzarrisce con codice o markdown.
+        config_kwargs["response_mime_type"] = "application/json"
+
+    config = types.GenerateContentConfig(**config_kwargs)
+
+    response = client.models.generate_content(
         model=MODEL_NAME,
-        max_tokens=2000,
-        system=SYSTEM_INSTRUCTION,
-        messages=[{"role": "user", "content": prompt}],
+        contents=prompt,
+        config=config,
     )
 
-    if response.stop_reason == "refusal":
-        raise ValueError("Risposta vuota. Claude ha rifiutato (refusal).")
+    # Diagnostica finish_reason
+    if response.candidates:
+        finish = response.candidates[0].finish_reason
+        finish_str = str(finish)
 
-    raw_text = "".join(
-        b.text for b in response.content if getattr(b, "type", None) == "text"
-    ).strip()
+        # RECITATION: il modello ha bloccato per copyright
+        if "RECITATION" in finish_str:
+            raise RecitationBlocked(
+                f"Bloccato da Gemini per RECITATION (mode='{gospel_mode}')"
+            )
+
+        # Altri finish_reason problematici
+        if "SAFETY" in finish_str:
+            raise RuntimeError(f"Bloccato da safety filter: {finish_str}")
+        if "MAX_TOKENS" in finish_str:
+            raise RuntimeError("Output troncato (MAX_TOKENS).")
+
+    # Estrai testo (response.text può sollevare ValueError in alcune versioni SDK
+    # quando i parts includono thought-blocks o grounding metadata)
+    raw_text = None
+    try:
+        if response.text is not None:
+            raw_text = response.text.strip()
+    except (ValueError, AttributeError):
+        pass
+
+    if not raw_text and response.candidates and response.candidates[0].content and response.candidates[0].content.parts:
+        raw_text = "".join(
+            part.text for part in response.candidates[0].content.parts
+            if hasattr(part, "text") and part.text
+        ).strip()
 
     if not raw_text:
-        raise ValueError(f"Risposta vuota. stop_reason: {response.stop_reason}")
+        finish = (
+            response.candidates[0].finish_reason
+            if response.candidates else "nessun candidato"
+        )
+        raise ValueError(f"Risposta vuota. Finish reason: {finish}")
 
     # Sgrosso markdown wrapper
     if raw_text.startswith("```"):
@@ -381,7 +439,8 @@ def generate_daily_content(target_date: date) -> dict:
                         data["liturgical_day"] = lit
                     if santo:
                         data["saint_of_day"] = santo
-                result = _fill_gospel_from_luzzi(_validate_and_normalize(data, target_date))
+                result = _assembla_caption_da_luzzi(
+                    _fill_gospel_from_luzzi(_validate_and_normalize(data, target_date)))
 
                 # Controllo di qualità dei contenuti redazionali. I problemi
                 # "veri" (non AVVISO) fanno rigenerare entro il budget di retry;
@@ -558,6 +617,26 @@ def _fill_gospel_from_luzzi(data: dict) -> dict:
             print(f"    ==  gospel_text da Riveduta Luzzi 1925 ({len(testo)} car.)")
         # La quote delle card: Luzzi verbatim, non parafrasi AI.
         data["quote"] = _quote_verbatim_luzzi(data.get("quote"), testo)
+    return data
+
+
+def _assembla_caption_da_luzzi(data: dict) -> dict:
+    """Assembla le caption social da pezzi GIÀ verificati invece di farle scrivere
+    all'LLM: versetto del giorno (quote, Luzzi VERBATIM) + riflessione (pensiero) +
+    riferimento. Così la Scrittura nelle caption non può MAI essere inventata, ed è
+    LA STESSA su tutti i canali (Instagram/Facebook = caption_instagram, WhatsApp =
+    caption_whatsapp, Telegram/in-app = pensiero). Niente versione "breve" separata."""
+    quote = (data.get("quote") or "").strip()
+    pensiero = (data.get("pensiero") or "").strip()
+    ref = (data.get("gospel_reference") or "").strip()
+
+    blocchi = [b for b in (quote, pensiero) if b]
+    testo = "\n\n".join(blocchi)
+    if ref:
+        testo += f"\n\n({ref})"
+
+    data["caption_instagram"] = testo
+    data["caption_whatsapp"] = testo
     return data
 
 
