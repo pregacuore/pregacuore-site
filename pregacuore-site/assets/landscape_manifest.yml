@@ -72,8 +72,12 @@ card_layout:
     opacity: 0.85
     height_pct: 7
 
+  # Tonalizzazione SOLO ai PD. NB: valori DOCUMENTATIVI — i numeri vivi sono le
+  # costanti PD_* in card_generator.py (tonalize_pd). Handoff "colore-luce" §2:
+  # velo bordeaux OFF di default (era 0.35 → "rossore diffuso"), colore naturale
+  # + gradazione calda leggera. Il velo si riaccende solo per i temi rossi.
   tonalization:                       # applicata SOLO ai PD (wikimedia_file)
-    pd:    { desaturate: 0.45, bordeaux_veil_opacity: 0.35 }
+    pd:    { desaturate: 0.08, bordeaux_veil_opacity: 0.0, warm_grade: 0.07 }
     house: { desaturate: 0.0,  bordeaux_veil_opacity: 0.0 }
 
 # ------------------------------------------------------------------------------
@@ -245,6 +249,9 @@ landscapes:
     title: "Vento fresco, mattino chiaro (Fuji Rosso)"
     year: 1831
     moods: [mountain_dawn, sunrise, dawn, mountain]
+    reserve: true   # opera intrinsecamente ROSSA: fuori dal mix quotidiano
+                    # (handoff colore-luce §A3: rosso "raro, mai default").
+                    # Resta come riserva per i temi rossi (Pentecoste/martiri).
     wikimedia_file: "Red_Fuji_southern_wind_clear_morning.jpg"
 
   - slug: hokusai_thunderstorm_fuji
@@ -252,6 +259,7 @@ landscapes:
     title: "Temporale sotto il monte"
     year: 1832
     moods: [mountain, contemplation, evening_quiet]
+    reserve: true   # rosso/nero drammatico: fuori dal mix quotidiano (vedi sopra).
     wikimedia_file: "Lightnings_below_the_summit.jpg"
 
   - slug: homer_breezing_up
