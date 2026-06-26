@@ -35,7 +35,8 @@ from datetime import date, datetime, timedelta, timezone
 from typing import Optional
 
 from dotenv import load_dotenv
-import anthropic
+from google import genai
+from google.genai import types
 from supabase import create_client, Client
 
 
@@ -44,15 +45,11 @@ from supabase import create_client, Client
 # ------------------------------------------------------------------
 load_dotenv()
 
-# I contenuti redazionali (pensiero/quote/caption/hashtag) li genera CLAUDE,
-# non più Gemini: niente tetto giornaliero free, qualità più alta, stesso
-# ecosistema. Il Vangelo (riferimento + testo), il giorno liturgico e il santo
-# restano DETERMINISTICI (lezionario + Luzzi + calendario): l'LLM non li sceglie.
-ANTHROPIC_API_KEY = os.environ["ANTHROPIC_API_KEY"]
+GEMINI_API_KEY = os.environ["GEMINI_API_KEY"]
 SUPABASE_URL = os.environ["SUPABASE_URL"]
 SUPABASE_SERVICE_KEY = os.environ["SUPABASE_SERVICE_KEY"]
 
-MODEL_NAME = "claude-haiku-4-5"
+MODEL_NAME = "gemini-2.5-flash"
 BATCH_DELAY_SECONDS = 5
 
 # gospel_text NON è più generato dall'AI: viene preso dal testo REALE della
@@ -234,32 +231,77 @@ from qualita import valida_contenuto
 def _generate_attempt(target_date: date, weekday_it: str, gospel_mode: str,
                       use_search: bool = True, gospel_ref: Optional[str] = None,
                       lit: Optional[str] = None, santo: Optional[str] = None) -> dict:
-    """Un tentativo di generazione con Claude. Chiede SOLO i contenuti
-    redazionali (pensiero/quote/caption/hashtag) attorno al brano già fissato dal
-    lezionario; il Vangelo/giorno liturgico/santo sono iniettati nel prompt e poi
-    sovrascritti dai valori deterministici. `use_search` è ignorato (Claude non
-    usa grounding qui: il riferimento è già certo). Solleva ValueError su risposta
-    vuota/rifiuto per far scattare il retry."""
+    """Un tentativo di generazione con un certo gospel_mode. Solleva
+    RecitationBlocked se il modello blocca per copyright.
 
-    client = anthropic.Anthropic()  # legge ANTHROPIC_API_KEY dall'ambiente
+    `use_search=False` disabilita il google_search grounding: utile
+    sui retry, dove il grounding e' la causa principale di "Risposta
+    vuota" e di output 'tool_code' anziche' JSON.
+
+    `gospel_ref` (dal lezionario) viene iniettato nel prompt: Gemini non
+    deve più cercare il riferimento, solo scriverci sopra i contenuti.
+    """
+
+    client = genai.Client(api_key=GEMINI_API_KEY)
     prompt = _build_user_prompt(target_date, weekday_it, gospel_mode, gospel_ref, lit, santo)
 
-    response = client.messages.create(
+    config_kwargs = {
+        "system_instruction": SYSTEM_INSTRUCTION,
+        "temperature": 0.7,
+    }
+    if use_search:
+        config_kwargs["tools"] = [types.Tool(google_search=types.GoogleSearch())]
+    else:
+        # Senza grounding richiediamo esplicitamente JSON come response format,
+        # cosi' Gemini non si sbizzarrisce con codice o markdown.
+        config_kwargs["response_mime_type"] = "application/json"
+
+    config = types.GenerateContentConfig(**config_kwargs)
+
+    response = client.models.generate_content(
         model=MODEL_NAME,
-        max_tokens=2000,
-        system=SYSTEM_INSTRUCTION,
-        messages=[{"role": "user", "content": prompt}],
+        contents=prompt,
+        config=config,
     )
 
-    if response.stop_reason == "refusal":
-        raise ValueError("Risposta vuota. Claude ha rifiutato (refusal).")
+    # Diagnostica finish_reason
+    if response.candidates:
+        finish = response.candidates[0].finish_reason
+        finish_str = str(finish)
 
-    raw_text = "".join(
-        b.text for b in response.content if getattr(b, "type", None) == "text"
-    ).strip()
+        # RECITATION: il modello ha bloccato per copyright
+        if "RECITATION" in finish_str:
+            raise RecitationBlocked(
+                f"Bloccato da Gemini per RECITATION (mode='{gospel_mode}')"
+            )
+
+        # Altri finish_reason problematici
+        if "SAFETY" in finish_str:
+            raise RuntimeError(f"Bloccato da safety filter: {finish_str}")
+        if "MAX_TOKENS" in finish_str:
+            raise RuntimeError("Output troncato (MAX_TOKENS).")
+
+    # Estrai testo (response.text può sollevare ValueError in alcune versioni SDK
+    # quando i parts includono thought-blocks o grounding metadata)
+    raw_text = None
+    try:
+        if response.text is not None:
+            raw_text = response.text.strip()
+    except (ValueError, AttributeError):
+        pass
+
+    if not raw_text and response.candidates and response.candidates[0].content and response.candidates[0].content.parts:
+        raw_text = "".join(
+            part.text for part in response.candidates[0].content.parts
+            if hasattr(part, "text") and part.text
+        ).strip()
 
     if not raw_text:
-        raise ValueError(f"Risposta vuota. stop_reason: {response.stop_reason}")
+        finish = (
+            response.candidates[0].finish_reason
+            if response.candidates else "nessun candidato"
+        )
+        raise ValueError(f"Risposta vuota. Finish reason: {finish}")
 
     # Sgrosso markdown wrapper
     if raw_text.startswith("```"):
