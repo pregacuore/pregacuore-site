@@ -75,16 +75,9 @@ jobs:
           SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
         run: python pipeline.py ${{ steps.date_param.outputs.param }}
 
-      - name: Genera card Instagram (post + story)
-        env:
-          SUPABASE_URL:         ${{ secrets.SUPABASE_URL }}
-          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
-          R2_ENDPOINT:          ${{ secrets.R2_ENDPOINT }}
-          R2_ACCESS_KEY_ID:     ${{ secrets.R2_ACCESS_KEY_ID }}
-          R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
-          R2_BUCKET_NAME:       ${{ secrets.R2_BUCKET_NAME }}
-          R2_PUBLIC_URL:        ${{ secrets.R2_PUBLIC_URL }}
-        run: python card_generator.py ${{ steps.date_param.outputs.param }}
+      # Card social STACCATE (15/08/2026, decisione PM): non si pubblicano piu' e
+      # nessuno le leggeva — ne' l'app ne' i reel. Generarle costava tempo di CI e
+      # riempiva lo storage. Per rifarle a mano resta il workflow Regenerate Cards.
 
       - name: Riepilogo
         if: always()
