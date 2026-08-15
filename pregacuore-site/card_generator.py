@@ -1613,8 +1613,48 @@ def fetch_daily_row(supabase: Client, target_date: date) -> Optional[dict]:
     return res.data[0]
 
 
+# --- Cloudflare R2 -----------------------------------------------------------
+# Le card sono output di pubblicazione (le legge Make, non l'app) e riempivano la
+# quota Storage di Supabase, che una volta sfondata blocca l'INTERO progetto con 402
+# (app compresa). Se i secret R2 ci sono si carica li'; altrimenti si ripiega su
+# Supabase, cosi' un secret mancante non ferma la generazione notturna.
+R2_ENDPOINT = os.environ.get("R2_ENDPOINT", "")
+R2_KEY_ID = os.environ.get("R2_ACCESS_KEY_ID", "")
+R2_SECRET = os.environ.get("R2_SECRET_ACCESS_KEY", "")
+R2_BUCKET = os.environ.get("R2_BUCKET_NAME", "pregacuore-media")
+R2_PUBLIC = os.environ.get("R2_PUBLIC_URL", "").rstrip("/")
+_r2_cache = None
+
+
+def r2_client():
+    """Client S3 per R2, o None se non configurato / boto3 assente."""
+    global _r2_cache
+    if _r2_cache is not None:
+        return _r2_cache or None
+    if not (R2_ENDPOINT and R2_KEY_ID and R2_SECRET and R2_PUBLIC):
+        _r2_cache = False
+        return None
+    try:
+        import boto3
+        from botocore.config import Config
+        _r2_cache = boto3.client(
+            "s3", endpoint_url=R2_ENDPOINT, aws_access_key_id=R2_KEY_ID,
+            aws_secret_access_key=R2_SECRET, region_name="auto",
+            config=Config(signature_version="s3v4", retries={"max_attempts": 5}))
+    except Exception as e:
+        print(f"!!  R2 non disponibile ({e}); uso Supabase Storage.")
+        _r2_cache = False
+        return None
+    return _r2_cache
+
+
 def upload_card(supabase: Client, png_bytes: bytes, key: str,
                 content_type: str = "image/png") -> str:
+    s3 = r2_client()
+    if s3 is not None:
+        s3.put_object(Bucket=R2_BUCKET, Key=f"{BUCKET}/{key}", Body=png_bytes,
+                      ContentType=content_type, CacheControl="public, max-age=86400")
+        return f"{R2_PUBLIC}/{BUCKET}/{key}"
     storage = supabase.storage.from_(BUCKET)
     try:
         storage.upload(

@@ -17,3 +17,6 @@ cairosvg>=2.7.0
 
 # Config / serialization
 PyYAML>=6.0
+
+# Storage delle card: Cloudflare R2 (S3-compatible)
+boto3>=1.34
